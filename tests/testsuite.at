@@ -1,0 +1,16 @@
+# Process with autom4te to create an -*- Autotest -*- test suite.
+
+# https://www.gnu.org/software/autoconf/manual/autoconf.html#Using-Autotest
+# https://www.lrde.epita.fr/~tiger/doc/gnuprog2/Simple-Uses-of-Autotest.html
+# autom4te -l autotest testsuite.at -o testsuite
+
+m4_define([AT_PACKAGE_STRING],    [GNU Programming 2])
+m4_define([AT_PACKAGE_BUGREPORT], [gnuprog2-devel@sourceforge.org])
+
+AT_INIT([Standard Options: 1])
+
+AT_SETUP([Standard Options])
+AT_CHECK([m4 --version], [], [ignore])
+AT_CHECK([m4 --version], [], [ignore])
+AT_CLEANUP
+

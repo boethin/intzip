@@ -10,14 +10,14 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 LT_INIT
 
+AC_CONFIG_TESTDIR([tests])
+
 # Checks for programs.
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 
 AC_LANG([C++])
-
-AC_SUBST([AM_CXXFLAGS], [-Wall])
 
 # Checks for libraries.
 
@@ -31,6 +31,7 @@ AC_HEADER_STDC
 AC_CONFIG_FILES([Makefile
 	lib/Makefile
 	src/Makefile
-  tests/Makefile])
+  tests/Makefile
+  tests/atlocal])
 AC_OUTPUT
 
