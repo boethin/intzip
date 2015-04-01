@@ -1,4 +1,6 @@
 #!/bin/bash
+# clean up everything
+# run 'autoreconf -isvf' then
 rm -vf config.guess config.h config.h.in~ config.log config.status config.sub configure
 rm -vf aclocal.m4 depcomp libtool stamp-h1 appxLogFile.log ltmain.sh install-sh missing compile test-driver
 rm -vfr autom4te.cache
