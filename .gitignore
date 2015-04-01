@@ -18,6 +18,7 @@ Makefile.in
 .deps/
 *.l[ao]
 *.o
+*.trs
 *~
 
 src/intzip
