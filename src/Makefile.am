@@ -1,7 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-
-AM_CPPFLAGS = $(all_includes)
-AM_CXXFLAGS = -I$(top_srcdir)/include
+AM_CXXFLAGS = $(all_includes) -I$(top_srcdir)/include
 
 bin_PROGRAMS = intzip
 intzip_SOURCES = main.cpp io.cpp
