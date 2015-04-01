@@ -1,3 +1,4 @@
+INSTALL
 Makefile
 Makefile.in
 /aclocal.m4
@@ -21,5 +22,14 @@ Makefile.in
 *.trs
 *~
 
-src/intzip
+lib/*
+src/*
+tests/*
+
+!Makefile.am
+!src/*.cpp
+!lib/*.cpp
+!tests/*.cpp
+!tests/*.pl
+
 
