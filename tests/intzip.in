@@ -1,0 +1,4 @@
+#! @SHELL@
+# @configure_input@
+exec '@abs_top_builddir@/src/intzip' ${1+"$@"}
+

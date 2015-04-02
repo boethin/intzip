@@ -28,6 +28,8 @@ AC_HEADER_STDC
 
 # Checks for library functions.
 
+AC_CONFIG_FILES([tests/intzip], [chmod +x tests/intzip])
+
 AC_CONFIG_FILES([
 	Makefile
 	lib/Makefile

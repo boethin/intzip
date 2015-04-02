@@ -33,5 +33,9 @@ tests/*
 !src/*.cpp
 !lib/*.cpp
 !tests/*.at
-!tests/atlocal.in
+!tests/*.in
+
+# ... but still this:
+tests/Makefile.in
+
 
