@@ -4,12 +4,12 @@
 # https://www.lrde.epita.fr/~tiger/doc/gnuprog2/Simple-Uses-of-Autotest.html
 # autom4te -l autotest testsuite.at -o testsuite
 
-m4_define([AT_PACKAGE_STRING],    [GNU Programming 2])
-m4_define([AT_PACKAGE_BUGREPORT], [gnuprog2-devel@sourceforge.org])
+# m4_define([AT_PACKAGE_STRING],    [GNU Programming 2])
+# m4_define([AT_PACKAGE_BUGREPORT], [gnuprog2-devel@sourceforge.org])
 
-AT_INIT([Standard Options: 1])
+AT_INIT([intzip: 1])
 
-AT_SETUP([Standard Options])
+AT_SETUP([intzip])
 AT_CHECK([m4 --version], [], [ignore])
 AT_CLEANUP
 
