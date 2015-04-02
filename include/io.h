@@ -9,6 +9,9 @@ template<class T>
 void read_stdin_hex(std::vector<T> &in);
 
 template<class T>
+void read_file_hex(const char *path, std::vector<T> &in);
+
+template<class T>
 void read_stdin_bin(std::vector<T> &in);
 
 template<class T>

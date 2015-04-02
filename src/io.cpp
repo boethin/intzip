@@ -17,6 +17,7 @@ namespace intzip {
 
   // uint32_t
   template void read_stdin_hex(std::vector<uint32_t> &in);
+  template void read_file_hex(const char *path, std::vector<uint32_t> &in);
   template void read_stdin_bin(std::vector<uint32_t> &in);
   template void write_stdout_hex(const vector<uint32_t> &out);
 
@@ -57,6 +58,19 @@ void intzip::read_stdin_hex(std::vector<T> &in)
     in.push_back(scan_hex<T>(line.c_str()));
   }
 }
+
+template<class T>
+void intzip::read_file_hex(const char *path, std::vector<T> &in)
+{
+  string line;
+  std::ifstream infile(path);
+  
+  while (getline(infile, line))
+  {
+    in.push_back(scan_hex<T>(line.c_str()));
+  }
+}
+
 
 template<class T>
 void intzip::read_stdin_bin(vector<T> &in)

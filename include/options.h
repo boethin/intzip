@@ -10,11 +10,12 @@ namespace intzip {
 struct options {
   bool compress;
   bool binary;
-  
+  const char *infile;
   
   options() : 
     compress(true),
-    binary(false)
+    binary(false),
+    infile(NULL)
   {}
   
   void parse(int argc, char **argv)
@@ -37,7 +38,7 @@ struct options {
         }
       }
       else {
-        
+        infile = argv[i];
       }
     }
   }

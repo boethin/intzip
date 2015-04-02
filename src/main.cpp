@@ -35,7 +35,10 @@ int main(int argc, char** argv)
   }
   else
   {
-    intzip::read_stdin_hex(in);
+    if (cmd.infile)
+      intzip::read_file_hex(cmd.infile,in);
+    else
+      intzip::read_stdin_hex(in);
   }
   
 
