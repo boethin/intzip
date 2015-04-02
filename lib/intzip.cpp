@@ -1,7 +1,4 @@
-//#include <limits.h>
-
-
-#include <vector>
+//#include <vector>
 
 //#include <stdio.h> // DEBUG
 
@@ -288,19 +285,19 @@ void internal_encode(const vector<T> &in, vector<T> &enc)
 template<class T>
 void internal_decode(const vector<T> &enc, vector<T> &out)
 {
-  size_t i = 0;
+  size_t i = 0, t = 0;
   uint8_t off = 0;
   T p = 0;
 
   if (enc.empty()) // empty input
     return;
 
-  while (i < enc.size())
+  for (t = 0; i < enc.size(); t++)
   {
     size_t k;
     
     chunkdata<T> c = decode_header(enc, i, off);
-    if (!(c.first >= p)) // halt condition: c.first == 0
+    if (c.first == 0 && t > 0) // halt condition: c.first == 0
       break;
 
     out.push_back(p = c.first); 
@@ -314,7 +311,6 @@ void internal_decode(const vector<T> &enc, vector<T> &out)
       for (k = 0; k < c.len; k++)
         out.push_back(p = p + c.base);
     }
-
   }
 }
 
