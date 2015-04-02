@@ -32,7 +32,6 @@ tests/*
 !Makefile.am
 !src/*.cpp
 !lib/*.cpp
+!tests/*.at
 !tests/atlocal.in
-!tests/testsuite.at
-
 
