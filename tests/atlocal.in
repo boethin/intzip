@@ -1,0 +1,26 @@
+# @configure_input@					-*- shell-script -*-
+
+# We need a C compiler.
+CC='@CC@'
+
+# We want no optimization.
+CFLAGS='@O0CFLAGS@ @WARNING_CFLAGS@ @WERROR_CFLAGS@'
+
+# We need `config.h'.
+CPPFLAGS="-DHAVE_CONFIG_H=1 -I$abs_top_builddir @CPPFLAGS@"
+
+# Is the compiler GCC?
+GCC='@GCC@'
+
+# The C++ compiler.
+CXX='@CXX@'
+
+# We want no optimization with C++, too.
+CXXFLAGS='@O0CXXFLAGS@ @WARNING_CXXFLAGS@ @WERROR_CFLAGS@'
+
+# Are special link options needed?
+LDFLAGS='@LDFLAGS@'
+
+# Are special libraries needed?
+LIBS='@LIBS@ @INTLLIBS@'
+

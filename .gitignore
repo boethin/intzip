@@ -23,15 +23,16 @@ Makefile.in
 *.trs
 *~
 
+# in lib src tests, remove anything ...
 lib/*
 src/*
 tests/*
 
+# ... but the following:
 !Makefile.am
 !src/*.cpp
 !lib/*.cpp
-!tests/*.cpp
-!tests/*.at
-!tests/*.pl
+!tests/atlocal.in
+!tests/testsuite.at
 
 

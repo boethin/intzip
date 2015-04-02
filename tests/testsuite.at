@@ -11,6 +11,5 @@ AT_INIT([Standard Options: 1])
 
 AT_SETUP([Standard Options])
 AT_CHECK([m4 --version], [], [ignore])
-AT_CHECK([m4 --version], [], [ignore])
 AT_CLEANUP
 

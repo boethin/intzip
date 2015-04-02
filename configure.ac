@@ -28,10 +28,12 @@ AC_HEADER_STDC
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([
+	Makefile
 	lib/Makefile
 	src/Makefile
-  tests/Makefile
-  tests/atlocal])
+	tests/Makefile
+	tests/atlocal
+])
 AC_OUTPUT
 
