@@ -1,0 +1,7 @@
+#! @SHELL@
+# @configure_input@
+
+# Checks whether encoding and decoding maps a given testdata file to itself.
+exec '@abs_top_builddir@/src/intzip' "@abs_top_builddir@/testdata/${1}" | \
+  exec '@abs_top_builddir@/src/intzip' -d | \
+  diff - "@abs_top_builddir@/testdata/${1}"

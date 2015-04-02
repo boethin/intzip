@@ -1,0 +1,7 @@
+
+AT_BANNER([[Empty List Test.]])
+
+AT_SETUP([Empty])
+AT_CHECK([encode-decode empty], [0], [[]])
+AT_CLEANUP
+

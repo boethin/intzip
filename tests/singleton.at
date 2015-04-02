@@ -2,25 +2,13 @@
 AT_BANNER([[Singleton Test.]])
 
 AT_SETUP([Single 0])
-AT_DATA([input.list],
-[[0
-]])
-AT_CHECK([intzip input.list], [0], [0
-])
+AT_CHECK([encode-decode singleton0], [0], [])
 AT_CLEANUP
 
 AT_SETUP([Single 1])
-AT_DATA([input.list],
-[[1
-]])
-AT_CHECK([intzip input.list], [0], [180080
-])
+AT_CHECK([encode-decode singleton1], [0], [])
 AT_CLEANUP
 
 AT_SETUP([Single 2])
-AT_DATA([input.list],
-[[2
-]])
-AT_CHECK([intzip input.list], [0], [280080
-])
+AT_CHECK([encode-decode singleton2], [0], [])
 AT_CLEANUP

@@ -10,8 +10,6 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 LT_INIT
 
-AC_CONFIG_TESTDIR([tests])
-
 # Checks for programs.
 AC_PROG_CPP
 AC_PROG_CXX
@@ -28,14 +26,19 @@ AC_HEADER_STDC
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([tests/intzip], [chmod +x tests/intzip])
 
+# tests
+AC_CONFIG_TESTDIR([tests])
+AC_CONFIG_FILES([tests/atlocal])
+AC_CONFIG_FILES([tests/intzip], [chmod +x tests/intzip])
+AC_CONFIG_FILES([tests/encode-decode], [chmod +x tests/encode-decode])
+
+# Makefiles
 AC_CONFIG_FILES([
 	Makefile
 	lib/Makefile
 	src/Makefile
 	tests/Makefile
-	tests/atlocal
 ])
 AC_OUTPUT
 

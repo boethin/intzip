@@ -7,13 +7,8 @@
 
 AT_INIT([intzip: 1])
 
+m4_include([empty.at])
 
 m4_include([singleton.at])
 
-
-# AT_SETUP([intzip])
-
-# AT_CHECK([m4 --version], [], [ignore])
-
-# AT_CLEANUP
 

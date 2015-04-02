@@ -19,7 +19,7 @@ $(srcdir)/package.m4: $(top_srcdir)/configure.ac
          echo '  [$(PACKAGE_URL)])'; \
        } >'$(srcdir)/package.m4'
 
-TESTSUITE_AT = $(srcdir)/singleton.at $(srcdir)/testsuite.at
+TESTSUITE_AT = $(srcdir)/empty.at $(srcdir)/singleton.at $(srcdir)/testsuite.at
 
 EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) atlocal.in
 
