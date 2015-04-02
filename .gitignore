@@ -1,7 +1,5 @@
 /COPYING
 /INSTALL
-Makefile
-Makefile.in
 /aclocal.m4
 /autom4te.cache/
 /compile
@@ -35,7 +33,8 @@ tests/*
 !tests/*.at
 !tests/*.in
 
-# ... but still this:
-tests/Makefile.in
+# ... but anyway remove this:
+Makefile
+Makefile.in
 
 
