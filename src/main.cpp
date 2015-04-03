@@ -47,11 +47,13 @@ int main(int argc, char** argv)
   cmd.parse(argc,argv);
   
   if (cmd.usage) {
+    // display usage and exit
     cout << cmd.get_usage() << endl;
     return 1;
   }
 
   if (cmd.version) {
+    // display version and exit
     cout << cmd.get_version() << endl;
     return 0;
   }
