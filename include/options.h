@@ -39,7 +39,7 @@ PACKAGE_STRING "\n" \
 "  -c, --compress           Compress a given integer list (default behavior).\n" \
 "  -d, --decompress         Decompress a compressed integer list.\n" \
 "  -b, --binary             Input and output in binary (network order / big endian) mode.\n" \
-"If the [file] argument is omitted, input is read from stdin.\n\n" \
+"If the [file] argument is omitted or set to '-', input is read from stdin.\n\n" \
 "See <https://github.com/boethin/intzip/blob/master/README.md> for more information."
 
 struct options {
