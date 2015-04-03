@@ -29,7 +29,7 @@ clean-local:
 
 AUTOM4TE = $(SHELL) $(top_srcdir)/missing --run autom4te
 AUTOTEST = $(AUTOM4TE) --language=autotest
-$(TESTSUITE): $(addprefix $(srcdir)/,$(TESTSUITE_AT)) $(srcdir)/package.m4
+$(TESTSUITE): $(TESTSUITE_AT) package.m4
 	$(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
 	mv $@.tmp $@
 	

@@ -78,9 +78,14 @@ at_category short => 'Short List Tests',
     [ ( 0xfffe .. 0x10001 ) ],
   );
 
+# create autotest include
+open my $at, '>', +TESTS_DIR."/gentests.at" or die $!;
+printf $at "m4_include([%s])\n", $_ foreach @at_files;
+close $at;
+
 # create automake include
 open my $am, '>', +TESTS_DIR."/gentests.am" or die $!;
-printf $am "GENTESTS_AT = %s\n", (join ' ', @at_files);
+printf $am "GENTESTS_AT = %s\n", (join ' ', ('gentests.at', @at_files));
 close $am;
 
 __END__

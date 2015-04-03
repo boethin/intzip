@@ -1,10 +1,5 @@
 # Process with autom4te to create an -*- Autotest -*- test suite.
 
-# https://www.gnu.org/software/autoconf/manual/autoconf.html#Using-Autotest
-# https://www.lrde.epita.fr/~tiger/doc/gnuprog2/Simple-Uses-of-Autotest.html
-# https://opensource.apple.com/source/bison/bison-14/tests/
-# autom4te -l autotest testsuite.at -o testsuite
-
 # AT_CHECK_ENCODE_DECODE(setup,testfile)
 m4_define([AT_CHECK_ENCODE_DECODE],
 [AT_SETUP([encode/decode $1])
@@ -13,9 +8,6 @@ AT_CLEANUP])
 
 AT_INIT([intzip: 1])
 
-m4_include([empty.at])
-
-m4_include([singleton.at])
-
-m4_include([short.at])
+# generated tests
+m4_include([gentests.at])
 
