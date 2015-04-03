@@ -5,6 +5,12 @@
 # https://opensource.apple.com/source/bison/bison-14/tests/
 # autom4te -l autotest testsuite.at -o testsuite
 
+# AT_CHECK_ENCODE_DECODE(setup,testfile)
+m4_define([AT_CHECK_ENCODE_DECODE],
+[AT_SETUP([encode/decode $1])
+AT_CHECK([encode-decode $2])
+AT_CLEANUP])
+
 AT_INIT([intzip: 1])
 
 m4_include([empty.at])
