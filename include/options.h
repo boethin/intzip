@@ -3,19 +3,38 @@
 
 namespace intzip {
 
-#define USAGE \
-"usage: intzip "
+// PACKAGE_STRING from config.h
+#define VERSION_STRING \
+PACKAGE_STRING "\n" \
+"Copyright (C) 2015 Sebastian Boethin\n" \
+"License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n" \
+"This is free software: you are free to change and redistribute it.\n" \
+"There is NO WARRANTY, to the extent permitted by law."
 
+#define USAGE_STRING \
+"Usage: " PACKAGE " [options]... [file]\n" \
+"Fast compression of integer sets.\n" \
+"Options:\n" \
+"  -h, --help               Display this information.\n" \
+"  -v, --version            Display version information.\n" \
+"  -c, --compress           Compress a given integer list (default behavior).\n" \
+"  -d, --decompress         Decompress a compressed integer list.\n" \
+"  -b, --binary             Input and output in binary (network order / big endian) mode.\n" \
+"If the [file] argument is omitted, input is read from stdin.\n\n" \
+"See <https://github.com/boethin/intzip/blob/master/README.md> for more information."
 
 struct options {
   bool compress;
   bool binary;
   const char *infile;
-  
+  bool usage;
+  bool version;
+
   options() : 
     compress(true),
     binary(false),
-    infile(NULL)
+    infile(NULL),
+    usage(false)
   {}
   
   void parse(int argc, char **argv)
@@ -30,6 +49,10 @@ struct options {
             handle('d');
           else if (0 == strcmp(argv[i],"--binary"))
             handle('b');
+          else if (0 == strcmp(argv[i],"--version"))
+            handle('v');
+          else
+            handle('h');
         }
         else {
           for (char *c = argv[i] + 1; *c; c++) {
@@ -55,13 +78,24 @@ struct options {
       case 'b':
         binary = true;
         break;
+      case 'v':
+        version = true;
+        break;
+      case 'h':
+        usage = true;
+        break;
     }
     
   }
-  
-  const char *usage() {
-    return USAGE;
+
+  const char *get_version() {
+    return VERSION_STRING;
   }
+
+  const char *get_usage() {
+    return USAGE_STRING;
+  }
+
   
   
 };
