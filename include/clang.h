@@ -21,6 +21,7 @@
 #define ___INTZIP_CLANG_H___
 #ifdef __clang__ // Defined when compiling with Clang
 
+// TODO
 
 #endif
 #endif
