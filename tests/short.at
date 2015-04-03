@@ -7,6 +7,9 @@ AT_BANNER([[Short List Tests.]])
 # Check whether encoding/decoding of 0,1 maps to itself.
 AT_CHECK_ENCODE_DECODE([[[0,1]]],[short_0_1])
 
+# Check whether encoding/decoding of 0,0xFFFFFFFF maps to itself.
+AT_CHECK_ENCODE_DECODE([[[0,0xFFFFFFFF]]],[short_0_0xFFFFFFFF])
+
 # Check whether encoding/decoding of 0,2 maps to itself.
 AT_CHECK_ENCODE_DECODE([[[0,2]]],[short_0_2])
 
@@ -24,4 +27,10 @@ AT_CHECK_ENCODE_DECODE([[[0,0xFFFE,0xFFFF]]],[short_0_0xFFFE_0xFFFF])
 
 # Check whether encoding/decoding of 0xFFF0,0xFFFF maps to itself.
 AT_CHECK_ENCODE_DECODE([[[0xFFF0,0xFFFF]]],[short_0xFFF0_0xFFFF])
+
+# Check whether encoding/decoding of 1,2,5,7 maps to itself.
+AT_CHECK_ENCODE_DECODE([[[1,2,5,7]]],[short_1_2_5_7])
+
+# Check whether encoding/decoding of 0,1,2,4,8,0x10 maps to itself.
+AT_CHECK_ENCODE_DECODE([[[0,1,2,4,8,0x10]]],[short_0_1_2_4_8_0x10])
 
