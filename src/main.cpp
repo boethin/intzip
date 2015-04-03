@@ -1,3 +1,7 @@
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 // http://blog.fourthbit.com/2013/06/18/creating-an-open-source-program-in-c-with-autotools-part-1-of-2
 
 //  g++ -Wall -c intzip.cpp && g++ -Wall -c io.cpp && g++ -Wall -o test test.cpp intzip.o io.o && ./test
