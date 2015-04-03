@@ -7,6 +7,8 @@ use warnings;
 use constant TESTS_DIR => 'tests';
 use constant TESTDATA_DIR => 'testdata';
 
+my @at_files;
+
 my %create = (
 
   encode_decode => sub {
@@ -26,6 +28,7 @@ sub at_category($$@) {
   my ($category,$banner) = (shift,shift);
 
   # init .at test category file
+  push @at_files, "$category.at";
   my $at_path = +TESTS_DIR."/$category.at";
   open my $at_fh, '>', $at_path or die $!;
   print $at_fh "# Tests for the $category category.\n";
@@ -74,5 +77,10 @@ at_category short => 'Short List Tests',
     [ ( 0xff .. 0x102 ) ],
     [ ( 0xfffe .. 0x10001 ) ],
   );
+
+# create automake include
+open my $am, '>', +TESTS_DIR."/gentests.am" or die $!;
+printf $am "GENTESTS_AT = %s\n", (join ' ', @at_files);
+close $am;
 
 __END__
