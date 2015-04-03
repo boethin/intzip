@@ -23,6 +23,7 @@ AC_LANG([C++])
 AC_HEADER_STDC
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_SIZE_T
 
 # Checks for library functions.
 
