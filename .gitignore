@@ -27,7 +27,7 @@ src/*
 tests/*
 
 # ... but the following:
-!Makefile.am
+!*.am
 !src/*.cpp
 !lib/*.cpp
 !tests/*.at

@@ -1,0 +1,6 @@
+
+AT_BANNER([[Short List Tests.]])
+
+AT_SETUP([[[1,2]]])
+AT_CHECK([encode-decode short_1_2], [0], [])
+AT_CLEANUP

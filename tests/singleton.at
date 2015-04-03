@@ -12,3 +12,11 @@ AT_CLEANUP
 AT_SETUP([Single 2])
 AT_CHECK([encode-decode singleton2], [0], [])
 AT_CLEANUP
+
+AT_SETUP([Single 0xFFFF])
+AT_CHECK([encode-decode singleton4], [0], [])
+AT_CLEANUP
+
+AT_SETUP([Single 0xFFFFFFFF])
+AT_CHECK([encode-decode singleton32], [0], [])
+AT_CLEANUP
