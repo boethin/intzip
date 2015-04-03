@@ -1,10 +1,6 @@
-#if HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-// http://blog.fourthbit.com/2013/06/18/creating-an-open-source-program-in-c-with-autotools-part-1-of-2
-
-//  g++ -Wall -c intzip.cpp && g++ -Wall -c io.cpp && g++ -Wall -o test test.cpp intzip.o io.o && ./test
 
 #include <string> // sscanf
 #include <cstring> // strcmp
@@ -33,6 +29,16 @@ int main(int argc, char** argv)
   
   cmd.parse(argc,argv);
   
+  if (cmd.usage) {
+    cout << cmd.get_usage() << endl;
+    return 1;
+  }
+
+  if (cmd.version) {
+    cout << cmd.get_version() << endl;
+    return 0;
+  }
+
   if (cmd.binary)
   {
     intzip::read_stdin_bin(in);
