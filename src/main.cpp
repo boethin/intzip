@@ -38,10 +38,8 @@
 
 using namespace std;
 
-
 int main(int argc, char** argv)
 {
-
   string line;
   vector<uint32_t> in, out;
   intzip::options cmd;
@@ -69,15 +67,7 @@ int main(int argc, char** argv)
     else
       intzip::read_stdin_hex(in);
   }
-  
 
-//   while (getline(cin, line))
-//   {
-//     uint32_t u;
-//     sscanf(line.c_str(),"%X",&u);
-//     in.push_back(u);
-//   }
-  
   try {
     if (cmd.compress) {
       intzip::encode<uint32_t>(in,out);
@@ -92,11 +82,6 @@ int main(int argc, char** argv)
   }
   
   intzip::write_stdout_hex(out);
-
-//   for (std::vector<uint32_t>::iterator it = out.begin() ; it != out.end(); ++it) {
-//     cout << hex << *it << endl;
-//   }
-
   return 0;
 }
 

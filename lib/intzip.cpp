@@ -21,10 +21,6 @@
 #include <config.h>
 #endif
 
-//#include <vector>
-
-//#include <stdio.h> // DEBUG
-
 // uncomment to disable assert()
 // #define NDEBUG
 #include <cassert>
