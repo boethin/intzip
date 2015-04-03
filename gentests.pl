@@ -56,19 +56,21 @@ create_encode_decode('singleton',undef,[0]);
 create_encode_decode('singleton',undef,[1]);
 create_encode_decode('singleton',undef,[2]);
 create_encode_decode('singleton',undef,[3]);
+create_encode_decode('singleton',undef,[0x100]);
 create_encode_decode('singleton',undef,[0xFFFF]);
 create_encode_decode('singleton',undef,[0xFFFFFFFF]);
 
 init_category('short','Short List Tests');
 create_encode_decode('short',undef,[0,1]);
-create_encode_decode('short',undef,[0,0xFFFFFFFF]);
 create_encode_decode('short',undef,[0,2]);
+create_encode_decode('short',undef,[0,0xFFFFFFFF]);
 create_encode_decode('short',undef,[1,2,3]);
 create_encode_decode('short',undef,[0,2,4]);
 create_encode_decode('short',undef,[1,2,0xFFFF]);
 create_encode_decode('short',undef,[0,0xFFFE,0xFFFF]);
 create_encode_decode('short',undef,[0xFFF0,0xFFFF]);
-create_encode_decode('short',undef,[1,2,5,7]);
+create_encode_decode('short',undef,[0xFFFF,0x10000,0x10001]);
+create_encode_decode('short',undef,[1,4,5,37]);
 create_encode_decode('short',undef,[0,1,2,4,8,16]);
 
 
