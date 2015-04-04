@@ -5,3 +5,5 @@ bin_PROGRAMS = intzip
 intzip_SOURCES = main.cpp io.cpp
 intzip_LDADD = $(top_builddir)/lib/libintzip.la $(AM_LDFLAGS)
 
+clean-local:
+	-rm -f *.gcov *.gcno *.gcda

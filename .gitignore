@@ -17,6 +17,9 @@
 *.l[ao]
 *.o
 *.trs
+*.gcov
+*.gcno
+*.gcda
 *~
 
 # in lib src tests, remove anything ...
