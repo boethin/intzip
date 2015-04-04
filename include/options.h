@@ -53,7 +53,8 @@ struct options {
     compress(true),
     binary(false),
     infile(NULL),
-    usage(false)
+    usage(false),
+    version(false)
   {}
   
   void parse(int argc, char **argv)
