@@ -35,23 +35,23 @@ AT_CHECK_ENCODE_DECODE([[[8]]],[singleton_8])
 AT_CHECK_ENCODE_DECODE([[[0x17]]],[singleton_0x17])
 
 # Check whether encoding/decoding of [[0xFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0xFF]]],[singleton_0xFF])
+AT_CHECK_ENCODE_DECODE([[[0xFF]]],[singleton_0xff])
 
 # Check whether encoding/decoding of [[0x100]] maps to itself.
 AT_CHECK_ENCODE_DECODE([[[0x100]]],[singleton_0x100])
 
 # Check whether encoding/decoding of [[0xFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0xFFFF]]],[singleton_0xFFFF])
+AT_CHECK_ENCODE_DECODE([[[0xFFFF]]],[singleton_0xffff])
 
 # Check whether encoding/decoding of [[0x10000]] maps to itself.
 AT_CHECK_ENCODE_DECODE([[[0x10000]]],[singleton_0x10000])
 
 # Check whether encoding/decoding of [[0xF2A759E]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0xF2A759E]]],[singleton_0xF2A759E])
+AT_CHECK_ENCODE_DECODE([[[0xF2A759E]]],[singleton_0xf2a759e])
 
 # Check whether encoding/decoding of [[0xFFFFFFFE]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0xFFFFFFFE]]],[singleton_0xFFFFFFFE])
+AT_CHECK_ENCODE_DECODE([[[0xFFFFFFFE]]],[singleton_0xfffffffe])
 
 # Check whether encoding/decoding of [[0xFFFFFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0xFFFFFFFF]]],[singleton_0xFFFFFFFF])
+AT_CHECK_ENCODE_DECODE([[[0xFFFFFFFF]]],[singleton_0xffffffff])
 

@@ -7,6 +7,8 @@ use warnings;
 use constant TESTS_DIR => 'tests';
 use constant TESTDATA_DIR => 'testdata';
 
+sub sorted { [ sort { $a <=> $b } keys %{ { map { $_ => 1 } @_ } } ] }
+
 my @at_files;
 
 my %create = (
@@ -43,9 +45,10 @@ sub at_category($$@) {
       $name = sprintf (join ',', map { $_ > 9 ? (sprintf '0x%X', $_) : $_ } @{$t->{data}});
       $setup = sprintf '[[%s]]', $name unless defined $setup;
     }
+    $setup = $name unless defined $setup;
 
     # create testdata
-    my $filename = $name;
+    my $filename = lc $name;
     $filename =~ s/[^a-z0-9]/_/gi;
     $filename = $category."_$filename";
     my $data_path = +TESTDATA_DIR."/$filename";
@@ -71,12 +74,25 @@ at_category short => 'Short List Tests',
   map { { type => 'encode_decode', data => $_ } } (
     ( map { [0,$_] } (1,2,0x100,0xffff,0xffffffff) ),
     ( map { [1,$_] } (2,3,23,0xffff,0xffffffff) ),
-    ( map { [$_,0xffffffff] } (0,1,0xffff,0xfffffffe) ),
+    ( map { [$_,0xfffffffe,0xffffffff] } (1,0xffff) ),
     ( map { [1,2,$_] } (3,4,23) ),
     [ ( 0 .. 5 ) ],
     [ ( 0xff .. 0x102 ) ],
     [ ( 0xfffe .. 0x10001 ) ],
   );
+
+at_category equidistant => 'Equidistant Interval Tests',
+  map {
+    my $dist = $_;
+    { type => 'encode_decode', name => "Distance $dist", data => [ map { $dist*$_ } ( 0 .. 0x10 ) ]  };
+  } ( 1 .. 3, 5, 0xff, 0x10000 );
+
+
+
+at_category random => 'Random List Tests',
+  { type => 'encode_decode', name => 'Small numbers', data => sorted( (1 .. 50), map { 50 + int(rand(0x1000)) } ( 1 .. 1000 )  ) };
+
+
 
 # create autotest include
 open my $at, '>', +TESTS_DIR."/gentests.at" or die $!;

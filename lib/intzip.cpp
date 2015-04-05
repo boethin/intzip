@@ -148,7 +148,9 @@ struct chunk : public chunkdata<T> {
 
   // default constructor
   chunk(void)
-    : chunkdata<T>(), cost_base(0) // uninitialized
+    : chunkdata<T>(),
+      cost(0),
+      cost_base(0) // uninitialized
   {}
 
   chunk(T init)

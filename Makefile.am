@@ -11,7 +11,7 @@ noinst_HEADERS = \
   include/options.h
 
 # Test Coverage:
-# recompile everything with gcov flags, run tests and create lib/intzip.cpp.gcov
+# recompile everything with gcov flags, run tests and create lib/intzip.cpp.gcov.
 gcov-check: intzip.cpp.gcov
 
 .PHONY: gcov-check

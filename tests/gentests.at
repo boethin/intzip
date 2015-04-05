@@ -1,3 +1,5 @@
 m4_include([empty.at])
 m4_include([singleton.at])
 m4_include([short.at])
+m4_include([equidistant.at])
+m4_include([random.at])

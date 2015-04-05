@@ -14,10 +14,10 @@ AT_CHECK_ENCODE_DECODE([[[0,2]]],[short_0_2])
 AT_CHECK_ENCODE_DECODE([[[0,0x100]]],[short_0_0x100])
 
 # Check whether encoding/decoding of [[0,0xFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0,0xFFFF]]],[short_0_0xFFFF])
+AT_CHECK_ENCODE_DECODE([[[0,0xFFFF]]],[short_0_0xffff])
 
 # Check whether encoding/decoding of [[0,0xFFFFFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0,0xFFFFFFFF]]],[short_0_0xFFFFFFFF])
+AT_CHECK_ENCODE_DECODE([[[0,0xFFFFFFFF]]],[short_0_0xffffffff])
 
 # Check whether encoding/decoding of [[1,2]] maps to itself.
 AT_CHECK_ENCODE_DECODE([[[1,2]]],[short_1_2])
@@ -29,22 +29,16 @@ AT_CHECK_ENCODE_DECODE([[[1,3]]],[short_1_3])
 AT_CHECK_ENCODE_DECODE([[[1,0x17]]],[short_1_0x17])
 
 # Check whether encoding/decoding of [[1,0xFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[1,0xFFFF]]],[short_1_0xFFFF])
+AT_CHECK_ENCODE_DECODE([[[1,0xFFFF]]],[short_1_0xffff])
 
 # Check whether encoding/decoding of [[1,0xFFFFFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[1,0xFFFFFFFF]]],[short_1_0xFFFFFFFF])
+AT_CHECK_ENCODE_DECODE([[[1,0xFFFFFFFF]]],[short_1_0xffffffff])
 
-# Check whether encoding/decoding of [[0,0xFFFFFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0,0xFFFFFFFF]]],[short_0_0xFFFFFFFF])
+# Check whether encoding/decoding of [[1,0xFFFFFFFE,0xFFFFFFFF]] maps to itself.
+AT_CHECK_ENCODE_DECODE([[[1,0xFFFFFFFE,0xFFFFFFFF]]],[short_1_0xfffffffe_0xffffffff])
 
-# Check whether encoding/decoding of [[1,0xFFFFFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[1,0xFFFFFFFF]]],[short_1_0xFFFFFFFF])
-
-# Check whether encoding/decoding of [[0xFFFF,0xFFFFFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0xFFFF,0xFFFFFFFF]]],[short_0xFFFF_0xFFFFFFFF])
-
-# Check whether encoding/decoding of [[0xFFFFFFFE,0xFFFFFFFF]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0xFFFFFFFE,0xFFFFFFFF]]],[short_0xFFFFFFFE_0xFFFFFFFF])
+# Check whether encoding/decoding of [[0xFFFF,0xFFFFFFFE,0xFFFFFFFF]] maps to itself.
+AT_CHECK_ENCODE_DECODE([[[0xFFFF,0xFFFFFFFE,0xFFFFFFFF]]],[short_0xffff_0xfffffffe_0xffffffff])
 
 # Check whether encoding/decoding of [[1,2,3]] maps to itself.
 AT_CHECK_ENCODE_DECODE([[[1,2,3]]],[short_1_2_3])
@@ -59,8 +53,8 @@ AT_CHECK_ENCODE_DECODE([[[1,2,0x17]]],[short_1_2_0x17])
 AT_CHECK_ENCODE_DECODE([[[0,1,2,3,4,5]]],[short_0_1_2_3_4_5])
 
 # Check whether encoding/decoding of [[0xFF,0x100,0x101,0x102]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0xFF,0x100,0x101,0x102]]],[short_0xFF_0x100_0x101_0x102])
+AT_CHECK_ENCODE_DECODE([[[0xFF,0x100,0x101,0x102]]],[short_0xff_0x100_0x101_0x102])
 
 # Check whether encoding/decoding of [[0xFFFE,0xFFFF,0x10000,0x10001]] maps to itself.
-AT_CHECK_ENCODE_DECODE([[[0xFFFE,0xFFFF,0x10000,0x10001]]],[short_0xFFFE_0xFFFF_0x10000_0x10001])
+AT_CHECK_ENCODE_DECODE([[[0xFFFE,0xFFFF,0x10000,0x10001]]],[short_0xfffe_0xffff_0x10000_0x10001])
 
