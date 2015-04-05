@@ -318,9 +318,9 @@ void internal_decode(const vector<T> &enc, vector<T> &out)
     size_t k;
     
     chunkdata<T> c = decode_header(enc, i, off);
-    if (c.first == 0 && t > 0) // halt condition: c.first == 0
+    if ((c.first == 0 && t > 0)) // halt condition: c.first == 0
       break;
-
+      
     out.push_back(p = c.first); 
     if (c.bits > 0)
     {
@@ -347,6 +347,8 @@ void encode_header(const chunkdata<T> &c, vector<T> &enc, size_t &i, uint8_t &of
 template<class T>
 chunkdata<T> decode_header(const vector<T> &enc, size_t &i, uint8_t &off)
 {
+  assert(i < enc.size());
+
 	chunkdata<T> c;
   const uint8_t lb = chunkdata<T>::lengthbits();
 
@@ -418,12 +420,16 @@ T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
   assert(bits > 0);
   assert(bits <= chunkdata<T>::bitsize());
 
-  const uint8_t bs = chunkdata<T>::bitsize(), len = off + bits;
+  if (i >= enc.size())
+    return 0;
 
+  const uint8_t bs = chunkdata<T>::bitsize(), len = off + bits;
   T val = enc[i] << off;
 
   if (len > bs)
   {
+    if (i >= enc.size() - 1)
+      return 0;
     val |= enc[++i] >> (bs - off);
   }
   else if (len == bs)
