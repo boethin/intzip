@@ -4,6 +4,9 @@
 #
 AT_BANNER([[Random List Tests.]])
 
-# Check whether encoding/decoding of Small numbers maps to itself.
-AT_CHECK_ENCODE_DECODE([Small numbers],[random_small_numbers])
+# Check whether encoding/decoding of Small Numbers maps to itself.
+AT_CHECK_ENCODE_DECODE([Small Numbers],[random_small_numbers])
+
+# Check whether encoding/decoding of Uniform Distribution maps to itself.
+AT_CHECK_ENCODE_DECODE([Uniform Distribution],[random_uniform_distribution])
 

@@ -10,9 +10,6 @@ AT_CHECK_ENCODE_DECODE([Distance 1],[equidistant_distance_1])
 # Check whether encoding/decoding of Distance 2 maps to itself.
 AT_CHECK_ENCODE_DECODE([Distance 2],[equidistant_distance_2])
 
-# Check whether encoding/decoding of Distance 3 maps to itself.
-AT_CHECK_ENCODE_DECODE([Distance 3],[equidistant_distance_3])
-
 # Check whether encoding/decoding of Distance 5 maps to itself.
 AT_CHECK_ENCODE_DECODE([Distance 5],[equidistant_distance_5])
 
@@ -24,4 +21,7 @@ AT_CHECK_ENCODE_DECODE([Distance 65536],[equidistant_distance_65536])
 
 # Check whether encoding/decoding of Alternating maps to itself.
 AT_CHECK_ENCODE_DECODE([Alternating],[equidistant_alternating])
+
+# Check whether encoding/decoding of Multiple maps to itself.
+AT_CHECK_ENCODE_DECODE([Multiple],[equidistant_multiple])
 

@@ -9,6 +9,13 @@ use constant TESTDATA_DIR => 'testdata';
 
 sub sorted { [ sort { $a <=> $b } keys %{ { map { $_ => 1 } @_ } } ] }
 
+sub distribution {
+  my ($max,$count) = @_;
+  my @s;
+  push @s, int(rand($max)) foreach ( 1 .. $count );
+  @s;
+}
+
 my @at_files;
 
 my %create = (
@@ -86,17 +93,22 @@ at_category equidistant => 'Equidistant Interval Tests',
     my $dist = $_;
     { type => 'encode_decode', name => "Distance $dist",
       data => [ map { $dist*$_ } ( 0 .. 0x10 ) ]  };
-  } ( 1 .. 3, 5, 0xff, 0x10000 )),
+  } ( 1, 2, 5, 0xff, 0x10000 )),
   { type => 'encode_decode', name => "Alternating",
-      data => [ map { 2*$_ + ($_ % 2) } ( 0 .. 0x20 ) ]
+      data => [ map { 2*$_ + ($_ % 2) } ( 0 .. 0x20 ) ],
+  },
+  { type => 'encode_decode', name => "Multiple",
+      data => sorted( (0 .. 50), (100 .. 150), (200, 250), (1000 .. 1100 ) ),
   };
+
 
 at_category random => 'Random List Tests',
-  { type => 'encode_decode', name => 'Small numbers',
-    data => sorted( (1 .. 50), map { 50 + int(rand(0x1000)) } ( 1 .. 1000 )  )
+  { type => 'encode_decode', name => 'Small Numbers',
+    data => sorted( (1 .. 20), map { 20 + int(rand(0x1000)) } ( 1 .. 1000 )  )
+  },
+  { type => 'encode_decode', name => 'Uniform Distribution',
+    data => sorted( map { int(rand(0xffffffff)) } ( 1 .. 10000 ) )
   };
-
-
 
 # create autotest include
 open my $at, '>', +TESTS_DIR."/gentests.at" or die $!;
