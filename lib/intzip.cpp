@@ -30,30 +30,12 @@
 
 using namespace std;
 
-template<class T>
-static ___always_inline__(
-  void internal_encode(const vector<T> &in, vector<T> &enc)
-);
-
-template<class T>
-static ___always_inline__(
-	void internal_decode(const vector<T> &enc, vector<T> &out)
-);
-
 // template specializations
 namespace intzip {
 
-  template<>
-  void encode(const vector<uint32_t> &in, vector<uint32_t> &enc)
-  {
-    internal_encode(in,enc);
-  }
-
-  template<>
-  void decode(const vector<uint32_t> &enc, vector<uint32_t> &out)
-  {
-  	internal_decode(enc,out);
-  }
+  // uint32_t
+  template void encode(const vector<uint32_t> &in, vector<uint32_t> &enc);
+  template void decode(const vector<uint32_t> &enc, vector<uint32_t> &out);
 
 }
 
@@ -271,7 +253,7 @@ private:
 
 
 template<class T>
-void internal_encode(const vector<T> &in, vector<T> &enc)
+void intzip::encode(const vector<T> &in, vector<T> &enc)
 {
   size_t i = 0;
   uint8_t enc_off = 0;
@@ -300,7 +282,7 @@ void internal_encode(const vector<T> &in, vector<T> &enc)
 }
 
 template<class T>
-void internal_decode(const vector<T> &enc, vector<T> &out)
+void intzip::decode(const vector<T> &enc, vector<T> &out)
 {
   size_t i = 0, t = 0;
   uint8_t off = 0;
