@@ -80,12 +80,12 @@ template<> uint8_t chunkdata<uint64_t>::lengthbits() { return 7; }
 
 template<class T>
 static ___inline__(
-  void encode_header(const chunkdata<T> &c, vector<T> &enc, size_t &i, uint8_t &off)
+  void encode_chunk_header(const chunkdata<T> &c, vector<T> &enc, size_t &i, uint8_t &off)
 );
 
 template<class T>
 static ___inline__(
-	chunkdata<T> decode_header(const vector<T> &enc, size_t &i, uint8_t &off)
+	chunkdata<T> decode_chunk_header(const vector<T> &enc, size_t &i, uint8_t &off)
 );
 
 /* Compress and append an integer */
@@ -265,7 +265,7 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
   for (typename vector<T>::const_iterator it = in.begin(); it != in.end(); )
   {
     chunk<T> c = chunk<T>::delta(in,it);
-    encode_header(c,enc,i,enc_off);
+    encode_chunk_header(c,enc,i,enc_off);
     if (c.bits > 0)
     {
       size_t k;
@@ -295,7 +295,7 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
   {
     size_t k;
     
-    chunkdata<T> c = decode_header(enc, i, off);
+    chunkdata<T> c = decode_chunk_header(enc, i, off);
     if ((c.first == 0 && t > 0)) // halt condition: c.first == 0
       break;
       
@@ -314,7 +314,7 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
 }
 
 template<class T>
-void encode_header(const chunkdata<T> &c, vector<T> &enc, size_t &i, uint8_t &off)
+void encode_chunk_header(const chunkdata<T> &c, vector<T> &enc, size_t &i, uint8_t &off)
 {
   encode_append(c.len,enc,i,off);
   encode_append(c.first,enc,i,off);
@@ -323,7 +323,7 @@ void encode_header(const chunkdata<T> &c, vector<T> &enc, size_t &i, uint8_t &of
 }
 
 template<class T>
-chunkdata<T> decode_header(const vector<T> &enc, size_t &i, uint8_t &off)
+chunkdata<T> decode_chunk_header(const vector<T> &enc, size_t &i, uint8_t &off)
 {
   assert(i < enc.size());
 
