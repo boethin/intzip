@@ -36,11 +36,11 @@ using namespace std;
 namespace intzip {
 
   // uint32_t
-  template void read_stdin_hex(std::vector<uint32_t> &in);
-  template void read_file_hex(const char *path, std::vector<uint32_t> &in);
-  template void read_stdin_bin(std::vector<uint32_t> &in);
-  template void write_stdout_hex(const vector<uint32_t> &out);
-  template void write_file_hex(const char *path, const vector<uint32_t> &out);
+  template void read_hex(std::vector<uint32_t> &in);
+  template void read_hex(const char *path, std::vector<uint32_t> &in);
+  template void read_bin(std::vector<uint32_t> &in);
+  template void write_hex(const vector<uint32_t> &out);
+  template void write_hex(const char *path, const vector<uint32_t> &out);
 
 }
 
@@ -51,10 +51,10 @@ template<class T>
 static ___always_inline__(___const__( T scan_hex(const char *s) ));
 
 template<class T>
-static ___always_inline__(___pure__( void read_hex(istream &is, vector<T> &in) ));
+static ___always_inline__(___pure__( void internal_read_hex(istream &is, vector<T> &in) ));
 
 template<class T>
-static ___always_inline__(___pure__( void write_hex(ostream &os, const vector<T> &out) ));
+static ___always_inline__(___pure__( void internal_write_hex(ostream &os, const vector<T> &out) ));
 
 template<>
 uint32_t scan_hex(const char *s)
@@ -75,7 +75,7 @@ uint32_t unpack(const char *n)
 }
 
 template<class T>
-void read_hex(istream &is, vector<T> &in)
+void internal_read_hex(istream &is, vector<T> &in)
 {
   string line;
   while (getline(is,line))
@@ -85,20 +85,20 @@ void read_hex(istream &is, vector<T> &in)
 }
 
 template<class T>
-void intzip::read_stdin_hex(vector<T> &in)
+void intzip::read_hex(vector<T> &in)
 {
-  read_hex(cin,in);
+  internal_read_hex(cin,in);
 }
 
 template<class T>
-void intzip::read_file_hex(const char *path, vector<T> &in)
+void intzip::read_hex(const char *path, vector<T> &in)
 {
   ifstream infile(path);
-  read_hex(infile,in);
+  internal_read_hex(infile,in);
 }
 
 template<class T>
-void intzip::read_stdin_bin(vector<T> &in)
+void intzip::read_bin(vector<T> &in)
 {
   const int bytes = sizeof(T);
   char buffer[BUFSIZE];
@@ -114,7 +114,7 @@ void intzip::read_stdin_bin(vector<T> &in)
 }
 
 template<class T>
-void write_hex(ostream &os, const vector<T> &out)
+void internal_write_hex(ostream &os, const vector<T> &out)
 {
   for (typename vector<T>::const_iterator it = out.begin(); it != out.end(); ++it) {
     os << hex << *it << endl;
@@ -122,15 +122,15 @@ void write_hex(ostream &os, const vector<T> &out)
 }
 
 template<class T>
-void intzip::write_stdout_hex(const vector<T> &out)
+void intzip::write_hex(const vector<T> &out)
 {
-  write_hex(cout,out);
+  internal_write_hex(cout,out);
 }
 
 template<class T>
-void intzip::write_file_hex(const char *path, const std::vector<T> &out)
+void intzip::write_hex(const char *path, const std::vector<T> &out)
 {
   ofstream outfile(path, ios::out);
-  write_hex(outfile,out);
+  internal_write_hex(outfile,out);
 }
 

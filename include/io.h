@@ -25,19 +25,19 @@
 namespace intzip {
 
 template<class T>
-void read_stdin_hex(std::vector<T> &in);
+void read_hex(std::vector<T> &in);
 
 template<class T>
-void read_file_hex(const char *path, std::vector<T> &in);
+void read_hex(const char *path, std::vector<T> &in);
 
 template<class T>
-void read_stdin_bin(std::vector<T> &in);
+void read_bin(std::vector<T> &in);
 
 template<class T>
-void write_stdout_hex(const std::vector<T> &out);
+void write_hex(const std::vector<T> &out);
 
 template<class T>
-void write_file_hex(const char *path, const std::vector<T> &out);
+void write_hex(const char *path, const std::vector<T> &out);
 
 }
 

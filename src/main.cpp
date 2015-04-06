@@ -52,14 +52,14 @@ int main(int argc, char** argv)
 
   if (cmd.binary)
   {
-    intzip::read_stdin_bin(in);
+    intzip::read_bin(in);
   }
   else
   {
     if (cmd.infile)
-      intzip::read_file_hex(cmd.infile,in);
+      intzip::read_hex(cmd.infile,in);
     else
-      intzip::read_stdin_hex(in);
+      intzip::read_hex(in);
   }
 
   try {
@@ -76,10 +76,10 @@ int main(int argc, char** argv)
   }
   
   if (cmd.outfile) {
-    intzip::write_file_hex(cmd.outfile,out);
+    intzip::write_hex(cmd.outfile,out);
   }
   else {
-    intzip::write_stdout_hex(out);
+    intzip::write_hex(out);
   }
   
   return 0;
