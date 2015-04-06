@@ -21,10 +21,10 @@
 #include <config.h>
 #endif
 
+#include <string>
 #include <iostream>
 #include <fstream>
 
-// default and compiler dependant definitions
 #include "def.h"
 #include "io.h"
 #include "intzip.h"
@@ -49,6 +49,9 @@ static ___always_inline__(___const__( T unpack(const char *n) ));
 template<class T>
 static ___always_inline__(___const__( T scan_hex(const char *s) ));
 
+template<class T>
+static ___always_inline__(___const__( void read_hex(istream &is, vector<T> &in) ));
+
 template<>
 uint32_t scan_hex(const char *s)
 {
@@ -67,30 +70,28 @@ uint32_t unpack(const char *n)
     ( (n[3]        & 0xFF) );
 }
 
-
-
 template<class T>
-void intzip::read_stdin_hex(std::vector<T> &in)
+void read_hex(istream &is, vector<T> &in)
 {
   string line;
-  while (getline(cin, line))
+  while (getline(is,line))
   {
     in.push_back(scan_hex<T>(line.c_str()));
   }
 }
 
 template<class T>
-void intzip::read_file_hex(const char *path, std::vector<T> &in)
+void intzip::read_stdin_hex(vector<T> &in)
 {
-  string line;
-  std::ifstream infile(path);
-  
-  while (getline(infile, line))
-  {
-    in.push_back(scan_hex<T>(line.c_str()));
-  }
+  read_hex(cin,in);
 }
 
+template<class T>
+void intzip::read_file_hex(const char *path, vector<T> &in)
+{
+  ifstream infile(path);
+  read_hex(infile,in);
+}
 
 template<class T>
 void intzip::read_stdin_bin(vector<T> &in)
