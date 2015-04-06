@@ -52,18 +52,18 @@ struct chunkdata {
   static ___always_inline__(___const__( uint8_t lengthbits(void) ));
 
 	chunkdata(T init = 0)
-		: first(init),
-      maxdiff(0),
+		: len(0),
+      first(init),
       base(maxval()),
-      bits(0),
-      len(0)
+      maxdiff(0),
+      bits(0)
 	{}
 
+  T len;
   T first;
-  T maxdiff;
   T base;
+  T maxdiff;
   uint8_t bits;
-  uint64_t len;
 };
 
 template<> uint32_t chunkdata<uint32_t>::maxval() { return UINT32_MAX; }
@@ -140,7 +140,7 @@ struct chunk : public chunkdata<T> {
   uint64_t ___const__( calculate_cost(void) const )
   {
     return this->cost_base
-      + ceil_log2<uint64_t>(this->len)
+      + ceil_log2<T>(this->len)
       + ceil_log2<T>(this->base)
       + this->len * this->bits;
   }
@@ -316,9 +316,9 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
 template<class T>
 void encode_header(const chunkdata<T> &c, vector<T> &enc, size_t &i, uint8_t &off)
 {
-  encode_append((T)c.len,enc,i,off);
-  encode_append((T)c.first,enc,i,off);
-  encode_append((T)c.base,enc,i,off);
+  encode_append(c.len,enc,i,off);
+  encode_append(c.first,enc,i,off);
+  encode_append(c.base,enc,i,off);
   encode_append((T)c.bits,chunkdata<T>::lengthbits(),enc,i,off);
 }
 
@@ -333,7 +333,7 @@ chunkdata<T> decode_header(const vector<T> &enc, size_t &i, uint8_t &off)
   c.len = decode_fetch(enc,i,off);
   c.first = decode_fetch(enc,i,off);
   c.base = decode_fetch(enc,i,off);
-  c.bits = decode_fetch(lb,enc,i,off);
+  c.bits = (uint8_t)decode_fetch(lb,enc,i,off);
   return c;
 }
 
