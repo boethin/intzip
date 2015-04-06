@@ -38,21 +38,24 @@ int main(int argc, char** argv)
   
   cmd.parse(argc,argv);
   
-  if (cmd.usage) {
-    // display usage and exit
+  if (cmd.usage) { // display usage and exit
     cout << cmd.get_usage() << endl;
     return 1;
   }
 
-  if (cmd.version) {
-    // display version and exit
+  if (cmd.version) { // display version and exit
     cout << cmd.get_version() << endl;
     return 0;
   }
 
   if (cmd.binary)
   {
-    intzip::read_bin(in);
+    if (cmd.infile) {
+      intzip::read_bin(cmd.infile,in);
+    }
+    else {
+      intzip::read_bin(in);
+    }
   }
   else
   {
@@ -75,12 +78,26 @@ int main(int argc, char** argv)
     return 1;
   }
   
-  if (cmd.outfile) {
-    intzip::write_hex(cmd.outfile,out);
+  if (cmd.binary)
+  {
+    if (cmd.outfile) {
+      intzip::write_bin(cmd.outfile,out);
+    }
+    else {
+      intzip::write_bin(out);
+    }
   }
-  else {
-    intzip::write_hex(out);
+  else
+  {
+    if (cmd.outfile) {
+      intzip::write_hex(cmd.outfile,out);
+    }
+    else {
+      intzip::write_hex(out);
+    }
   }
+
+  
   
   return 0;
 }
