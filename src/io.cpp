@@ -50,7 +50,7 @@ template<class T>
 static ___always_inline__(___const__( T scan_hex(const char *s) ));
 
 template<class T>
-static ___always_inline__(___const__( void read_hex(istream &is, vector<T> &in) ));
+static ___always_inline__(___pure__( void read_hex(istream &is, vector<T> &in) ));
 
 template<>
 uint32_t scan_hex(const char *s)
