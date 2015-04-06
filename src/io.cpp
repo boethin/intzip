@@ -52,6 +52,9 @@ static ___always_inline__(___const__( T scan_hex(const char *s) ));
 template<class T>
 static ___always_inline__(___pure__( void read_hex(istream &is, vector<T> &in) ));
 
+template<class T>
+static ___always_inline__(___pure__( void write_hex(ostream &os, const vector<T> &out) ));
+
 template<>
 uint32_t scan_hex(const char *s)
 {
@@ -110,11 +113,17 @@ void intzip::read_stdin_bin(vector<T> &in)
 }
 
 template<class T>
-void intzip::write_stdout_hex(const vector<T> &out)
+void write_hex(ostream &os, const vector<T> &out)
 {
   for (typename vector<T>::const_iterator it = out.begin(); it != out.end(); ++it) {
-    cout << hex << *it << endl;
+    os << hex << *it << endl;
   }
+}
+
+template<class T>
+void intzip::write_stdout_hex(const vector<T> &out)
+{
+  write_hex(cout,out);
 }
 
 
