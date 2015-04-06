@@ -75,7 +75,13 @@ int main(int argc, char** argv)
     return 1;
   }
   
-  intzip::write_stdout_hex(out);
+  if (cmd.outfile) {
+    intzip::write_file_hex(cmd.outfile,out);
+  }
+  else {
+    intzip::write_stdout_hex(out);
+  }
+  
   return 0;
 }
 

@@ -41,22 +41,25 @@ PACKAGE_STRING "\n" \
 "  -c, --compress           Compress a given integer list (default behavior).\n" \
 "  -d, --decompress         Decompress a compressed integer list.\n" \
 "  -b, --binary             Input and output in binary (network order / big endian) mode.\n" \
+"  -o, --output <file>      Output to <file>.\n" \
 "If the [file] argument is omitted or set to '-', input is read from stdin.\n\n" \
 "See <https://github.com/boethin/intzip/blob/master/README.md> for more information."
 
 struct options {
   bool compress;
   bool binary;
-  const char *infile;
   bool usage;
   bool version;
+  const char *infile;
+  const char *outfile;
 
   options() : 
     compress(true),
     binary(false),
-    infile(NULL),
     usage(false),
-    version(false)
+    version(false),
+    infile(NULL),
+    outfile(NULL)
   {}
   
   void parse(int argc, char **argv)
@@ -73,8 +76,14 @@ struct options {
             handle('b');
           else if (0 == strcmp(argv[i],"--version"))
             handle('v');
+          else if (0 == strcmp(argv[i],"--output") && (i < argc - 1)) {
+            outfile = argv[++i];
+          }
           else
             handle('h'); // --help
+        }
+        else if (argv[i][1] == 'o' && !argv[i][2] && (i < argc - 1)) {
+           outfile = argv[++i];
         }
         else {
           for (char *c = argv[i] + 1; *c; c++) {

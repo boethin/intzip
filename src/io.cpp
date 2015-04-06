@@ -40,6 +40,7 @@ namespace intzip {
   template void read_file_hex(const char *path, std::vector<uint32_t> &in);
   template void read_stdin_bin(std::vector<uint32_t> &in);
   template void write_stdout_hex(const vector<uint32_t> &out);
+  template void write_file_hex(const char *path, const vector<uint32_t> &out);
 
 }
 
@@ -126,4 +127,10 @@ void intzip::write_stdout_hex(const vector<T> &out)
   write_hex(cout,out);
 }
 
+template<class T>
+void intzip::write_file_hex(const char *path, const std::vector<T> &out)
+{
+  ofstream outfile(path, ios::out);
+  write_hex(outfile,out);
+}
 
