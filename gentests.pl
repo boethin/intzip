@@ -9,13 +9,6 @@ use constant TESTDATA_DIR => 'testdata';
 
 sub sorted { [ sort { $a <=> $b } keys %{ { map { $_ => 1 } @_ } } ] }
 
-sub distribution {
-  my ($max,$count) = @_;
-  my @s;
-  push @s, int(rand($max)) foreach ( 1 .. $count );
-  @s;
-}
-
 my @at_files;
 
 my %create = (

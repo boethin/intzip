@@ -26,9 +26,6 @@
 
 // default and compiler dependant definitions
 #include "def.h"
-#include "gcc.h"
-#include "clang.h"
-
 #include "io.h"
 #include "intzip.h"
 

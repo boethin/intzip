@@ -20,6 +20,8 @@
 #ifndef ___INTZIP_OPTIONS_H___
 #define ___INTZIP_OPTIONS_H___
 
+#include <cstring> // strcmp
+
 namespace intzip {
 
 // PACKAGE_STRING from config.h
@@ -72,7 +74,7 @@ struct options {
           else if (0 == strcmp(argv[i],"--version"))
             handle('v');
           else
-            handle('h');
+            handle('h'); // --help
         }
         else {
           for (char *c = argv[i] + 1; *c; c++) {
@@ -116,8 +118,6 @@ struct options {
     return USAGE_STRING;
   }
 
-  
-  
 };
 
 }

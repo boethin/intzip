@@ -25,11 +25,7 @@
 // #define NDEBUG
 #include <cassert>
 
-// default and compiler dependant definitions
 #include "def.h"
-#include "gcc.h"
-#include "clang.h"
-
 #include "intzip.h"
 
 using namespace std;

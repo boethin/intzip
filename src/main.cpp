@@ -21,20 +21,12 @@
 #include <config.h>
 #endif
 
-#include <string> // sscanf
-#include <cstring> // strcmp
-#include <cstdio> // getline
-#include <cstdlib>
 #include <iostream>
-#include <fstream>
-#include <vector>
-#include <ext/stdio_filebuf.h>
 
-#include <stdio.h>
-
-#include "intzip.h"
+#include "def.h"
 #include "io.h"
 #include "options.h"
+#include "intzip.h"
 
 using namespace std;
 

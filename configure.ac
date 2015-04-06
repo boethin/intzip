@@ -27,7 +27,6 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 
-
 # Tests
 AC_CONFIG_TESTDIR([tests])
 AC_CONFIG_FILES([tests/atlocal])

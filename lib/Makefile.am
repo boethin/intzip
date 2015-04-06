@@ -5,4 +5,5 @@ lib_LTLIBRARIES = libintzip.la
 libintzip_la_SOURCES = intzip.cpp
 
 clean-local:
+	-rm -f *.ii *.s
 	-rm -f *.gcov *.gcno *.gcda
