@@ -51,13 +51,13 @@ struct chunkdata {
   // Bits need for a bit length value, i.e. ceil_log2( sizeof(T)*8 )
   static ___always_inline__(___const__( uint8_t lengthbits(void) ));
 
-	chunkdata(T init = 0)
-		: len(0),
+  chunkdata(T init = 0)
+    : len(0),
       first(init),
       base(maxval()),
       maxdiff(0),
       bits(0)
-	{}
+  {}
 
   T len;
   T first;
@@ -89,12 +89,12 @@ static ___inline__(
 /* Fetch and decompress a bit-compressed integer */
 template<class T>
 static ___inline__(
-	T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
+  T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
 );
 
 template<class T>
 static ___inline__(
-	T decode_fetch(uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
+  T decode_fetch(uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
 );
 
 
@@ -243,7 +243,7 @@ struct chunk : public chunkdata<T> {
   {
     assert(i < enc.size());
 
-  	chunkdata<T> c;
+    chunkdata<T> c;
     const uint8_t lb = chunkdata<T>::lengthbits();
 
     c.len = decode_fetch(enc,i,off);
@@ -411,20 +411,20 @@ int ceil_log2(uint32_t n)
 #ifdef builtin_ceil_log2_uint32
   return builtin_ceil_log2_uint32(n);
 #else
-  	int bits = 0;
-  	if (n > 0xFFFF)
-  		n >>= 16,	bits = 0x10;
-  	if (n > 0xFF)
-  		n >>= 8, bits |= 8;
-  	if (n > 0xF)
-  		n >>= 4, bits |= 4;
-  	if (n > 3)
-  		n >>= 2, bits |= 2;
-   	if (n > 1)
-   		bits |= 1;
-	if (n > 0)
-		bits += 1;
-  	return bits;
+    int bits = 0;
+    if (n > 0xFFFF)
+      n >>= 16,  bits = 0x10;
+    if (n > 0xFF)
+      n >>= 8, bits |= 8;
+    if (n > 0xF)
+      n >>= 4, bits |= 4;
+    if (n > 3)
+      n >>= 2, bits |= 2;
+     if (n > 1)
+       bits |= 1;
+  if (n > 0)
+    bits += 1;
+    return bits;
 #endif
 }
 
