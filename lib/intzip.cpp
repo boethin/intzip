@@ -325,11 +325,22 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
 template<class T>
 void encode_append(const T val, vector<T> &enc, size_t &i, uint8_t &off)
 {
-  const uint8_t lb = chunkdata<T>::lengthbits(), need = ceil_log2<T>(val);
-  encode_append((T)need,lb,enc,i,off);
-  if (need > 0)
+  const int bs = chunkdata<T>::bitsize(), u = bs - 7;
+  int s = 0;
+  T b = 0x80;
+
+  while (s < bs)
   {
-    encode_append(val,need,enc,i,off);
+    T t = (val >> s) & 0x7F;
+    if (s > u || val < b)
+    {
+      encode_append(t,8,enc,i,off);
+      return;
+    }
+    t |= 0x80;
+    encode_append(t,8,enc,i,off);
+    s += 7;
+    if (s < u) b <<= 7;
   }
 }
 
@@ -367,12 +378,17 @@ void encode_append(const T val, const uint8_t bits, vector<T> &enc, size_t &i, u
 template<class T>
 T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
 {
-  const uint8_t lb = chunkdata<T>::lengthbits();
-  uint8_t bitlen = decode_fetch(lb,enc,i,off);
-  if (bitlen > 0) {
-    return decode_fetch(bitlen,enc,i,off);
+  const int bs = chunkdata<T>::bitsize();
+  int s = 0;
+  T val = 0;
+  while (s < bs && i < enc.size())
+  {
+    T t = decode_fetch(8,enc,i,off);
+    val |= ((t & 0x7F) << s);
+    if (!(t & 0x80))
+      return val;
+    s += 7;
   }
-  return 0;
 }
 
 template<class T>
