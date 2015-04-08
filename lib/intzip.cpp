@@ -75,6 +75,12 @@ template<> uint8_t chunkdata<uint64_t>::bitsize() { return 64; }
 template<> uint8_t chunkdata<uint32_t>::lengthbits() { return 6; }
 template<> uint8_t chunkdata<uint64_t>::lengthbits() { return 7; }
 
+// The bit cost of number encoding
+template<class T>
+static ___inline__(
+  int encode_cost(const T val)
+);
+
 /* Compress and append an integer */
 template<class T>
 static ___inline__(
@@ -320,6 +326,35 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
         out.push_back(p = p + c.base);
     }
   }
+}
+
+
+template<class T>
+int encode_cost(const T val)
+{
+  const int bs = chunkdata<T>::bitsize(), lb = bs % 7, u = bs - 7;
+  int c = 0, s = 0;
+  T b = 1;
+
+  while (s < bs)
+  {
+    if (s > u)
+    {
+      c += lb; // last block
+      return c;
+    }
+
+    b <<= 7;
+    if (val < b)
+    {
+      c += 8;
+      return c;
+    }
+
+    c += 8, s += 7;
+  }
+
+  return c;
 }
 
 template<class T>
