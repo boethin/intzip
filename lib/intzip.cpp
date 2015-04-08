@@ -325,22 +325,37 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
 template<class T>
 void encode_append(const T val, vector<T> &enc, size_t &i, uint8_t &off)
 {
-  const int bs = chunkdata<T>::bitsize(), u = bs - 7;
+  // number encoding:
+  //
+  // An integer is splitted into 7-bit blocks where each block is extended to 8 bit
+  // by an additional forward-bit that determines whether or not there are more
+  // blocks left. Thus, a number n with 0 <= n < 2^7 takes 8 bit, while in case of
+  // 2^7 <= n < 2^14 it takes 16 bit and so forth. 32-bit values above 2^28
+  // take 36 bit because of 4 forward-bits.
+  
+  const int bs = chunkdata<T>::bitsize(), lb = bs % 7, u = bs - 7;
   int s = 0;
-  T b = 0x80;
+  T b = 1;
 
   while (s < bs)
   {
-    T t = (val >> s) & 0x7F;
-    if (s > u || val < b)
+    T t = (val >> s) & 0x7F; // right-most 7 bit
+    if (s > u)
     {
-      encode_append(t,8,enc,i,off);
+      encode_append(t,lb,enc,i,off); // last block
       return;
     }
-    t |= 0x80;
+
+    b <<= 7;
+    if (val < b)
+    {
+      encode_append(t,8,enc,i,off); // last block
+      return;
+    }
+    
+    t |= 0x80; // set forward bit
     encode_append(t,8,enc,i,off);
     s += 7;
-    if (s < u) b <<= 7;
   }
 }
 
@@ -378,17 +393,20 @@ void encode_append(const T val, const uint8_t bits, vector<T> &enc, size_t &i, u
 template<class T>
 T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
 {
-  const int bs = chunkdata<T>::bitsize();
+  const int bs = chunkdata<T>::bitsize(), lb = bs % 7, u = bs - 7;
+  
   int s = 0;
   T val = 0;
   while (s < bs && i < enc.size())
   {
-    T t = decode_fetch(8,enc,i,off);
+    int bits = s <= u ? 8 : lb;
+    T t = decode_fetch(bits,enc,i,off);
     val |= ((t & 0x7F) << s);
     if (!(t & 0x80))
       return val;
     s += 7;
   }
+  return 0;
 }
 
 template<class T>
