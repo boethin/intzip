@@ -52,6 +52,9 @@ struct options {
   bool version;
   const char *infile;
   const char *outfile;
+#ifdef TRACE
+  bool trace;
+#endif
 
   options() : 
     compress(true),
@@ -60,6 +63,9 @@ struct options {
     version(false),
     infile(NULL),
     outfile(NULL)
+#ifdef TRACE
+    ,trace(false)
+#endif
   {}
   
   void parse(int argc, char **argv)
@@ -76,6 +82,10 @@ struct options {
             handle('b');
           else if (0 == strcmp(argv[i],"--version"))
             handle('v');
+#ifdef TRACE
+          else if (0 == strcmp(argv[i],"--trace"))
+            trace = true;
+#endif
           else if (0 == strcmp(argv[i],"--output") && (i < argc - 1)) {
             outfile = argv[++i];
           }

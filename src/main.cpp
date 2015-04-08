@@ -30,6 +30,10 @@
 
 using namespace std;
 
+#ifdef TRACE
+bool do_trace = false;
+#endif
+
 int main(int argc, char** argv)
 {
   string line;
@@ -47,6 +51,10 @@ int main(int argc, char** argv)
     cout << cmd.get_version() << endl;
     return 0;
   }
+
+#ifdef TRACE
+  do_trace = cmd.trace;
+#endif
 
   if (cmd.binary)
   {

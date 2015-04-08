@@ -50,6 +50,24 @@ AM_COND_IF(DEBUG,
     AC_DEFINE(DEBUG, 0, [Define to 1 or higher if this is a debug build])
     AC_DEFINE(NDEBUG, 1, [NDEBUG disables assert()]))
 
+# Add trace support
+AC_ARG_ENABLE(trace,
+  AS_HELP_STRING(
+    [--enable-trace],
+    [enable tracing, default: no]),
+    [case "${enableval}" in
+      yes) trace=true ;;
+      no)  trace=false ;;
+      *)   AC_MSG_ERROR([bad value ${enableval} for --enable-trace]) ;;
+    esac],
+    [trace=false])
+AM_CONDITIONAL(TRACE, test x"$trace" = x"true")
+AM_COND_IF(TRACE,
+    AC_DEFINE(TRACE, 1, [Define to 0 to disable verbose tracing]),
+    AC_DEFINE(TRACE, 0, [Define to 1 to enable verbose tracing]))
+
+
+
 # Makefiles
 AC_CONFIG_FILES([
 	Makefile

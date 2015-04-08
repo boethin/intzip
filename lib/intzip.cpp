@@ -25,6 +25,15 @@
 // #define NDEBUG
 #include <cassert>
 
+// verbose encoding tracing to stderr
+#ifdef TRACE
+#define __STDC_LIMIT_MACROS
+#include <inttypes.h>
+#include <stdio.h>
+
+extern bool do_trace;
+#endif
+
 #include "def.h"
 #include "intzip.h"
 
@@ -174,6 +183,9 @@ struct chunk : public chunkdata<T> {
       c.base = 0;
       c.bits = ceil_log2<T>(p);
       c.cost = c.cost_base + 1;
+#ifdef TRACE
+      c.trace("singleton");
+#endif
       return c;
     }
 
@@ -181,6 +193,9 @@ struct chunk : public chunkdata<T> {
     {
       // what would be the next
       chunk n = c.next(*it - p), n2;
+// #ifdef TRACE
+//       n.trace("next");
+// #endif
 
       if (!(*it > p)) {
         throw "A strictly increasing list is required";
@@ -196,19 +211,31 @@ struct chunk : public chunkdata<T> {
 
         // break immediately when an equidistant sequence ends
         if (c.bits == 0) {
+#ifdef TRACE
+          c.trace("equidistant");
+#endif
           return c;
         }
 
         if (c21.cost_base)
         {
           // check previous delta point
+#ifdef TRACE
+          c.trace("check");
+#endif
           if (c21.cost + c22.cost < c.cost) {
             // breaking at the last delta point would be cheaper
+#ifdef TRACE
+            c21.trace("break");
+#endif
             return c21;
           }
         }
 
         // remember this delta point
+#ifdef TRACE
+        c.trace("remember");
+#endif
         c21 = c, c22 = chunk(*it), n2.cost_base = 0;
       }
 
@@ -228,6 +255,7 @@ struct chunk : public chunkdata<T> {
     if (c21.cost_base)
     {
       // check whether we should break at the last delta point
+
       if (c21.cost + c22.cost < c.cost) {
         // breaking at the last delta point would be cheaper
         return c21;
@@ -259,13 +287,16 @@ struct chunk : public chunkdata<T> {
     return c;
   }
 
+#ifdef TRACE
+  void trace(const char *info);
+#endif
+
   // The cost value
   uint64_t cost;
 
 private:
   int cost_base;
 };
-
 
 template<class T>
 void intzip::encode(const vector<T> &in, vector<T> &enc)
@@ -280,6 +311,9 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
   for (typename vector<T>::const_iterator it = in.begin(); it != in.end(); )
   {
     chunk<T> c = chunk<T>::delta(in,it);
+#ifdef TRACE
+    c.trace("encode");
+#endif
     chunk<T>::encode_header(c,enc,i,enc_off);
     if (c.bits > 0)
     {
@@ -517,3 +551,15 @@ bool is_power2(T x)
   return x && !(x & (x - 1));
 }
 
+// trace
+#ifdef TRACE
+template<class T>
+void chunk<T>::trace(const char *info)
+{
+  if (do_trace)
+  {
+    fprintf(stderr,"# %s: chunk[len=%d, bits=%d]: first: %08X, base: %08X => %lu\n",
+      info,this->len,this->bits,this->first,this->base,this->calculate_cost());
+  }
+}
+#endif
