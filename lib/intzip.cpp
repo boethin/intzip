@@ -171,13 +171,14 @@ struct chunk : public chunkdata<T> {
       n.maxdiff = diff, chg = true;
 
     if (chg) { // re-calculate bits need, cost
-      n.bits = ceil_log2<T>(n.maxdiff - n.base), n.cost = n.calculate_cost();
+      n.bits = ceil_log2<T>(n.maxdiff - n.base); //, n.cost = n.calculate_cost();
     }
-    else {
-      n.cost += n.bits;
-      if (is_power2(n.len)) // increase length bits
-        n.cost++;
-    }
+//     else {
+//       n.cost += n.bits;
+//       if (is_power2(n.len)) // increase length bits
+//         n.cost++;
+//     }
+    n.cost = n.calculate_cost();
 
     return n;
   }
@@ -202,9 +203,6 @@ struct chunk : public chunkdata<T> {
     {
       // what would be the next
       chunk n = c.next(*it - p), n2;
-// #ifdef ENABLE_TRACE
-//       n.TRACE("next");
-// #endif
 
       if (!(*it > p)) {
         throw "A strictly increasing list is required";
@@ -214,7 +212,7 @@ struct chunk : public chunkdata<T> {
         n2 = c22.next(*it - p);
       }
 
-      if (n.bits > c.bits && (c.len > 2 && in.end() - it > 2))
+      if (n.bits != c.bits && (c.len > 2 && in.end() - it > 2))
       {
         // current sequence may be worth splitting at an earlier stage
 
@@ -227,7 +225,7 @@ struct chunk : public chunkdata<T> {
         if (c21.cost_base)
         {
           // check previous delta point
-          TRACE(" [check]",c);
+          TRACE(" :check",c,"(%u + %u = %u vs. %u)",c21.cost,c22.cost,c21.cost + c22.cost,c.cost);
           if (c21.cost + c22.cost < c.cost) {
             // breaking at the last delta point would be cheaper
             TRACE("-> break",c21);
@@ -236,7 +234,7 @@ struct chunk : public chunkdata<T> {
         }
 
         // remember this delta point
-        TRACE(" [remember]",c);
+        TRACE(" :remember",c);
         c21 = c, c22 = chunk(*it), n2.cost_base = 0;
       }
 
@@ -256,13 +254,15 @@ struct chunk : public chunkdata<T> {
     if (c21.cost_base)
     {
       // check whether we should break at the last delta point
-
+      TRACE(" :check",c,"(%u + %u = %u vs. %u)",c21.cost,c22.cost,c21.cost + c22.cost,c.cost);
       if (c21.cost + c22.cost < c.cost) {
         // breaking at the last delta point would be cheaper
+        TRACE("-> earlier",c21);
         return c21;
       }
     }
 
+    TRACE("-> end",c);
     return c;
   }
 
@@ -304,6 +304,9 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
 {
   size_t i = 0;
   uint8_t enc_off = 0;
+#ifdef ENABLE_TRACE
+  uint64_t total_cost = 0;
+#endif
 
   if (in.empty()) // empty input
     return;
@@ -327,7 +330,12 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
       it += c.len + 1;
     }
 
+#ifdef ENABLE_TRACE
+    total_cost += c.calculate_cost();
+#endif
+
   }
+  TRACE("total","cost=%lu",total_cost);
 }
 
 template<class T>
@@ -558,7 +566,7 @@ bool is_power2(T x)
 template<class T>
 void chunk<T>::to_string(char buf[]) const
 {
-  sprintf(buf,"%#08x (base=%u, %lu*%d bits: cost=%u)",
+  sprintf(buf,"%#08x [base=%u, %lu*%d bits: cost=%u]",
     this->first,this->base,this->len,this->bits,this->calculate_cost());
 }
 
