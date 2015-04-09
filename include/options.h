@@ -52,7 +52,7 @@ struct options {
   bool version;
   const char *infile;
   const char *outfile;
-#ifdef TRACE
+#ifdef ENABLE_TRACE
   bool trace;
 #endif
 
@@ -63,7 +63,7 @@ struct options {
     version(false),
     infile(NULL),
     outfile(NULL)
-#ifdef TRACE
+#ifdef ENABLE_TRACE
     ,trace(false)
 #endif
   {}
@@ -82,7 +82,7 @@ struct options {
             handle('b');
           else if (0 == strcmp(argv[i],"--version"))
             handle('v');
-#ifdef TRACE
+#ifdef ENABLE_TRACE
           else if (0 == strcmp(argv[i],"--trace"))
             trace = true;
 #endif

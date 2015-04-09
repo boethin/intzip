@@ -26,12 +26,23 @@
 #include <cassert>
 
 // verbose encoding tracing to stderr
-#ifdef TRACE
+#ifdef ENABLE_TRACE
 #define __STDC_LIMIT_MACROS
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdarg.h>
 
-extern bool do_trace;
+extern bool enable_trace;
+
+template<class T> struct chunk;
+static void printf_tracelog(const char *mark, const char* log);
+static void printf_tracelog_args(const char *mark, const char* format, ...);
+template<class T> static void printf_tracelog_args(const char *mark, const chunk<T> &chunk, const char* format, ...);
+template<class T> static void printf_tracelog_args(const char *mark, const chunk<T> &chunk);
+
+#define TRACE(...) printf_tracelog_args ( __VA_ARGS__ )
+#else
+#define TRACE(...)
 #endif
 
 #include "def.h"
@@ -183,9 +194,7 @@ struct chunk : public chunkdata<T> {
       c.base = 0;
       c.bits = ceil_log2<T>(p);
       c.cost = c.cost_base + 1;
-#ifdef TRACE
-      c.trace("singleton");
-#endif
+      TRACE("singleton",c);
       return c;
     }
 
@@ -193,8 +202,8 @@ struct chunk : public chunkdata<T> {
     {
       // what would be the next
       chunk n = c.next(*it - p), n2;
-// #ifdef TRACE
-//       n.trace("next");
+// #ifdef ENABLE_TRACE
+//       n.TRACE("next");
 // #endif
 
       if (!(*it > p)) {
@@ -211,31 +220,23 @@ struct chunk : public chunkdata<T> {
 
         // break immediately when an equidistant sequence ends
         if (c.bits == 0) {
-#ifdef TRACE
-          c.trace("equidistant");
-#endif
+          TRACE("-> equidist",c);
           return c;
         }
 
         if (c21.cost_base)
         {
           // check previous delta point
-#ifdef TRACE
-          c.trace("check");
-#endif
+          TRACE(" [check]",c);
           if (c21.cost + c22.cost < c.cost) {
             // breaking at the last delta point would be cheaper
-#ifdef TRACE
-            c21.trace("break");
-#endif
+            TRACE("-> break",c21);
             return c21;
           }
         }
 
         // remember this delta point
-#ifdef TRACE
-        c.trace("remember");
-#endif
+        TRACE(" [remember]",c);
         c21 = c, c22 = chunk(*it), n2.cost_base = 0;
       }
 
@@ -287,8 +288,8 @@ struct chunk : public chunkdata<T> {
     return c;
   }
 
-#ifdef TRACE
-  void trace(const char *info);
+#ifdef ENABLE_TRACE
+  void to_string(char buf[]) const;
 #endif
 
   // The cost value
@@ -311,9 +312,8 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
   for (typename vector<T>::const_iterator it = in.begin(); it != in.end(); )
   {
     chunk<T> c = chunk<T>::delta(in,it);
-#ifdef TRACE
-    c.trace("encode");
-#endif
+    TRACE(">> encode",c);
+
     chunk<T>::encode_header(c,enc,i,enc_off);
     if (c.bits > 0)
     {
@@ -551,15 +551,59 @@ bool is_power2(T x)
   return x && !(x & (x - 1));
 }
 
-// trace
-#ifdef TRACE
+// -- TRACE --
+
+#ifdef ENABLE_TRACE
+
 template<class T>
-void chunk<T>::trace(const char *info)
+void chunk<T>::to_string(char buf[]) const
 {
-  if (do_trace)
-  {
-    fprintf(stderr,"# %s: chunk[len=%d, bits=%d]: first: %08X, base: %08X => %lu\n",
-      info,this->len,this->bits,this->first,this->base,this->calculate_cost());
-  }
+  sprintf(buf,"%#08x (base=%u, %lu*%d bits: cost=%u)",
+    this->first,this->base,this->len,this->bits,this->calculate_cost());
 }
+
+void printf_tracelog(const char *mark, const char* log)
+{
+  if (enable_trace)
+    fprintf(stderr,"# %-12s %s\n",mark,log);
+}
+
+void printf_tracelog_args(const char *mark, const char* format, ...)
+{
+  va_list args;
+  char buf[0x1000];
+
+  va_start(args, format);
+  vsprintf(buf, format, args);
+  va_end(args);
+
+  printf_tracelog(mark,buf);
+}
+
+template<class T>
+void printf_tracelog_args(const char *mark, const chunk<T> &chunk, const char* format, ...)
+{
+  va_list args;
+  char buf[0x1000], buf2[0x1000], buf3[0x1000];
+
+  chunk.to_string(buf);
+
+  va_start(args, format);
+  vsprintf(buf2, format, args);
+  va_end(args);
+
+  sprintf(buf3,"%s %s",buf,buf2);
+  
+  printf_tracelog(mark,buf3);
+}
+
+template<class T>
+void printf_tracelog_args(const char *mark, const chunk<T> &chunk)
+{
+  char buf[0x1000];
+
+  chunk.to_string(buf);
+  printf_tracelog(mark,buf);
+}
+
 #endif

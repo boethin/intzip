@@ -30,8 +30,8 @@
 
 using namespace std;
 
-#ifdef TRACE
-bool do_trace = false;
+#ifdef ENABLE_TRACE
+bool enable_trace = false; // extern
 #endif
 
 int main(int argc, char** argv)
@@ -52,8 +52,8 @@ int main(int argc, char** argv)
     return 0;
   }
 
-#ifdef TRACE
-  do_trace = cmd.trace;
+#ifdef ENABLE_TRACE
+  enable_trace = cmd.trace;
 #endif
 
   if (cmd.binary)

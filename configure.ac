@@ -63,8 +63,8 @@ AC_ARG_ENABLE(trace,
     [trace=false])
 AM_CONDITIONAL(TRACE, test x"$trace" = x"true")
 AM_COND_IF(TRACE,
-    AC_DEFINE(TRACE, 1, [Define to 0 to disable verbose tracing]),
-    AC_DEFINE(TRACE, 0, [Define to 1 to enable verbose tracing]))
+    AC_DEFINE(ENABLE_TRACE, 1, [Define to 0 to disable verbose tracing]),
+    AC_DEFINE(ENABLE_TRACE, 0, [Define to 1 to enable verbose tracing]))
 
 
 
