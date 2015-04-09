@@ -189,13 +189,13 @@ struct chunk : public chunkdata<T> {
     
     T p = *it;
     chunk c(p), c21, c22;
+    TRACE("|start","%#08x",p);
 
     // handle singleton
     if (++it == in.end()) {
       c.base = 0;
       c.bits = ceil_log2<T>(p);
       c.cost = c.cost_base + 1;
-      TRACE("singleton",c);
       return c;
     }
 
@@ -566,8 +566,8 @@ bool is_power2(T x)
 template<class T>
 void chunk<T>::to_string(char buf[]) const
 {
-  sprintf(buf,"%#08x [base=%u, %lu*%d bits: cost=%u]",
-    this->first,this->base,this->len,this->bits,this->calculate_cost());
+  sprintf(buf,"%#08x [base=%u, maxdiff=%u, %lu*%d bits: cost=%u]",
+    this->first,this->base,this->maxdiff,this->len,this->bits,this->calculate_cost());
 }
 
 void printf_tracelog(const char *mark, const char* log)
