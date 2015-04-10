@@ -1,12 +1,22 @@
 # Process with autom4te to create an -*- Autotest -*- test suite.
 
+
+m4_define([AT_CHECK_INTZIP_OPTION],
+[AT_SETUP([intzip $1])
+AT_CHECK([intzip $1], [$3], [stdout])
+AT_CHECK([fgrep "$2" stdout], [], [ignore])
+AT_CLEANUP])
+     
 # AT_CHECK_ENCODE_DECODE(setup,testfile)
 m4_define([AT_CHECK_ENCODE_DECODE],
 [AT_SETUP([encode/decode $1])
 AT_CHECK([encode-decode $2])
 AT_CLEANUP])
 
-AT_INIT([intzip: 1])
+AT_INIT([intzip])
+
+AT_CHECK_INTZIP_OPTION([--version],[AT_PACKAGE_STRING],[0])
+AT_CHECK_INTZIP_OPTION([--help],[intzip],[1])
 
 # generated tests
 m4_include([gentests.at])
