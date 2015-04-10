@@ -101,7 +101,7 @@ static ___inline__(
   int encode_cost(const T val)
 );
 
-/* Compress and append an integer */
+// Compress and append an integer
 template<class T>
 static ___inline__(
   void encode_append(const T val, vector<T> &enc, size_t &i, uint8_t &off)
@@ -174,6 +174,7 @@ struct chunk : public chunkdata<T> {
       n.bits = ceil_log2<T>(n.maxdiff - n.base), n.cost = n.calculate_cost();
     }
     else {
+      // cost may be only changed only by len
       if (is_power2(n.len)) {
         n.cost = n.calculate_cost();
       }
@@ -181,12 +182,6 @@ struct chunk : public chunkdata<T> {
         n.cost += n.bits;
       }
     }
-//     else {
-//       n.cost += n.bits;
-//       if (is_power2(n.len)) // increase length bits
-//         n.cost++;
-//     }
-    //n.cost = n.calculate_cost();
 
     assert(n.cost == n.calculate_cost());
     return n;
