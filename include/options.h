@@ -43,7 +43,7 @@ PACKAGE_STRING "\n" \
 "  -b, --binary             Input and output in binary (network order / big endian) mode.\n" \
 "  -o, --output <file>      Output to <file>.\n" \
 "If the [file] argument is omitted or set to '-', input is read from stdin.\n\n" \
-"See <https://github.com/boethin/intzip/blob/master/README.md> for more information."
+"See <https://github.com/boethin/intzip/wiki> for more information."
 
 struct options {
   bool compress;
