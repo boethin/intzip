@@ -5,5 +5,5 @@
 AT_BANNER([[Empty List Tests.]])
 
 # Check whether encoding/decoding of Empty maps to itself.
-AT_CHECK_ENCODE_DECODE([Empty],[empty_empty])
+AT_CHECK_ENCDEC32([Empty],[empty_empty])
 

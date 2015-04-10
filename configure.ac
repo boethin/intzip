@@ -31,7 +31,6 @@ AC_TYPE_SIZE_T
 AC_CONFIG_TESTDIR([tests])
 AC_CONFIG_FILES([tests/atlocal])
 AC_CONFIG_FILES([tests/intzip], [chmod +x tests/intzip])
-AC_CONFIG_FILES([tests/encode-decode], [chmod +x tests/encode-decode])
 
 # Add debug support
 AC_ARG_ENABLE(debug,

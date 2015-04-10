@@ -13,12 +13,13 @@ my @at_files;
 
 my %create = (
 
-  encode_decode => sub {
+  # AT_CHECK_ENCDEC32
+  ENCDEC32 => sub {
     my ($at_fh,$data_fh,$filename,$setup,$list) = @_;
 
     # add to .at test category file
     printf $at_fh "# Check whether encoding/decoding of $setup maps to itself.\n";
-    printf $at_fh "AT_CHECK_ENCODE_DECODE([%s],[%s])\n\n", $setup, $filename;
+    printf $at_fh "AT_CHECK_ENCDEC32([%s],[%s])\n\n", $setup, $filename;
 
     # create testdata
     printf $data_fh "%x\n", $_ foreach @$list;
@@ -63,51 +64,51 @@ sub at_category($$@) {
 # tests
 
 at_category empty => 'Empty List Tests',
-  { type => 'encode_decode', name => 'empty', setup => 'Empty', data => [] };
+  { type => 'ENCDEC32', name => 'empty', setup => 'Empty', data => [] };
 
 at_category singleton => 'Singleton List Tests',
-  map { { type => 'encode_decode', data => [$_] } } (
+  map { { type => 'ENCDEC32', data => [$_] } } (
     (0 .. 8), 23, 0xff, 0x100, 0xffff, 0x10000, 0xf2a759e, 0xfffffffe, 0xffffffff
   );
 
 at_category short => 'Short List Tests',
-  map { { type => 'encode_decode', data => $_ } } (
+  map { { type => 'ENCDEC32', data => $_ } } (
     ( map { [0,$_] } (1,2,0x100,0xffff,0xffffffff) ),
     ( map { [1,$_] } (2,3,23,0xffff,0xffffffff) ),
-    ( map { [$_,0xfffffffe,0xffffffff] } (1,0xffff) ),
+    ( map { [$_,0xffffffff] } (1,0xffff) ),
     ( map { [1,2,$_] } (3,4,23) ),
     [ ( 0 .. 5 ) ],
     [ ( 0xff .. 0x102 ) ],
-    [ ( 0xfffe .. 0x10001 ) ],
+    [ ( 0xfffe .. 0x10000 ) ],
   );
 
 at_category equidistant => 'Equidistant Interval Tests',
   (map {
     my $dist = $_;
-    { type => 'encode_decode', name => "Distance $dist",
+    { type => 'ENCDEC32', name => "Distance $dist",
       data => [ map { $dist*$_ } ( 0 .. 0x10 ) ]  };
   } ( 1, 2, 5, 0xff, 0x10000 )),
-  { type => 'encode_decode', name => "Alternating",
+  { type => 'ENCDEC32', name => "Alternating",
       data => [ map { 2*$_ + ($_ % 2) } ( 0 .. 0x20 ) ],
   },
-  { type => 'encode_decode', name => "Multiple",
+  { type => 'ENCDEC32', name => "Multiple",
       data => sorted( (0 .. 50), (100 .. 150), (200, 250), (1000 .. 1100 ) ),
   };
 
 
 at_category random => 'Random List Tests',
-  { type => 'encode_decode', name => 'Small Numbers',
+  { type => 'ENCDEC32', name => 'Small Numbers',
     data => sorted( (1 .. 20), map { 20 + int(rand(0x1000)) } ( 1 .. 1000 )  )
   },
-  { type => 'encode_decode', name => 'Uniform Distribution',
+  { type => 'ENCDEC32', name => 'Uniform Distribution',
     data => sorted( map { int(rand(0xffffffff)) } ( 1 .. 10000 ) )
   };
   
 at_category special => 'Special List Tests',
-	{ type => 'encode_decode', name => 'Powers of 2 (32bit)',
+	{ type => 'ENCDEC32', name => 'Powers of 2',
 		data => [ map { 1 << $_ } ( 0 .. 31 ) ]
 	},
-	{ type => 'encode_decode', name => 'Fibonacci (32bit)',
+	{ type => 'ENCDEC32', name => 'Fibonacci',
 		data => [ map { hex $_ } qw(
 			1 2 3 5 8 d 15 22 37 59 90 e9 179 262 3db 63d a18 1055 1a6d 2ac2 452f 6ff1 b520 
 			12511 1da31 2ff42 4d973 7d8b5 cb228 148add 213d05 35c7e2 5704e7 8cccc9 e3d1b0 1709e79 

@@ -5,23 +5,23 @@
 AT_BANNER([[Equidistant Interval Tests.]])
 
 # Check whether encoding/decoding of Distance 1 maps to itself.
-AT_CHECK_ENCODE_DECODE([Distance 1],[equidistant_distance_1])
+AT_CHECK_ENCDEC32([Distance 1],[equidistant_distance_1])
 
 # Check whether encoding/decoding of Distance 2 maps to itself.
-AT_CHECK_ENCODE_DECODE([Distance 2],[equidistant_distance_2])
+AT_CHECK_ENCDEC32([Distance 2],[equidistant_distance_2])
 
 # Check whether encoding/decoding of Distance 5 maps to itself.
-AT_CHECK_ENCODE_DECODE([Distance 5],[equidistant_distance_5])
+AT_CHECK_ENCDEC32([Distance 5],[equidistant_distance_5])
 
 # Check whether encoding/decoding of Distance 255 maps to itself.
-AT_CHECK_ENCODE_DECODE([Distance 255],[equidistant_distance_255])
+AT_CHECK_ENCDEC32([Distance 255],[equidistant_distance_255])
 
 # Check whether encoding/decoding of Distance 65536 maps to itself.
-AT_CHECK_ENCODE_DECODE([Distance 65536],[equidistant_distance_65536])
+AT_CHECK_ENCDEC32([Distance 65536],[equidistant_distance_65536])
 
 # Check whether encoding/decoding of Alternating maps to itself.
-AT_CHECK_ENCODE_DECODE([Alternating],[equidistant_alternating])
+AT_CHECK_ENCDEC32([Alternating],[equidistant_alternating])
 
 # Check whether encoding/decoding of Multiple maps to itself.
-AT_CHECK_ENCODE_DECODE([Multiple],[equidistant_multiple])
+AT_CHECK_ENCDEC32([Multiple],[equidistant_multiple])
 

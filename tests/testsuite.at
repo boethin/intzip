@@ -7,15 +7,17 @@ AT_CHECK([intzip $1], [$3], [stdout])
 AT_CHECK([fgrep "$2" stdout], [], [ignore])
 AT_CLEANUP])
      
-# AT_CHECK_ENCODE_DECODE(setup,testfile)
-m4_define([AT_CHECK_ENCODE_DECODE],
-[AT_SETUP([encode/decode $1])
-AT_CHECK([encode-decode $2])
+# AT_CHECK_ENCDEC32(setup,testfile)
+m4_define([AT_CHECK_ENCDEC32],
+[AT_SETUP([encode/decode 32bit $1])
+AT_CHECK([intzip "$abs_top_srcdir/testdata/$2"],[],[stdout])
+AT_CHECK([intzip -d stdout | diff "$abs_top_srcdir/testdata/$2" -],[],[])
 AT_CLEANUP])
 
 AT_INIT([intzip])
 
 # standard options
+AT_BANNER([[Command Line Options.]])
 AT_CHECK_OPTION([--version],[AT_PACKAGE_STRING],[0])
 AT_CHECK_OPTION([--help],[Usage],[1])
 AT_CHECK_OPTION([--foo],[Usage],[1])

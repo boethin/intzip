@@ -4,9 +4,9 @@
 #
 AT_BANNER([[Special List Tests.]])
 
-# Check whether encoding/decoding of Powers of 2 (32bit) maps to itself.
-AT_CHECK_ENCODE_DECODE([Powers of 2 (32bit)],[special_powers_of_2__32bit_])
+# Check whether encoding/decoding of Powers of 2 maps to itself.
+AT_CHECK_ENCDEC32([Powers of 2],[special_powers_of_2])
 
-# Check whether encoding/decoding of Fibonacci (32bit) maps to itself.
-AT_CHECK_ENCODE_DECODE([Fibonacci (32bit)],[special_fibonacci__32bit_])
+# Check whether encoding/decoding of Fibonacci maps to itself.
+AT_CHECK_ENCDEC32([Fibonacci],[special_fibonacci])
 
