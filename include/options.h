@@ -122,7 +122,7 @@ struct options {
       case 'v':
         version = true;
         break;
-      case 'h':
+      default:
         usage = true;
         break;
     }
