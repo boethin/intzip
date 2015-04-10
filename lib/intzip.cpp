@@ -161,25 +161,34 @@ struct chunk : public chunkdata<T> {
   chunk ___const__( next(T diff) const )
   {
     bool chg = false;
-    chunk n(*this);
+    chunk n(*this); // copy this
     n.len++;
 
-    if (diff < n.base)
+    if (diff < n.base) 
       n.base = diff, chg = true;
 
     if (diff > n.maxdiff)
       n.maxdiff = diff, chg = true;
 
     if (chg) { // re-calculate bits need, cost
-      n.bits = ceil_log2<T>(n.maxdiff - n.base); //, n.cost = n.calculate_cost();
+      n.bits = ceil_log2<T>(n.maxdiff - n.base), n.cost = n.calculate_cost();
+    }
+    else {
+      if (is_power2(n.len)) {
+        n.cost = n.calculate_cost();
+      }
+      else if (n.bits > 0) {
+        n.cost += n.bits;
+      }
     }
 //     else {
 //       n.cost += n.bits;
 //       if (is_power2(n.len)) // increase length bits
 //         n.cost++;
 //     }
-    n.cost = n.calculate_cost();
+    //n.cost = n.calculate_cost();
 
+    assert(n.cost == n.calculate_cost());
     return n;
   }
 
@@ -196,6 +205,7 @@ struct chunk : public chunkdata<T> {
       c.base = 0;
       c.bits = ceil_log2<T>(p);
       c.cost = c.cost_base + 1;
+      TRACE("->single",c);
       return c;
     }
 
@@ -212,12 +222,12 @@ struct chunk : public chunkdata<T> {
         n2 = c22.next(*it - p);
       }
 
-      if (n.bits != c.bits && (c.len > 2 && in.end() - it > 2))
+      if (n.bits > c.bits && (c.len > 0 && in.end() - it > 1) )
       {
         // current sequence may be worth splitting at an earlier stage
 
         // break immediately when an equidistant sequence ends
-        if (c.bits == 0) {
+        if (c.len > 1 && c.bits == 0) {
           TRACE("-> equidist",c);
           return c;
         }
@@ -239,7 +249,7 @@ struct chunk : public chunkdata<T> {
       }
 
       c = n;
-      if (n2.cost_base) {
+      if (n2.cost_base) { // move c22 to next
         c22 = n2;
       }
       
@@ -247,17 +257,13 @@ struct chunk : public chunkdata<T> {
     }
 
     // end of list
-    if (c.len <= 4) {
-      return c;
-    }
-
     if (c21.cost_base)
     {
       // check whether we should break at the last delta point
       TRACE(" :check",c,"(%u + %u = %u vs. %u)",c21.cost,c22.cost,c21.cost + c22.cost,c.cost);
       if (c21.cost + c22.cost < c.cost) {
         // breaking at the last delta point would be cheaper
-        TRACE("-> earlier",c21);
+        TRACE("-> backtrace",c21);
         return c21;
       }
     }
@@ -566,7 +572,7 @@ bool is_power2(T x)
 template<class T>
 void chunk<T>::to_string(char buf[]) const
 {
-  sprintf(buf,"%#08x [base=%u, maxdiff=%u, %lu*%d bits: cost=%u]",
+  sprintf(buf,"%#08x [base=%u, maxdiff=%u, %u*%d bits: cost=%lu]",
     this->first,this->base,this->maxdiff,this->len,this->bits,this->calculate_cost());
 }
 
