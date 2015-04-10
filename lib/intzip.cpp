@@ -197,7 +197,7 @@ struct chunk : public chunkdata<T> {
     assert(!in.empty());
     
     T p = *it;
-    chunk c(p), c21, c22;
+    chunk c(p), c_left, c_right;
     TRACE("|start","%#08x",p);
 
     // handle singleton
@@ -218,8 +218,8 @@ struct chunk : public chunkdata<T> {
         throw "A strictly increasing list is required";
       }
 
-      if (c22.cost_base) {
-        n2 = c22.next(*it - p);
+      if (c_right.cost_base) {
+        n2 = c_right.next(*it - p);
       }
 
       if (n.bits > c.bits && (c.len > 0 && in.end() - it > 1) )
@@ -232,39 +232,39 @@ struct chunk : public chunkdata<T> {
           return c;
         }
 
-        if (c21.cost_base)
+        if (c_left.cost_base)
         {
           // check previous delta point
-          TRACE(" :check",c,"(%u + %u = %u vs. %u)",c21.cost,c22.cost,c21.cost + c22.cost,c.cost);
-          if (c21.cost + c22.cost < c.cost) {
+          TRACE(" :check",c,"(%u + %u = %u vs. %u)",c_left.cost,c_right.cost,c_left.cost + c_right.cost,c.cost);
+          if (c_left.cost + c_right.cost < c.cost) {
             // breaking at the last delta point would be cheaper
-            TRACE("-> break",c21);
-            return c21;
+            TRACE("-> break",c_left);
+            return c_left;
           }
         }
 
         // remember this delta point
         TRACE(" :remember",c);
-        c21 = c, c22 = chunk(*it), n2.cost_base = 0;
+        c_left = c, c_right = chunk(*it), n2.cost_base = 0;
       }
 
       c = n;
-      if (n2.cost_base) { // move c22 to next
-        c22 = n2;
+      if (n2.cost_base) { // move c_right to next
+        c_right = n2;
       }
       
       p = *it;
     }
 
     // end of list
-    if (c21.cost_base)
+    if (c_left.cost_base)
     {
       // check whether we should break at the last delta point
-      TRACE(" :check",c,"(%u + %u = %u vs. %u)",c21.cost,c22.cost,c21.cost + c22.cost,c.cost);
-      if (c21.cost + c22.cost < c.cost) {
+      TRACE(" :check",c,"(%u + %u = %u vs. %u)",c_left.cost,c_right.cost,c_left.cost + c_right.cost,c.cost);
+      if (c_left.cost + c_right.cost < c.cost) {
         // breaking at the last delta point would be cheaper
-        TRACE("-> backtrace",c21);
-        return c21;
+        TRACE("-> backtrace",c_left);
+        return c_left;
       }
     }
 
