@@ -1,7 +1,7 @@
 # Process with autom4te to create an -*- Autotest -*- test suite.
 
-
-m4_define([AT_CHECK_INTZIP_OPTION],
+# AT_CHECK_OPTION(option,output,status)
+m4_define([AT_CHECK_OPTION],
 [AT_SETUP([intzip $1])
 AT_CHECK([intzip $1], [$3], [stdout])
 AT_CHECK([fgrep "$2" stdout], [], [ignore])
@@ -15,8 +15,10 @@ AT_CLEANUP])
 
 AT_INIT([intzip])
 
-AT_CHECK_INTZIP_OPTION([--version],[AT_PACKAGE_STRING],[0])
-AT_CHECK_INTZIP_OPTION([--help],[intzip],[1])
+# standard options
+AT_CHECK_OPTION([--version],[AT_PACKAGE_STRING],[0])
+AT_CHECK_OPTION([--help],[Usage],[1])
+AT_CHECK_OPTION([--foo],[Usage],[1])
 
 # generated tests
 m4_include([gentests.at])
