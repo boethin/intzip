@@ -21,6 +21,11 @@
 #include <config.h>
 #endif
 
+// uncomment to disable assert()
+// #define NDEBUG
+#include <cassert>
+
+#include <cstdlib>
 #include <iostream>
 
 #include "def.h"
@@ -33,6 +38,16 @@ using namespace std;
 #ifdef ENABLE_TRACE
 bool enable_trace = false; // extern
 #endif
+
+template<class T>
+static ___inline__( void read(const intzip::options &cmd, vector<T> &in) );
+
+template<class T>
+static ___inline__( void write(const intzip::options &cmd, vector<T> &out) );
+
+template<class T>
+static ___inline__( int process(const intzip::options &cmd) );
+
 
 int main(int argc, char** argv)
 {
@@ -49,13 +64,30 @@ int main(int argc, char** argv)
 
   if (cmd.version) { // display version and exit
     cout << cmd.get_version() << endl;
-    return 0;
+    return EXIT_SUCCESS;
   }
 
 #ifdef ENABLE_TRACE
   enable_trace = cmd.trace;
 #endif
 
+  switch (cmd.type)
+  {
+    case intzip::U16:
+      return process<uint16_t>(cmd);
+    case intzip::U32:
+      return process<uint32_t>(cmd);
+    case intzip::U64:
+      return process<uint64_t>(cmd);
+  }
+
+  assert(false); // never reach this point
+  return EXIT_SUCCESS;
+}
+
+template<class T>
+void read(const intzip::options &cmd, vector<T> &in)
+{
   if (cmd.binary)
   {
     if (cmd.infile) {
@@ -72,20 +104,11 @@ int main(int argc, char** argv)
     else
       intzip::read_hex(in);
   }
+}
 
-  try {
-    if (cmd.compress) {
-      intzip::encode<uint32_t>(in,out);
-    }
-    else {
-      intzip::decode<uint32_t>(in,out);
-    }
-  }
-  catch (const char* msg) {
-    cerr << msg << endl;
-    return 1;
-  }
-  
+template<class T>
+void write(const intzip::options &cmd, vector<T> &out)
+{
   if (cmd.binary)
   {
     if (cmd.outfile) {
@@ -104,9 +127,29 @@ int main(int argc, char** argv)
       intzip::write_hex(out);
     }
   }
-
-  
-  
-  return 0;
 }
 
+template<class T>
+int process(const intzip::options &cmd)
+{
+  vector<T> in, out;
+  
+  read(cmd,in);
+
+  try {
+    if (cmd.compress) {
+      intzip::encode(in,out);
+    }
+    else {
+      intzip::decode(in,out);
+    }
+  }
+  catch (const char* msg) {
+    cerr << msg << endl;
+    return EXIT_FAILURE;
+  }
+
+  write(cmd,out);
+
+  return EXIT_SUCCESS;
+}

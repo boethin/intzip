@@ -24,6 +24,8 @@
 
 namespace intzip {
 
+enum int_t { U16, U32, U64 };
+
 // PACKAGE_STRING from config.h
 #define VERSION_STRING \
 PACKAGE_STRING "\n" \
@@ -38,18 +40,22 @@ PACKAGE_STRING "\n" \
 "Options:\n" \
 "  -h, --help               Display this information.\n" \
 "  -v, --version            Display version information.\n" \
+"  -o, --output <file>      Output to <file>.\n" \
 "  -c, --compress           Compress a given integer list (default behavior).\n" \
 "  -d, --decompress         Decompress a compressed integer list.\n" \
 "  -b, --binary             Input and output in binary (network order / big endian) mode.\n" \
-"  -o, --output <file>      Output to <file>.\n" \
+"  --u16                    Input and output in 16 bit size.\n" \
+"  --u32                    Input and output in 32 bit size (default).\n" \
+"  --u64                    Input and output in 64 bit size.\n" \
 "If the [file] argument is omitted or set to '-', input is read from stdin.\n\n" \
 "See <https://github.com/boethin/intzip/wiki> for more information."
 
 struct options {
-  bool compress;
-  bool binary;
   bool usage;
   bool version;
+  bool compress;
+  bool binary;
+  int_t type;
   const char *infile;
   const char *outfile;
 #ifdef ENABLE_TRACE
@@ -57,10 +63,11 @@ struct options {
 #endif
 
   options() : 
-    compress(true),
-    binary(false),
     usage(false),
     version(false),
+    compress(true),
+    binary(false),
+    type(U32),
     infile(NULL),
     outfile(NULL)
 #ifdef ENABLE_TRACE
@@ -80,6 +87,12 @@ struct options {
             handle('d');
           else if (0 == strcmp(argv[i],"--binary"))
             handle('b');
+          else if (0 == strcmp(argv[i],"--u16"))
+            type = U16;
+          else if (0 == strcmp(argv[i],"--u32"))
+            type = U32;
+          else if (0 == strcmp(argv[i],"--u64"))
+            type = U64;
           else if (0 == strcmp(argv[i],"--version"))
             handle('v');
 #ifdef ENABLE_TRACE

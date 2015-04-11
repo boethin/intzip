@@ -53,9 +53,17 @@ using namespace std;
 // template specializations
 namespace intzip {
 
+  // uint16_t
+  template void encode(const vector<uint16_t> &in, vector<uint16_t> &enc);
+  template void decode(const vector<uint16_t> &enc, vector<uint16_t> &out);
+
   // uint32_t
   template void encode(const vector<uint32_t> &in, vector<uint32_t> &enc);
   template void decode(const vector<uint32_t> &enc, vector<uint32_t> &out);
+
+  // uint64_t
+  template void encode(const vector<uint64_t> &in, vector<uint64_t> &enc);
+  template void decode(const vector<uint64_t> &enc, vector<uint64_t> &out);
 
 }
 
@@ -86,12 +94,15 @@ struct chunkdata {
   uint8_t bits;
 };
 
+template<> uint16_t chunkdata<uint16_t>::maxval() { return UINT16_MAX; }
 template<> uint32_t chunkdata<uint32_t>::maxval() { return UINT32_MAX; }
 template<> uint64_t chunkdata<uint64_t>::maxval() { return UINT64_MAX; }
 
+template<> uint8_t chunkdata<uint16_t>::bitsize() { return 16; }
 template<> uint8_t chunkdata<uint32_t>::bitsize() { return 32; }
 template<> uint8_t chunkdata<uint64_t>::bitsize() { return 64; }
 
+template<> uint8_t chunkdata<uint16_t>::lengthbits() { return 5; }
 template<> uint8_t chunkdata<uint32_t>::lengthbits() { return 6; }
 template<> uint8_t chunkdata<uint64_t>::lengthbits() { return 7; }
 
@@ -324,7 +335,7 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
       size_t k;
       T p = *it++;
       for (k = 0; k < c.len; k++)
-        encode_append(*it - p - c.base, c.bits, enc, i, enc_off), p = *it++;
+        encode_append((T)(*it - p - c.base), c.bits, enc, i, enc_off), p = *it++;
     }
     else
     {
@@ -508,21 +519,27 @@ int ceil_log2(uint32_t n)
 #ifdef builtin_ceil_log2_uint32
   return builtin_ceil_log2_uint32(n);
 #else
-    int bits = 0;
-    if (n > 0xFFFF)
-      n >>= 16,  bits = 0x10;
-    if (n > 0xFF)
-      n >>= 8, bits |= 8;
-    if (n > 0xF)
-      n >>= 4, bits |= 4;
-    if (n > 3)
-      n >>= 2, bits |= 2;
-     if (n > 1)
-       bits |= 1;
+  int bits = 0;
+  if (n > 0xFFFF)
+    n >>= 16,  bits = 0x10;
+  if (n > 0xFF)
+    n >>= 8, bits |= 8;
+  if (n > 0xF)
+    n >>= 4, bits |= 4;
+  if (n > 3)
+    n >>= 2, bits |= 2;
+   if (n > 1)
+     bits |= 1;
   if (n > 0)
     bits += 1;
-    return bits;
+  return bits;
 #endif
+}
+
+template<>
+int ceil_log2(uint16_t n)
+{
+  return ceil_log2<uint32_t>((uint32_t)n);
 }
 
 template<>
