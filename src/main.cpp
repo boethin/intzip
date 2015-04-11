@@ -25,7 +25,8 @@
 // #define NDEBUG
 #include <cassert>
 
-#include <cstdlib>
+#include <cstdlib> // EXIT_SUCCESS
+#include <cstdio> // perror
 #include <iostream>
 
 #include "def.h"
@@ -46,7 +47,7 @@ template<class T>
 static ___inline__( void write(const intzip::options &cmd, vector<T> &out) );
 
 template<class T>
-static ___inline__( int process(const intzip::options &cmd) );
+static ___inline__( void process(const intzip::options &cmd) );
 
 
 int main(int argc, char** argv)
@@ -74,14 +75,16 @@ int main(int argc, char** argv)
   switch (cmd.type)
   {
     case intzip::U16:
-      return process<uint16_t>(cmd);
+      process<uint16_t>(cmd);
+      break;
     case intzip::U32:
-      return process<uint32_t>(cmd);
+      process<uint32_t>(cmd);
+      break;
     case intzip::U64:
-      return process<uint64_t>(cmd);
+      process<uint64_t>(cmd);
+      break;
   }
 
-  assert(false); // never reach this point
   return EXIT_SUCCESS;
 }
 
@@ -130,7 +133,7 @@ void write(const intzip::options &cmd, vector<T> &out)
 }
 
 template<class T>
-int process(const intzip::options &cmd)
+void process(const intzip::options &cmd)
 {
   vector<T> in, out;
   
@@ -146,10 +149,8 @@ int process(const intzip::options &cmd)
   }
   catch (const char* msg) {
     cerr << msg << endl;
-    return EXIT_FAILURE;
+    exit(EXIT_FAILURE);
   }
 
   write(cmd,out);
-
-  return EXIT_SUCCESS;
 }

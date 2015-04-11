@@ -25,6 +25,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <cstdlib> // exit
+#include <cstdio> // perror
+
 // macros for printf and scanf format specifiers
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
@@ -199,6 +202,11 @@ template<class T>
 void intzip::read_hex(const char *path, vector<T> &in)
 {
   ifstream infile(path);
+  if (!infile.good()) {
+    perror(path);
+    exit(EXIT_FAILURE);
+  }
+
   internal_read_hex(infile,in);
   infile.close();
 }
@@ -228,6 +236,11 @@ template<class T>
 void intzip::read_bin(const char *path, vector<T> &in)
 {
   ifstream infile(path);
+  if (!infile.good()) {
+    perror(path);
+    exit(EXIT_FAILURE);
+  }
+  
   internal_read_bin(infile,in);
   infile.close();
 }
