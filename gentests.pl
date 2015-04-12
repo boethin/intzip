@@ -141,7 +141,12 @@ at_category equidistant => 'Equidistant Interval Tests',
           data => sorted( (0 .. 50), (100 .. 150), (200, 250), (0x1000 .. 0x1100 ) ) },
       )
     } (qw( u16 u32 u64 ));
-  } qw ( hex bin ));
+  } qw ( hex bin )),
+  {
+    type => 'u16', form => 'bin', name => 'Any 16bit',
+    data => [ ( 0 .. 0xffff ) ],
+  };
+  
 
 # -- end of tests --
 

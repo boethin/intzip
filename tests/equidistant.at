@@ -39,3 +39,4 @@ AT_CHECK_ENCODE_DECODE([Distance 3 u64/bin],[--u64 --binary],[equidistant_distan
 AT_CHECK_ENCODE_DECODE([Distance 100 u64/bin],[--u64 --binary],[equidistant_distance_100.u64.bin])
 AT_CHECK_ENCODE_DECODE([Alternating u64/bin],[--u64 --binary],[equidistant_alternating.u64.bin])
 AT_CHECK_ENCODE_DECODE([Multiple u64/bin],[--u64 --binary],[equidistant_multiple.u64.bin])
+AT_CHECK_ENCODE_DECODE([Any 16bit u16/bin],[--u16 --binary],[equidistant_any_16bit.u16.bin])
