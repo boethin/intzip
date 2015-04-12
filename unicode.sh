@@ -1,8 +1,11 @@
 #!/bin/bash
 #
-# Downloads UnicodeData.txt and output each Code Point's decimal value.
+# Download UnicodeData.txt and output each Code Point's decimal value.
 # Pipe through `perl -ne 'print pack "N",$_'` in order to get u32 binary data.
 #
+set -e
+set -o pipefail
+
 ucd_gz=UnicodeData.txt.gz
 ucd_url=http://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt
 
