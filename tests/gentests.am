@@ -1,1 +1,1 @@
-GENTESTS_AT = gentests.at empty.at singleton.at short.at equidistant.at
+GENTESTS_AT = gentests.at empty.at singleton.at short.at equidistant.at special.at
