@@ -6,12 +6,31 @@ m4_define([AT_CHECK_OPTION],
 AT_CHECK([intzip $1], [$3], [stdout])
 AT_CHECK([fgrep "$2" stdout], [], [ignore])
 AT_CLEANUP])
-     
+
+# AT_CHECK_ENCODE_DECODE(setup,option,testfile)
+m4_define([AT_CHECK_ENCODE_DECODE],
+[AT_SETUP([$1])
+AT_CHECK([intzip $2 "$abs_top_srcdir/testdata/$3"],[],[stdout])
+AT_CHECK([intzip $2 -d stdout | diff "$abs_top_srcdir/testdata/$3" -],[],[])
+AT_CLEANUP])
+
 # AT_CHECK_ENCDEC32(setup,testfile)
 m4_define([AT_CHECK_ENCDEC32],
-[AT_SETUP([encode/decode 32bit $1])
-AT_CHECK([intzip "$abs_top_srcdir/testdata/$2"],[],[stdout])
-AT_CHECK([intzip -d stdout | diff "$abs_top_srcdir/testdata/$2" -],[],[])
+[AT_CHECK_ENCODE_DECODE([encode/decode 32bit $1],[--u32],[$2])])
+
+
+## AT_CHECK_ENCDEC32(setup,testfile)
+#m4_define([AT_CHECK_ENCDEC32],
+#[AT_SETUP([encode/decode 32bit $1])
+#AT_CHECK([intzip "$abs_top_srcdir/testdata/$2"],[],[stdout])
+#AT_CHECK([intzip -d stdout | diff "$abs_top_srcdir/testdata/$2" -],[],[])
+#AT_CLEANUP])
+
+# AT_CHECK_ENCDEC64(setup,testfile)
+m4_define([AT_CHECK_ENCDEC64],
+[AT_SETUP([encode/decode 64bit $1])
+AT_CHECK([intzip --u64 "$abs_top_srcdir/testdata/$2"],[],[stdout])
+AT_CHECK([intzip --u64 -d stdout | diff "$abs_top_srcdir/testdata/$2" -],[],[])
 AT_CLEANUP])
 
 AT_INIT([intzip])
