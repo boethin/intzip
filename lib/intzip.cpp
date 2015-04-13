@@ -239,9 +239,12 @@ struct chunk : public chunkdata<T> {
           return c;
         }
 
-        if (c_left.cost_base)
+        if (c_left.cost_base && c_right.cost > 0)
         {
           // check previous delta point
+          assert(c_left.cost == c_left.calculate_cost());
+          assert(c_right.cost == c_right.calculate_cost());
+          
           TRACE(" :check",c,"(%u + %u = %u vs. %u)",c_left.cost,c_right.cost,c_left.cost + c_right.cost,c.cost);
           if (c_left.cost + c_right.cost < c.cost) {
             // breaking at the last delta point would be cheaper
