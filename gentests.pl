@@ -12,6 +12,8 @@ use Math::BigInt;
 use constant TESTS_DIR => 'tests';
 use constant TESTDATA_DIR => 'testdata';
 
+sub LOG(@) { printf '[%s] ', __FILE__; printf @_; print "\n"; }
+
 sub sorted { [ sort { $a <=> $b } keys %{ { map { $_ => 1 } @_ } } ] }
 
 my %max = ( u16 => '0xffff', u32 => '0xffffffff', u64 => '0xffffffffffffffff' );
@@ -34,6 +36,7 @@ sub at_category($$@) {
     # defaults
     $t->{type} = 'u32' unless defined $t->{type};
     $t->{form} = 'hex' unless defined $t->{form};
+    $t->{method} = 'encode_decode' unless defined $t->{method};
     
     unless ( defined $t->{int_data} ) {
       $t->{int_data} = [ map { Math::BigInt->new($_) } @{$t->{data}} ];
@@ -49,33 +52,48 @@ sub at_category($$@) {
     unless ( defined $t->{filename} ) {
       $t->{filename} = lc $t->{name};
       $t->{filename} =~ s/[^a-z0-9]/_/gi;
+      $t->{filename} .= '.enc' if $t->{method} eq 'decode_encode';
       $t->{filename} .= ".$t->{type}" if $t->{form} eq 'bin';
       $t->{filename} .= ".$t->{form}";
       $t->{filename} = join '_', ($category,$t->{filename});
     }
     
     my $path = +TESTDATA_DIR."/$t->{filename}";
-    unless ( -f $path ) {
+    unless ( -f $path ) { # only if not exists
       # create test data
-      my $map;
-      if ( $t->{form} eq 'hex' ) { # hex
-        $map = sub {
-          my $h = $_[0]->as_hex;
-          $h =~ s/^0x//;
-          "$h\n";
-        };
+      LOG "create: %s", $path;
+      unless ( defined $t->{createfile} ) {
+        my $map;
+        if ( $t->{form} eq 'hex' ) { # hex
+          $map = sub {
+            my $h = $_[0]->as_hex;
+            $h =~ s/^0x//;
+            "$h\n";
+          };
+        }
+        else { # bin
+          # 'Q>' only available with 64-bit support
+          my $pack = { u16 => 'n', u32 => 'N', u64 => 'Q>' }->{$t->{type}};
+          $map = sub { pack $pack, $_[0]->numify };
+        }
+        
+        my $t_fh;
+        if ( $t->{method} eq 'decode_encode' ) {
+          my $opt = '--'.$t->{type};
+          $opt .= " -b" if $t->{form} eq 'bin';
+          open $t_fh, "| src/intzip $opt >$path" or die $!;
+        } else {
+          open $t_fh, '>', $path or die $!;
+        }
+        foreach ( @{$t->{int_data}} ) {
+          my $d = &$map($_);
+          print $t_fh $d;
+        }
+        close $t_fh or die $!;
       }
-      else { # bin
-        # 'Q>' only available with 64-bit support
-        my $pack = { u16 => 'n', u32 => 'N', u64 => 'Q>' }->{$t->{type}};
-        $map = sub { pack $pack, $_[0]->numify };
+      else {
+        &{$t->{createfile}}($path);
       }
-      open my $t_fh, '>', $path or die $!;
-      foreach ( @{$t->{int_data}} ) {
-        my $d = &$map($_);
-        print $t_fh $d;
-      }
-      close $t_fh;
     }
     
     # add to .at test category file
@@ -83,8 +101,14 @@ sub at_category($$@) {
       $t->{options} = sprintf '--%s', $t->{type};
       $t->{options} .= ' --binary' if $t->{form} eq 'bin';
     }
-    printf $at_fh "AT_CHECK_ENCODE_DECODE([%s],[%s],[%s])\n",
-      map { $t->{$_} } qw(setup options filename);
+    if ( $t->{method} eq 'encode_decode' ) {
+      printf $at_fh "AT_CHECK_ENCODE_DECODE([%s],[%s],[%s])\n",
+        map { $t->{$_} } qw(setup options filename);
+    }
+    elsif ( $t->{method} eq 'decode_encode' ) {
+      printf $at_fh "AT_CHECK_DECODE_ENCODE([%s],[%s],[%s])\n",
+        map { $t->{$_} } qw(setup options filename);
+    }
   }
   close $at_fh;
 }
@@ -153,7 +177,16 @@ at_category equidistant => 'Equidistant Interval Tests',
 
 at_category special => 'Special List Tests',
   {
-    type => 'u64', form => 'bin', name => 'Fibonacci', data => [qw(
+    type => 'u32', form => 'bin', name => 'Unicode Code Points',
+    method => 'decode_encode',
+    createfile => sub {
+      my $path = shift;
+      system qq{./unicode.sh | perl -ne 'print pack "N",\$_' | src/intzip -b --u32 >$path};
+    }
+  },
+  {
+    type => 'u64', form => 'bin', name => 'Fibonacci', method => 'decode_encode',
+    data => [qw(
       0x2 0x3 0x5 0x8 0xd 0x15 0x22 0x37 0x59 0x90 0xe9 0x179 0x262 0x3db 0x63d 0xa18 0x1055
       0x1a6d 0x2ac2 0x452f 0x6ff1 0xb520 0x12511 0x1da31 0x2ff42 0x4d973 0x7d8b5 0xcb228
       0x148add 0x213d05 0x35c7e2 0x5704e7 0x8cccc9 0xe3d1b0 0x1709e79 0x2547029 0x3c50ea2
@@ -174,13 +207,21 @@ at_category special => 'Special List Tests',
 # -- end of tests --
 
 # create autotest include
-open my $at, '>', +TESTS_DIR."/gentests.at" or die $!;
-printf $at "m4_include([%s])\n", $_ foreach @at_files;
-close $at;
+do {
+  my $path = +TESTS_DIR."/gentests.at";
+  LOG "create: %s", $path;
+  open my $at, '>', $path or die $!;
+  printf $at "m4_include([%s])\n", $_ foreach @at_files;
+  close $at;
+};
 
 # create automake include
-open my $am, '>', +TESTS_DIR."/gentests.am" or die $!;
-printf $am "GENTESTS_AT = %s\n", (join ' ', ('gentests.at', @at_files));
-close $am;
+do {
+  my $path = TESTS_DIR."/gentests.am";
+  LOG "create: %s", $path;
+  open my $am, '>', $path or die $!;
+  printf $am "GENTESTS_AT = %s\n", (join ' ', ('gentests.at', @at_files));
+  close $am;
+};
 
 __END__
