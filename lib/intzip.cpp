@@ -27,7 +27,7 @@
 
 // verbose encoding tracing to stderr
 #ifdef ENABLE_TRACE
-#define __STDC_LIMIT_MACROS
+#define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -36,6 +36,7 @@ extern bool enable_trace;
 
 template<class T> struct chunk;
 static void printf_tracelog(const char *mark, const char* log);
+template<class T> void printf_tracelog_args(const char *mark, T n);
 static void printf_tracelog_args(const char *mark, const char* format, ...);
 template<class T> static void printf_tracelog_args(const char *mark, const chunk<T> &chunk, const char* format, ...);
 template<class T> static void printf_tracelog_args(const char *mark, const chunk<T> &chunk);
@@ -161,7 +162,7 @@ struct chunk : public chunkdata<T> {
       cost_base( encode_cost<T>(init) )
   {}
 
-  uint64_t ___const__( calculate_cost(void) const )
+  T ___const__( calculate_cost(void) const )
   {
     return this->cost_base
       + encode_cost<T>(this->len)
@@ -204,7 +205,7 @@ struct chunk : public chunkdata<T> {
     
     T p = *it;
     chunk c(p), c_left, c_right;
-    TRACE("|start","%#08x",p);
+    TRACE("|start",p);
 
     // handle singleton
     if (++it == in.end()) {
@@ -305,10 +306,10 @@ struct chunk : public chunkdata<T> {
 #endif
 
   // The cost value
-  uint64_t cost;
+  T cost;
 
 private:
-  int cost_base;
+  T cost_base;
 };
 
 template<class T>
@@ -581,10 +582,24 @@ bool is_power2(T x)
 
 #ifdef ENABLE_TRACE
 
-template<class T>
-void chunk<T>::to_string(char buf[]) const
+template<>
+void chunk<uint16_t>::to_string(char buf[]) const
 {
-  sprintf(buf,"%#08x [base=%u, maxdiff=%u, %u*%d bits: cost=%lu]",
+  sprintf(buf,"%#04" PRIx16 " [base=%" PRIu16 ", maxdiff=%" PRIu16 ", %" PRIu16 "*%" PRId8 " bits: cost=%" PRIu16 "]",
+    this->first,this->base,this->maxdiff,this->len,this->bits,this->calculate_cost());
+}
+
+template<>
+void chunk<uint32_t>::to_string(char buf[]) const
+{
+  sprintf(buf,"%#08" PRIx32 " [base=%" PRIu32 ", maxdiff=%" PRIu32 ", %" PRIu32 "*%" PRId8 " bits: cost=%" PRIu32 "]",
+    this->first,this->base,this->maxdiff,this->len,this->bits,this->calculate_cost());
+}
+
+template<>
+void chunk<uint64_t>::to_string(char buf[]) const
+{
+  sprintf(buf,"%#016" PRIx64 " [base=%" PRIu64 ", maxdiff=%" PRIu64 ", %" PRIu64 "*%" PRId8 " bits: cost=%" PRIu64 "]",
     this->first,this->base,this->maxdiff,this->len,this->bits,this->calculate_cost());
 }
 
@@ -592,6 +607,33 @@ void printf_tracelog(const char *mark, const char* log)
 {
   if (enable_trace)
     fprintf(stderr,"# %-12s %s\n",mark,log);
+}
+
+template<>
+void printf_tracelog_args(const char *mark, uint16_t n)
+{
+  char buf[0x1000];
+  
+  sprintf(buf,"%#04" PRIx16,n);
+  printf_tracelog(mark,buf);
+}
+
+template<>
+void printf_tracelog_args(const char *mark, uint32_t n)
+{
+  char buf[0x1000];
+  
+  sprintf(buf,"%#08" PRIx32,n);
+  printf_tracelog(mark,buf);
+}
+
+template<>
+void printf_tracelog_args(const char *mark, uint64_t n)
+{
+  char buf[0x1000];
+  
+  sprintf(buf,"%#016" PRIx64,n);
+  printf_tracelog(mark,buf);
 }
 
 void printf_tracelog_args(const char *mark, const char* format, ...)
