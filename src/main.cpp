@@ -29,9 +29,10 @@
 #include <cstdio> // perror
 #include <iostream>
 
-#include "def.h"
-#include "io.h"
-#include "options.h"
+#include "intzip-stdint.h"
+#include "intzip-def.h"
+#include "intzip-io.h"
+#include "intzip-options.h"
 #include "intzip.h"
 
 using namespace std;

@@ -28,12 +28,9 @@
 #include <cstdlib> // exit
 #include <cstdio> // perror
 
-// macros for printf and scanf format specifiers
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
-
-#include "def.h"
-#include "io.h"
+#include "intzip-stdint.h"
+#include "intzip-def.h"
+#include "intzip-io.h"
 #include "intzip.h"
 
 #define BUFSIZE 0x10000

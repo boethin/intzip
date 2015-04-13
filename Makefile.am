@@ -4,9 +4,10 @@ SUBDIRS = lib src tests
 
 # internal headers
 noinst_HEADERS = \
-  include/def.h \
-  include/io.h \
-  include/options.h
+  include/intzip-stdint.h \
+  include/intzip-def.h \
+  include/intzip-io.h \
+  include/intzip-options.h
 
 # Test Coverage:
 # recompile everything with gcov flags, run tests and create lib/intzip.cpp.gcov.
