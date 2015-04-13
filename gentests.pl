@@ -36,12 +36,9 @@ sub at_category($$@) {
     # defaults
     $t->{type} = 'u32' unless defined $t->{type};
     $t->{form} = 'hex' unless defined $t->{form};
-    $t->{method} = 'encode_decode' unless defined $t->{method};
-    
     unless ( defined $t->{int_data} ) {
       $t->{int_data} = [ map { Math::BigInt->new($_) } @{$t->{data}} ];
     }
-
     unless ( defined $t->{name} ) {
       $t->{name} = join ',', map { $_->as_hex } @{$t->{int_data}};
       $t->{setup} = sprintf '[[%s]]', $t->{name} unless defined $t->{setup};
@@ -52,9 +49,9 @@ sub at_category($$@) {
     unless ( defined $t->{filename} ) {
       $t->{filename} = lc $t->{name};
       $t->{filename} =~ s/[^a-z0-9]/_/gi;
-      $t->{filename} .= '.enc' if $t->{method} eq 'decode_encode';
       $t->{filename} .= ".$t->{type}" if $t->{form} eq 'bin';
       $t->{filename} .= ".$t->{form}";
+      $t->{filename} .= '.iz' if $t->{encoded};
       $t->{filename} = join '_', ($category,$t->{filename});
     }
     
@@ -78,7 +75,7 @@ sub at_category($$@) {
         }
         
         my $t_fh;
-        if ( $t->{method} eq 'decode_encode' ) {
+        if ( $t->{encoded} ) {
           my $opt = '--'.$t->{type};
           $opt .= " -b" if $t->{form} eq 'bin';
           open $t_fh, "| src/intzip $opt >$path" or die $!;
@@ -101,14 +98,8 @@ sub at_category($$@) {
       $t->{options} = sprintf '--%s', $t->{type};
       $t->{options} .= ' --binary' if $t->{form} eq 'bin';
     }
-    if ( $t->{method} eq 'encode_decode' ) {
-      printf $at_fh "AT_CHECK_ENCODE_DECODE([%s],[%s],[%s])\n",
-        map { $t->{$_} } qw(setup options filename);
-    }
-    elsif ( $t->{method} eq 'decode_encode' ) {
-      printf $at_fh "AT_CHECK_DECODE_ENCODE([%s],[%s],[%s])\n",
-        map { $t->{$_} } qw(setup options filename);
-    }
+    my $macro = $t->{encoded} ? 'AT_CHECK_DECODE_ENCODE' : 'AT_CHECK_ENCODE_DECODE';
+    printf $at_fh "$macro([%s],[%s],[%s])\n", map { $t->{$_} } qw(setup options filename);
   }
   close $at_fh;
 }
@@ -171,21 +162,20 @@ at_category equidistant => 'Equidistant Interval Tests',
     } (qw( u16 u32 u64 ));
   } qw ( hex bin )),
   {
-    type => 'u16', form => 'bin', name => 'Any 16bit',
+    type => 'u16', form => 'bin', name => 'Any 16bit', encoded => 1,
     data => [ ( 0 .. 0xffff ) ],
   };
 
 at_category special => 'Special List Tests',
   {
-    type => 'u32', form => 'bin', name => 'Unicode Code Points',
-    method => 'decode_encode',
+    type => 'u32', form => 'bin', name => 'Unicode Code Points', encoded => 1,
     createfile => sub {
       my $path = shift;
       system qq{./unicode.sh | perl -ne 'print pack "N",\$_' | src/intzip -b --u32 >$path};
     }
   },
   {
-    type => 'u64', form => 'bin', name => 'Fibonacci', method => 'decode_encode',
+    type => 'u64', form => 'bin', name => 'Fibonacci', encoded => 1,
     data => [qw(
       0x2 0x3 0x5 0x8 0xd 0x15 0x22 0x37 0x59 0x90 0xe9 0x179 0x262 0x3db 0x63d 0xa18 0x1055
       0x1a6d 0x2ac2 0x452f 0x6ff1 0xb520 0x12511 0x1da31 0x2ff42 0x4d973 0x7d8b5 0xcb228
