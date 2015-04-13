@@ -75,7 +75,7 @@ namespace intzip {
 }
 
 template<class T>
-static ___always_inline__(___pure__( void pack(T n, char buf[]) ));
+static ___always_inline__( void pack(T n, char buf[]) );
 
 template<class T>
 static ___always_inline__(___const__( T unpack(const char *n) ));
@@ -224,6 +224,7 @@ void internal_read_bin(istream &is, vector<T> &in)
     }
   }
   while (gc > 0);
+ 
 }
 
 template<class T>
@@ -250,9 +251,8 @@ void intzip::read_bin(const char *path, vector<T> &in)
 template<class T>
 void internal_write_hex(ostream &os, const vector<T> &out)
 {
-  for (typename vector<T>::const_iterator it = out.begin(); it != out.end(); ++it) {
+  for (typename vector<T>::const_iterator it = out.begin(); it != out.end(); ++it)
     os << hex << *it << endl;
-  }
 }
 
 template<class T>
@@ -274,7 +274,7 @@ void internal_write_bin(ostream &os, const vector<T> &out)
 {
   char buf[sizeof(T)];
   for (typename vector<T>::const_iterator it = out.begin(); it != out.end(); ++it) {
-    pack(*it,buf);
+    pack<T>(*it,buf);
     os.write(buf,sizeof(T));
   }
 }
