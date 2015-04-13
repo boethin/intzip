@@ -582,6 +582,8 @@ bool is_power2(T x)
 
 #ifdef ENABLE_TRACE
 
+#define TRACE_BUFSIZE 0x100 // must be large enough for any log line
+
 template<>
 void chunk<uint16_t>::to_string(char buf[]) const
 {
@@ -612,7 +614,7 @@ void printf_tracelog(const char *mark, const char* log)
 template<>
 void printf_tracelog_args(const char *mark, uint16_t n)
 {
-  char buf[0x1000];
+  char buf[TRACE_BUFSIZE];
   
   sprintf(buf,"%#04" PRIx16,n);
   printf_tracelog(mark,buf);
@@ -621,7 +623,7 @@ void printf_tracelog_args(const char *mark, uint16_t n)
 template<>
 void printf_tracelog_args(const char *mark, uint32_t n)
 {
-  char buf[0x1000];
+  char buf[TRACE_BUFSIZE];
   
   sprintf(buf,"%#08" PRIx32,n);
   printf_tracelog(mark,buf);
@@ -630,7 +632,7 @@ void printf_tracelog_args(const char *mark, uint32_t n)
 template<>
 void printf_tracelog_args(const char *mark, uint64_t n)
 {
-  char buf[0x1000];
+  char buf[TRACE_BUFSIZE];
   
   sprintf(buf,"%#016" PRIx64,n);
   printf_tracelog(mark,buf);
@@ -639,7 +641,7 @@ void printf_tracelog_args(const char *mark, uint64_t n)
 void printf_tracelog_args(const char *mark, const char* format, ...)
 {
   va_list args;
-  char buf[0x1000];
+  char buf[TRACE_BUFSIZE];
 
   va_start(args, format);
   vsprintf(buf, format, args);
@@ -652,7 +654,7 @@ template<class T>
 void printf_tracelog_args(const char *mark, const chunk<T> &chunk, const char* format, ...)
 {
   va_list args;
-  char buf[0x1000], buf2[0x1000], buf3[0x1000];
+  char buf[TRACE_BUFSIZE], buf2[TRACE_BUFSIZE], buf3[TRACE_BUFSIZE];
 
   chunk.to_string(buf);
 
@@ -668,7 +670,7 @@ void printf_tracelog_args(const char *mark, const chunk<T> &chunk, const char* f
 template<class T>
 void printf_tracelog_args(const char *mark, const chunk<T> &chunk)
 {
-  char buf[0x1000];
+  char buf[TRACE_BUFSIZE];
 
   chunk.to_string(buf);
   printf_tracelog(mark,buf);
