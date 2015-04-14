@@ -58,6 +58,9 @@ struct uint {
   // bitsize of T, i.e. sizeof(T)*8
   static ___always_inline__(___const__( uint8_t bitsize(void) ));
 
+  // Bits need for a bit length value, i.e. ceil_log2( sizeof(T)*8 )
+  static ___always_inline__(___const__( uint8_t lengthbits(void) ));
+
 };
 
 template<> uint16_t uint<uint16_t>::maxval() { return UINT16_MAX; }
@@ -68,12 +71,12 @@ template<> uint8_t uint<uint16_t>::bitsize() { return 16; }
 template<> uint8_t uint<uint32_t>::bitsize() { return 32; }
 template<> uint8_t uint<uint64_t>::bitsize() { return 64; }
 
+template<> uint8_t uint<uint16_t>::lengthbits() { return 5; }
+template<> uint8_t uint<uint32_t>::lengthbits() { return 6; }
+template<> uint8_t uint<uint64_t>::lengthbits() { return 7; }
 
 template<class T>
 struct chunkdata {
-
-  // Bits need for a bit length value, i.e. ceil_log2( sizeof(T)*8 )
-  static ___always_inline__(___const__( uint8_t lengthbits(void) ));
 
   chunkdata(T init = 0)
     : len(0),
@@ -89,10 +92,6 @@ struct chunkdata {
   T maxdiff;
   uint8_t bits;
 };
-
-template<> uint8_t chunkdata<uint16_t>::lengthbits() { return 5; }
-template<> uint8_t chunkdata<uint32_t>::lengthbits() { return 6; }
-template<> uint8_t chunkdata<uint64_t>::lengthbits() { return 7; }
 
 // The bit cost of number encoding
 template<class T>
@@ -274,7 +273,7 @@ struct chunk : public chunkdata<T> {
     encode_append(c.len,enc,off);
     encode_append(c.first,enc,off);
     encode_append(c.base,enc,off);
-    encode_append((T)c.bits,chunkdata<T>::lengthbits(),enc,off);
+    encode_append((T)c.bits,uint<T>::lengthbits(),enc,off);
   }
 
   static chunkdata<T> decode_header(const vector<T> &enc, size_t &i, uint8_t &off)
@@ -282,7 +281,7 @@ struct chunk : public chunkdata<T> {
     assert(i < enc.size());
 
     chunkdata<T> c;
-    const uint8_t lb = chunkdata<T>::lengthbits();
+    const uint8_t lb = uint<T>::lengthbits();
 
     c.len = decode_fetch(enc,i,off);
     c.first = decode_fetch(enc,i,off);
