@@ -49,6 +49,7 @@ namespace intzip {
 
 }
 
+// uint*_t related
 template<typename T>
 struct uint {
 
@@ -61,19 +62,13 @@ struct uint {
   // Bits need for a bit length value, i.e. ceil_log2( sizeof(T)*8 )
   static ___always_inline__(___const__( uint8_t lengthbits(void) ));
 
+  // Calculate the need of bits for an integer
+  static ___inline__(___const__( int ceil_log2(T x) ));
+
+  // Whether or not an integer is a power of 2
+  static ___inline__(___const__( bool is_power2(T x) ));
+
 };
-
-template<> uint16_t uint<uint16_t>::maxval() { return UINT16_MAX; }
-template<> uint32_t uint<uint32_t>::maxval() { return UINT32_MAX; }
-template<> uint64_t uint<uint64_t>::maxval() { return UINT64_MAX; }
-
-template<> uint8_t uint<uint16_t>::bitsize() { return 16; }
-template<> uint8_t uint<uint32_t>::bitsize() { return 32; }
-template<> uint8_t uint<uint64_t>::bitsize() { return 64; }
-
-template<> uint8_t uint<uint16_t>::lengthbits() { return 5; }
-template<> uint8_t uint<uint32_t>::lengthbits() { return 6; }
-template<> uint8_t uint<uint64_t>::lengthbits() { return 7; }
 
 template<class T>
 struct chunkdata {
@@ -122,15 +117,6 @@ static ___inline__(
 );
 
 
-/* Calculate the need of bits for an integer */
-template<class T>
-static ___inline__(___const__( int ceil_log2(T x) ));
-
-/* Whether or not an integer is a power of 2 */
-template<class T>
-static ___inline__(___const__( bool is_power2(T x) ));
-
-
 /* Delta Chunk Algorithm */
 template<class T>
 struct chunk : public chunkdata<T> {
@@ -169,11 +155,11 @@ struct chunk : public chunkdata<T> {
       n.maxdiff = diff, chg = true;
 
     if (chg) { // re-calculate bits need, cost
-      n.bits = ceil_log2<T>(n.maxdiff - n.base), n.cost = n.calculate_cost();
+      n.bits = uint<T>::ceil_log2(n.maxdiff - n.base), n.cost = n.calculate_cost();
     }
     else {
       // cost may be only changed only by len
-      if (is_power2(n.len)) {
+      if (uint<T>::is_power2(n.len)) {
         n.cost = n.calculate_cost();
       }
       else if (n.bits > 0) {
@@ -196,7 +182,7 @@ struct chunk : public chunkdata<T> {
     // handle singleton
     if (++it == in.end()) {
       c.base = 0;
-      c.bits = ceil_log2<T>(p);
+      c.bits = uint<T>::ceil_log2(p);
       c.cost = c.cost_base + 1;
       TRACE("->single",c);
       return c;
@@ -501,8 +487,22 @@ T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
   return val >> (bs - bits);
 }
 
+// -- uint<T> --
+
+template<> uint16_t uint<uint16_t>::maxval() { return UINT16_MAX; }
+template<> uint32_t uint<uint32_t>::maxval() { return UINT32_MAX; }
+template<> uint64_t uint<uint64_t>::maxval() { return UINT64_MAX; }
+
+template<> uint8_t uint<uint16_t>::bitsize() { return 16; }
+template<> uint8_t uint<uint32_t>::bitsize() { return 32; }
+template<> uint8_t uint<uint64_t>::bitsize() { return 64; }
+
+template<> uint8_t uint<uint16_t>::lengthbits() { return 5; }
+template<> uint8_t uint<uint32_t>::lengthbits() { return 6; }
+template<> uint8_t uint<uint64_t>::lengthbits() { return 7; }
+
 template<>
-int ceil_log2(uint32_t n)
+int uint<uint32_t>::ceil_log2(uint32_t n)
 {
   // prefer builtin
 #ifdef builtin_ceil_log2_uint32
@@ -526,13 +526,13 @@ int ceil_log2(uint32_t n)
 }
 
 template<>
-int ceil_log2(uint16_t n)
+int uint<uint16_t>::ceil_log2(uint16_t n)
 {
-  return ceil_log2<uint32_t>((uint32_t)n);
+  return uint<uint32_t>::ceil_log2((uint32_t)n);
 }
 
 template<>
-int ceil_log2(uint64_t n)
+int uint<uint64_t>::ceil_log2(uint64_t n)
 {
   // prefer builtin
 #ifdef builtin_ceil_log2_uint64
@@ -561,7 +561,7 @@ int ceil_log2(uint64_t n)
 }
 
 template<class T>
-bool is_power2(T x)
+bool uint<T>::is_power2(T x)
 {
   return x && !(x & (x - 1));
 }
