@@ -97,12 +97,12 @@ static ___inline__(___const__(
 // Compress and append an integer
 template<class T>
 static ___inline__(
-  void encode_append(const T val, vector<T> &enc, size_t &i, uint8_t &off)
+  void encode_append(const T val, vector<T> &enc, uint8_t &off)
 );
 
 template<class T>
 static ___inline__(
-  void encode_append(const T val, const uint8_t bits, vector<T> &enc, size_t &i, uint8_t &off)
+  void encode_append(const T val, const uint8_t bits, vector<T> &enc, uint8_t &off)
 );
 
 /* Fetch and decompress a bit-compressed integer */
@@ -263,12 +263,12 @@ struct chunk : public chunkdata<T> {
     return c;
   }
 
-  static void encode_header(const chunkdata<T> &c, vector<T> &enc, size_t &i, uint8_t &off)
+  static void encode_header(const chunkdata<T> &c, vector<T> &enc, uint8_t &off)
   {
-    encode_append(c.len,enc,i,off);
-    encode_append(c.first,enc,i,off);
-    encode_append(c.base,enc,i,off);
-    encode_append((T)c.bits,chunkdata<T>::lengthbits(),enc,i,off);
+    encode_append(c.len,enc,off);
+    encode_append(c.first,enc,off);
+    encode_append(c.base,enc,off);
+    encode_append((T)c.bits,chunkdata<T>::lengthbits(),enc,off);
   }
 
   static chunkdata<T> decode_header(const vector<T> &enc, size_t &i, uint8_t &off)
@@ -299,7 +299,6 @@ private:
 template<class T>
 void intzip::encode(const vector<T> &in, vector<T> &enc)
 {
-  size_t i = 0;
   uint8_t enc_off = 0;
 #ifdef ENABLE_TRACE
   uint64_t total_cost = 0;
@@ -314,13 +313,13 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
     chunk<T> c = chunk<T>::delta(in,it);
     TRACE(">> encode",c);
 
-    chunk<T>::encode_header(c,enc,i,enc_off);
+    chunk<T>::encode_header(c,enc,enc_off);
     if (c.bits > 0)
     {
       size_t k;
       T p = *it++;
       for (k = 0; k < c.len; k++)
-        encode_append((T)(*it - p - c.base), c.bits, enc, i, enc_off), p = *it++;
+        encode_append((T)(*it - p - c.base), c.bits, enc, enc_off), p = *it++;
     }
     else
     {
@@ -387,7 +386,7 @@ int encode_cost(const T val)
 }
 
 template<class T>
-void encode_append(const T val, vector<T> &enc, size_t &i, uint8_t &off)
+void encode_append(const T val, vector<T> &enc, uint8_t &off)
 {
   // number encoding:
   //
@@ -404,22 +403,22 @@ void encode_append(const T val, vector<T> &enc, size_t &i, uint8_t &off)
   {
     T t = (val >> s) & 0x7F; // right-most 7 bit
     if (s > u) {
-      encode_append(t,lb,enc,i,off); // last block
+      encode_append(t,lb,enc,off); // last block
       return;
     }
     if (val < (b <<= 7)) {
-      encode_append(t,8,enc,i,off); // enough blocks
+      encode_append(t,8,enc,off); // enough blocks
       return;
     }
     t |= 0x80; // set forward bit
-    encode_append(t,8,enc,i,off);
+    encode_append(t,8,enc,off);
   }
 
   assert(0); // never reach this point
 }
 
 template<class T>
-void encode_append(const T val, const uint8_t bits, vector<T> &enc, size_t &i, uint8_t &off)
+void encode_append(const T val, const uint8_t bits, vector<T> &enc, uint8_t &off)
 {
   // assume: 0 <= off < bitsize, 0 < bits <= bitsize
   assert(off <= chunkdata<T>::bitsize());
