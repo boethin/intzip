@@ -185,7 +185,8 @@ void internal_read_hex(istream &is, vector<T> &in)
   string line;
   while (getline(is,line))
   {
-    in.push_back(scan_hex<T>(line.c_str()));
+    if(line.find_first_not_of(" \t\r\n") != std::string::npos) // skip empty/whitespace
+      in.push_back(scan_hex<T>(line.c_str()));
   }
 }
 
