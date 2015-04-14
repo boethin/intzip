@@ -28,9 +28,11 @@
 #include "intzip-stdint.h"
 #include "intzip-trace.h"
 #include "intzip-def.h"
+#include "intzip-uint.h"
 #include "intzip.h"
 
 using namespace std;
+using namespace intzip;
 
 // template specializations
 namespace intzip {
@@ -49,38 +51,6 @@ namespace intzip {
 
 }
 
-// uint*_t related
-template<typename T>
-struct uint {
-
-  // maximum value of T
-  static ___always_inline__(___const__( T maxval(void) ));
-
-  // bitsize of T, i.e. sizeof(T)*8
-  static ___always_inline__(___const__( uint8_t bitsize(void) ));
-
-  // Bits need for a bit length value, i.e. ceil_log2( sizeof(T)*8 )
-  static ___always_inline__(___const__( uint8_t lengthbits(void) ));
-
-  // Calculate the need of bits for an integer
-  static ___inline__(___const__( int ceil_log2(T x) ));
-
-  // Whether or not an integer is a power of 2
-  static ___inline__(___const__( bool is_power2(T x) ));
-
-};
-
-template<> uint16_t uint<uint16_t>::maxval() { return UINT16_MAX; }
-template<> uint32_t uint<uint32_t>::maxval() { return UINT32_MAX; }
-template<> uint64_t uint<uint64_t>::maxval() { return UINT64_MAX; }
-
-template<> uint8_t uint<uint16_t>::bitsize() { return 16; }
-template<> uint8_t uint<uint32_t>::bitsize() { return 32; }
-template<> uint8_t uint<uint64_t>::bitsize() { return 64; }
-
-template<> uint8_t uint<uint16_t>::lengthbits() { return 5; }
-template<> uint8_t uint<uint32_t>::lengthbits() { return 6; }
-template<> uint8_t uint<uint64_t>::lengthbits() { return 7; }
 
 template<typename T, class S>
 struct bit_appender {
@@ -655,71 +625,76 @@ void bitvector_appender<T>::push_bits(T val)
 
 // -- uint<T> --
 
+//
+// namespace intzip {
+//
+// template<>
+// int uint<uint32_t>::ceil_log2(uint32_t n)
+// {
+//   // prefer builtin
+// #ifdef builtin_ceil_log2_uint32
+//   return builtin_ceil_log2_uint32(n);
+// #else
+//   int bits = 0;
+//   if (n > 0xFFFF)
+//     n >>= 16,  bits = 0x10;
+//   if (n > 0xFF)
+//     n >>= 8, bits |= 8;
+//   if (n > 0xF)
+//     n >>= 4, bits |= 4;
+//   if (n > 3)
+//     n >>= 2, bits |= 2;
+//    if (n > 1)
+//      bits |= 1;
+//   if (n > 0)
+//     bits += 1;
+//   return bits;
+// #endif
+// }
+//
+// template<>
+// int uint<uint16_t>::ceil_log2(uint16_t n)
+// {
+//   return uint<uint32_t>::ceil_log2((uint32_t)n);
+// }
+//
+// template<>
+// int uint<uint64_t>::ceil_log2(uint64_t n)
+// {
+//   // prefer builtin
+// #ifdef builtin_ceil_log2_uint64
+//   return builtin_ceil_log2_uint64(n);
+// #else
+//   static const uint64_t t[6] = {
+//     0xFFFFFFFF00000000,
+//     0x00000000FFFF0000,
+//     0x000000000000FF00,
+//     0x00000000000000F0,
+//     0x000000000000000C,
+//     0x0000000000000002
+//   };
+//
+//   if (n > 0)
+//   {
+//     int y = (((n & (n - 1)) == 0) ? 0 : 1), j = 32, i;
+//     for (i = 0; i < 6; i++) {
+//       int k = (((n & t[i]) == 0) ? 0 : j);
+//       y += k, n >>= k, j >>= 1;
+//     }
+//     return y;
+//   }
+//   return 0;
+// #endif
+// }
+//
+// }
 
-template<>
-int uint<uint32_t>::ceil_log2(uint32_t n)
-{
-  // prefer builtin
-#ifdef builtin_ceil_log2_uint32
-  return builtin_ceil_log2_uint32(n);
-#else
-  int bits = 0;
-  if (n > 0xFFFF)
-    n >>= 16,  bits = 0x10;
-  if (n > 0xFF)
-    n >>= 8, bits |= 8;
-  if (n > 0xF)
-    n >>= 4, bits |= 4;
-  if (n > 3)
-    n >>= 2, bits |= 2;
-   if (n > 1)
-     bits |= 1;
-  if (n > 0)
-    bits += 1;
-  return bits;
-#endif
-}
-
-template<>
-int uint<uint16_t>::ceil_log2(uint16_t n)
-{
-  return uint<uint32_t>::ceil_log2((uint32_t)n);
-}
-
-template<>
-int uint<uint64_t>::ceil_log2(uint64_t n)
-{
-  // prefer builtin
-#ifdef builtin_ceil_log2_uint64
-  return builtin_ceil_log2_uint64(n);
-#else
-  static const uint64_t t[6] = {
-    0xFFFFFFFF00000000,
-    0x00000000FFFF0000,
-    0x000000000000FF00,
-    0x00000000000000F0,
-    0x000000000000000C,
-    0x0000000000000002
-  };
-
-  if (n > 0)
-  {
-    int y = (((n & (n - 1)) == 0) ? 0 : 1), j = 32, i;
-    for (i = 0; i < 6; i++) {
-      int k = (((n & t[i]) == 0) ? 0 : j);
-      y += k, n >>= k, j >>= 1;
-    }
-    return y;
-  }
-  return 0;
-#endif
-}
-
-template<class T>
-bool uint<T>::is_power2(T x)
-{
-  return x && !(x & (x - 1));
-}
+// template<class T>
+// bool uint<T>::is_power2(T x)
+// {
+//   return x && !(x & (x - 1));
+// }
+//
 
 // -- TRACE --
 
