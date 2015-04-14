@@ -90,9 +90,9 @@ template<> uint8_t chunkdata<uint64_t>::lengthbits() { return 7; }
 
 // The bit cost of number encoding
 template<class T>
-static ___inline__(
+static ___inline__(___const__(
   int encode_cost(const T val)
-);
+));
 
 // Compress and append an integer
 template<class T>
