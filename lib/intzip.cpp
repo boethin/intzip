@@ -49,14 +49,28 @@ namespace intzip {
 
 }
 
-template<class T>
-struct chunkdata {
+template<typename T>
+struct uint {
 
   // maximum value of T
   static ___always_inline__(___const__( T maxval(void) ));
-  
+
   // bitsize of T, i.e. sizeof(T)*8
   static ___always_inline__(___const__( uint8_t bitsize(void) ));
+
+};
+
+template<> uint16_t uint<uint16_t>::maxval() { return UINT16_MAX; }
+template<> uint32_t uint<uint32_t>::maxval() { return UINT32_MAX; }
+template<> uint64_t uint<uint64_t>::maxval() { return UINT64_MAX; }
+
+template<> uint8_t uint<uint16_t>::bitsize() { return 16; }
+template<> uint8_t uint<uint32_t>::bitsize() { return 32; }
+template<> uint8_t uint<uint64_t>::bitsize() { return 64; }
+
+
+template<class T>
+struct chunkdata {
 
   // Bits need for a bit length value, i.e. ceil_log2( sizeof(T)*8 )
   static ___always_inline__(___const__( uint8_t lengthbits(void) ));
@@ -64,7 +78,7 @@ struct chunkdata {
   chunkdata(T init = 0)
     : len(0),
       first(init),
-      base(maxval()),
+      base(uint<T>::maxval()),
       maxdiff(0),
       bits(0)
   {}
@@ -75,14 +89,6 @@ struct chunkdata {
   T maxdiff;
   uint8_t bits;
 };
-
-template<> uint16_t chunkdata<uint16_t>::maxval() { return UINT16_MAX; }
-template<> uint32_t chunkdata<uint32_t>::maxval() { return UINT32_MAX; }
-template<> uint64_t chunkdata<uint64_t>::maxval() { return UINT64_MAX; }
-
-template<> uint8_t chunkdata<uint16_t>::bitsize() { return 16; }
-template<> uint8_t chunkdata<uint32_t>::bitsize() { return 32; }
-template<> uint8_t chunkdata<uint64_t>::bitsize() { return 64; }
 
 template<> uint8_t chunkdata<uint16_t>::lengthbits() { return 5; }
 template<> uint8_t chunkdata<uint32_t>::lengthbits() { return 6; }
@@ -370,7 +376,7 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
 template<class T>
 int encode_cost(const T val)
 {
-  const int bs = chunkdata<T>::bitsize(), lb = bs % 7, u = bs - 7;
+  const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
   T b = 1;
 
   for (int c = 0, s = 0; s < bs; c += 8, s += 7)
@@ -396,7 +402,7 @@ void encode_append(const T val, vector<T> &enc, uint8_t &off)
   // 2^7 <= n < 2^14 it takes 16 bit and so forth. 32-bit values above 2^28
   // take 36 bit because of 4 forward-bits.
   
-  const int bs = chunkdata<T>::bitsize(), lb = bs % 7, u = bs - 7;
+  const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
   T b = 1;
 
   for (int s = 0; s < bs; s += 7)
@@ -421,11 +427,11 @@ template<class T>
 void encode_append(const T val, const uint8_t bits, vector<T> &enc, uint8_t &off)
 {
   // assume: 0 <= off < bitsize, 0 < bits <= bitsize
-  assert(off <= chunkdata<T>::bitsize());
+  assert(off <= uint<T>::bitsize());
   assert(bits > 0);
-  assert(bits <= chunkdata<T>::bitsize());
+  assert(bits <= uint<T>::bitsize());
 
-  const uint8_t bs = chunkdata<T>::bitsize(), len = off + bits;
+  const uint8_t bs = uint<T>::bitsize(), len = off + bits;
 
   if (enc.empty())
     enc.push_back(0);
@@ -451,7 +457,7 @@ void encode_append(const T val, const uint8_t bits, vector<T> &enc, uint8_t &off
 template<class T>
 T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
 {
-  const int bs = chunkdata<T>::bitsize(), lb = bs % 7, u = bs - 7;
+  const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
   T val = 0;
 
   for (int s = 0; s < bs; s += 7)
@@ -471,14 +477,14 @@ template<class T>
 T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
 {
   // assume: 0 <= off < bs, 0 < bits <= bitsize
-  assert(off <= chunkdata<T>::bitsize());
+  assert(off <= uint<T>::bitsize());
   assert(bits > 0);
-  assert(bits <= chunkdata<T>::bitsize());
+  assert(bits <= uint<T>::bitsize());
 
   if (i >= enc.size())
     return 0;
 
-  const uint8_t bs = chunkdata<T>::bitsize(), len = off + bits;
+  const uint8_t bs = uint<T>::bitsize(), len = off + bits;
   T val = enc[i] << off;
 
   if (len > bs)
