@@ -29,6 +29,7 @@
 #include "intzip-trace.h"
 #include "intzip-def.h"
 #include "intzip-uint.h"
+#include "intzip-bits.h"
 #include "intzip.h"
 
 using namespace std;
@@ -52,37 +53,6 @@ namespace intzip {
 }
 
 
-template<typename T, class S>
-struct bit_appender {
-
-  bit_appender(S &store)
-    : offset(0), store(store)
-  {}
-
-  ___inline__( void append(const T val) );
-  ___inline__( void append(const T val, const uint8_t bits) );
-
-  static ___inline__(___const__( int number_cost(const T val) ));
-
-protected:
-  virtual void append_bits(T val) = 0;
-  virtual void push_bits(T val) = 0;
-
-  uint8_t offset;
-  S &store;
-};
-
-template<typename T>
-struct bitvector_appender : public bit_appender<T,vector<T> > {
-
-  bitvector_appender(vector<T> &store)
-    : bit_appender<T,vector<T> >(store)
-  {}
-
-protected:
-  void append_bits(T val);
-  void push_bits(T val);
-};
 
 
 
@@ -522,105 +492,107 @@ T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
 
 // -- bit_appender<T,S> --
 
-template<typename T, class S>
-int bit_appender<T,S>::number_cost(const T val)
-{
-  const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-  T b = 1;
+//
+// template<typename T, class S>
+// int bit_appender<T,S>::number_cost(const T val)
+// {
+//   const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
+//   T b = 1;
+//
+//   for (int c = 0, s = 0; s < bs; c += 8, s += 7)
+//   {
+//     if (s > u)
+//       return c + lb;
+//     if (val < (b <<= 7))
+//       return c + 8;
+//   }
+//
+//   assert(false); // never reach this point
+//   return 0;
+// }
+//
 
-  for (int c = 0, s = 0; s < bs; c += 8, s += 7)
-  {
-    if (s > u)
-      return c + lb;
-    if (val < (b <<= 7))
-      return c + 8;
-  }
+// template<typename T, class S>
+// void bit_appender<T,S>::append(const T val)
+// {
+//   // number encoding:
+//   //
+//   // An integer is splitted into 7-bit blocks where each block is extended to 8 bit
+//   // by an additional forward-bit that determines whether or not there are more
+//   // blocks left. Thus, a number n with 0 <= n < 2^7 takes 8 bit, while in case of
+//   // 2^7 <= n < 2^14 it takes 16 bit and so forth. 32-bit values above 2^28
+//   // take 36 bit because of 4 forward-bits.
+//
+//   const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
+//   T b = 1;
+//
+//   for (int s = 0; s < bs; s += 7)
+//   {
+//     T t = (val >> s) & 0x7F; // right-most 7 bit
+//     if (s > u) {
+//       this->append(t,lb); // last block
+//       return;
+//     }
+//     if (val < (b <<= 7)) {
+//       this->append(t,8); // enough blocks
+//       return;
+//     }
+//     t |= 0x80; // set forward bit
+//     this->append(t,8);
+//   }
+//
+//   assert(false); // never reach this point
+// }
 
-  assert(false); // never reach this point
-  return 0;
-}
+// template<typename T, class S>
+// void bit_appender<T,S>::append(const T val, const uint8_t bits)
+// {
+//   // assume: 0 <= off < bitsize, 0 < bits <= bitsize
+//   assert(this->offset <= uint<T>::bitsize());
+//   assert(bits > 0);
+//   assert(bits <= uint<T>::bitsize());
+//
+//   const uint8_t bs = uint<T>::bitsize(), len = this->offset + bits;
+//
+// //   if (enc.empty())
+// //     enc.push_back(0);
+// //   T *last = &enc.back();
+//
+//   if (len < bs)
+//   {
+//     //*last |= (val << (bs - len));
+//     this->append_bits(val << (bs - len));
+//     this->offset += bits;
+//   }
+//   else if (len > bs)
+//   {
+//     //*last |= (val >> (len - bs));
+//     this->append_bits(val >> (len - bs));
+//     //enc.push_back(val << (2*bs - len));
+//     this->push_bits(val << (2*bs - len));
+//     this->offset = len % bs;
+//   }
+//   else {
+//     //*last |= val;
+//     this->append_bits(val);
+//     this->offset = bs;
+//   }
+// }
 
-template<typename T, class S>
-void bit_appender<T,S>::append(const T val)
-{
-  // number encoding:
-  //
-  // An integer is splitted into 7-bit blocks where each block is extended to 8 bit
-  // by an additional forward-bit that determines whether or not there are more
-  // blocks left. Thus, a number n with 0 <= n < 2^7 takes 8 bit, while in case of
-  // 2^7 <= n < 2^14 it takes 16 bit and so forth. 32-bit values above 2^28
-  // take 36 bit because of 4 forward-bits.
-
-  const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-  T b = 1;
-
-  for (int s = 0; s < bs; s += 7)
-  {
-    T t = (val >> s) & 0x7F; // right-most 7 bit
-    if (s > u) {
-      this->append(t,lb); // last block
-      return;
-    }
-    if (val < (b <<= 7)) {
-      this->append(t,8); // enough blocks
-      return;
-    }
-    t |= 0x80; // set forward bit
-    this->append(t,8);
-  }
-
-  assert(false); // never reach this point
-}
-
-template<typename T, class S>
-void bit_appender<T,S>::append(const T val, const uint8_t bits)
-{
-  // assume: 0 <= off < bitsize, 0 < bits <= bitsize
-  assert(this->offset <= uint<T>::bitsize());
-  assert(bits > 0);
-  assert(bits <= uint<T>::bitsize());
-
-  const uint8_t bs = uint<T>::bitsize(), len = this->offset + bits;
-
-//   if (enc.empty())
-//     enc.push_back(0);
-//   T *last = &enc.back();
-
-  if (len < bs)
-  {
-    //*last |= (val << (bs - len));
-    this->append_bits(val << (bs - len));
-    this->offset += bits;
-  }
-  else if (len > bs)
-  {
-    //*last |= (val >> (len - bs));
-    this->append_bits(val >> (len - bs));
-    //enc.push_back(val << (2*bs - len));
-    this->push_bits(val << (2*bs - len));
-    this->offset = len % bs;
-  }
-  else {
-    //*last |= val;
-    this->append_bits(val);
-    this->offset = bs;
-  }
-}
-
-template<typename T>
-void bitvector_appender<T>::append_bits(T val)
-{
-  if (this->store.empty())
-    this->store.push_back(0);
-  T *last = &this->store.back();
-  *last |= val;
-}
-
-template<typename T>
-void bitvector_appender<T>::push_bits(T val)
-{
-  this->store.push_back(val);
-}
+// template<typename T>
+// void bitvector_appender<T>::append_bits(T val)
+// {
+//   if (this->store.empty())
+//     this->store.push_back(0);
+//   T *last = &this->store.back();
+//   *last |= val;
+// }
+//
+// template<typename T>
+// void bitvector_appender<T>::push_bits(T val)
+// {
+//   this->store.push_back(val);
+// }
 
 
 // -- uint<T> --
