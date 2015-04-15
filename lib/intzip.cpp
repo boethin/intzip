@@ -29,6 +29,7 @@
 #include "intzip-trace.h"
 #include "intzip-def.h"
 #include "intzip-uint.h"
+#include "intzip-bitnumber.h"
 #include "intzip-bitstore.h"
 #include "intzip.h"
 
@@ -94,14 +95,14 @@ struct chunk : public chunkdata<T> {
   chunk(T init)
     : chunkdata<T>(init),
       cost(0),
-      cost_base( encode_cost<T>(init) )
+      cost_base(bitnumber<T>::cost(init))
   {}
 
   T ___const__( calculate_cost(void) const )
   {
     return this->cost_base
-      + encode_cost<T>(this->len)
-      + encode_cost<T>(this->base)
+      + bitnumber<T>::cost(this->len)
+      + bitnumber<T>::cost(this->base)
       + this->len * this->bits;
   }
 
@@ -318,24 +319,6 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
     
     t++;
   }
-}
-
-template<class T>
-int encode_cost(const T val)
-{
-  const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-  T b = 1;
-
-  for (int c = 0, s = 0; s < bs; c += 8, s += 7)
-  {
-    if (s > u)
-      return c + lb;
-    if (val < (b <<= 7))
-      return c + 8;
-  }
-
-  assert(0); // never reach this point
-  return 0;
 }
 
 

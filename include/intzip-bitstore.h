@@ -8,9 +8,9 @@
 #include <cassert>
 
 #include "intzip-stdint.h"
-#include "intzip-trace.h"
 #include "intzip-def.h"
 #include "intzip-uint.h"
+#include "intzip-bitnumber.h"
 
 namespace intzip {
 
@@ -25,6 +25,7 @@ protected:
   S &store;
 };
 
+
 template<typename T, class S>
 struct bit_writer : public bitstore<S> {
 
@@ -34,33 +35,7 @@ struct bit_writer : public bitstore<S> {
 
   void append(const T val)
   {
-    // number encoding:
-    //
-    // An integer is splitted into 7-bit blocks where each block is extended to 8 bit
-    // by an additional forward-bit that determines whether or not there are more
-    // blocks left. Thus, a number n with 0 <= n < 2^7 takes 8 bit, while in case of
-    // 2^7 <= n < 2^14 it takes 16 bit and so forth. 32-bit values above 2^28
-    // take 36 bit because of 4 forward-bits.
-
-    const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-    T b = 1;
-
-    for (int s = 0; s < bs; s += 7)
-    {
-      T t = (val >> s) & 0x7F; // right-most 7 bit
-      if (s > u) {
-        this->append(t,lb); // last block
-        return;
-      }
-      if (val < (b <<= 7)) {
-        this->append(t,8); // enough blocks
-        return;
-      }
-      t |= 0x80; // set forward bit
-      this->append(t,8);
-    }
-
-    assert(false); // never reach this point
+    bitnumber<T>::append(val,*this);
   }
 
   void append(const T val, const uint8_t bits)

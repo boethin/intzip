@@ -7,6 +7,8 @@ noinst_HEADERS = \
   include/intzip-stdint.h \
   include/intzip-def.h \
   include/intzip-uint.h \
+  include/intzip-bitnumber.h \
+  include/intzip-bitstore.h \
   include/intzip-io.h \
   include/intzip-options.h
 

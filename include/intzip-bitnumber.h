@@ -1,0 +1,69 @@
+#ifndef ___INTZIP_BITNUMBER_H___
+#define ___INTZIP_BITNUMBER_H___
+
+#include "intzip-stdint.h"
+#include "intzip-def.h"
+#include "intzip-uint.h"
+
+namespace intzip {
+
+template<typename T, class S>
+struct bit_writer;
+
+template<typename T>
+struct bitnumber {
+
+  static int cost(const T val)
+  {
+    const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
+    T b = 1;
+
+    for (int c = 0, s = 0; s < bs; c += 8, s += 7)
+    {
+      if (s > u)
+        return c + lb;
+      if (val < (b <<= 7))
+        return c + 8;
+    }
+
+    assert(0); // never reach this point
+    return 0;
+  }
+
+  template<class S>
+  static void append(const T val, bit_writer<T,S> &writer)
+  {
+    // number encoding:
+    //
+    // An integer is splitted into 7-bit blocks where each block is extended to 8 bit
+    // by an additional forward-bit that determines whether or not there are more
+    // blocks left. Thus, a number n with 0 <= n < 2^7 takes 8 bit, while in case of
+    // 2^7 <= n < 2^14 it takes 16 bit and so forth. 32-bit values above 2^28
+    // take 36 bit because of 4 forward-bits.
+
+    const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
+    T b = 1;
+
+    for (int s = 0; s < bs; s += 7)
+    {
+      T t = (val >> s) & 0x7F; // right-most 7 bit
+      if (s > u) {
+        writer.append(t,lb); // last block
+        return;
+      }
+      if (val < (b <<= 7)) {
+        writer.append(t,8); // enough blocks
+        return;
+      }
+      t |= 0x80; // set forward bit
+      writer.append(t,8);
+    }
+
+    assert(false); // never reach this point
+  }
+
+};
+
+} // namespace intzip
+
+#endif
