@@ -23,19 +23,22 @@
 // verbose encoding tracing to stderr
 #ifdef ENABLE_TRACE
 
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdarg.h>
+#include "intzip-stdint.h"
+#include "intzip-def.h"
+#include "intzip-chunk.h"
 
-extern bool enable_trace;
 
-template<class T> struct chunk;
-static void printf_tracelog(const char *mark, const char* log);
-template<class T> void printf_tracelog_args(const char *mark, T n);
-static void printf_tracelog_args(const char *mark, const char* format, ...);
-template<class T> static void printf_tracelog_args(const char *mark, const chunk<T> &chunk, const char* format, ...);
-template<class T> static void printf_tracelog_args(const char *mark, const chunk<T> &chunk);
+
+template<class T>
+void printf_tracelog_args(const char *mark, T n);
+
+void printf_tracelog_args(const char *mark, const char* format, ...);
+
+template<class T>
+void printf_tracelog_args(const char *mark, const intzip::chunk<T> &chunk, const char* format, ...);
+
+template<class T>
+void printf_tracelog_args(const char *mark, const intzip::chunk<T> &chunk);
 
 #define TRACE(...) printf_tracelog_args ( __VA_ARGS__ )
 #else

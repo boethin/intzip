@@ -223,7 +223,7 @@ protected:
   }
 
 private:
-  size_t index;
+  std::size_t index;
 };
 
 } // namespace intzip

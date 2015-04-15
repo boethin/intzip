@@ -60,8 +60,8 @@ AC_ARG_ENABLE(trace,
       *)   AC_MSG_ERROR([bad value ${enableval} for --enable-trace]) ;;
     esac],
     [trace=false])
-AM_CONDITIONAL(TRACE, test x"$trace" = x"true")
-AM_COND_IF(TRACE,
+AM_CONDITIONAL(ENABLE_TRACE, test x"$trace" = x"true")
+AM_COND_IF(ENABLE_TRACE,
     AC_DEFINE(ENABLE_TRACE, 1, [Define to 0 to disable verbose tracing]),
     AC_DEFINE(ENABLE_TRACE, 0, [Define to 1 to enable verbose tracing]))
 

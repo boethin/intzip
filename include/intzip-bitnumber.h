@@ -24,6 +24,10 @@
 #include "intzip-def.h"
 #include "intzip-uint.h"
 
+// uncomment to disable assert()
+// #define NDEBUG
+#include <cassert>
+
 namespace intzip {
 
 template<typename T, class S>
