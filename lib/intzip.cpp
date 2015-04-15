@@ -54,39 +54,12 @@ namespace intzip {
 
 
 
-
-
-
-
 // The bit cost of number encoding
 template<class T>
 static ___inline__(___const__(
   int encode_cost(const T val)
 ));
 
-//
-// // Compress and append an integer
-// template<class T>
-// static ___inline__(
-//   void encode_append(const T val, vector<T> &enc, uint8_t &off)
-// );
-//
-// template<class T>
-// static ___inline__(
-//   void encode_append(const T val, const uint8_t bits, vector<T> &enc, uint8_t &off)
-// );
-//
-
-/* Fetch and decompress a bit-compressed integer */
-// template<class T>
-// static ___inline__(
-//   T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
-// );
-//
-// template<class T>
-// static ___inline__(
-//   T decode_fetch(uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
-// );
 
 template<class T>
 struct chunkdata {
@@ -244,14 +217,6 @@ struct chunk : public chunkdata<T> {
     return c;
   }
 
-//   static void encode_header(const chunkdata<T> &c, vector<T> &enc, uint8_t &off)
-//   {
-//     encode_append(c.len,enc,off);
-//     encode_append(c.first,enc,off);
-//     encode_append(c.base,enc,off);
-//     encode_append((T)c.bits,uint<T>::lengthbits(),enc,off);
-//   }
-
   static void encode_header(const chunkdata<T> &c, bitvector_writer<T> &appender)
   {
     appender.append(c.len);
@@ -260,20 +225,6 @@ struct chunk : public chunkdata<T> {
     appender.append((T)c.bits,uint<T>::lengthbits());
   }
 
-//   static chunkdata<T> decode_header(const vector<T> &enc, size_t &i, uint8_t &off)
-//   {
-//     assert(i < enc.size());
-//
-//     chunkdata<T> c;
-//     const uint8_t lb = uint<T>::lengthbits();
-//
-//     c.len = decode_fetch(enc,i,off);
-//     c.first = decode_fetch(enc,i,off);
-//     c.base = decode_fetch(enc,i,off);
-//     c.bits = (uint8_t)decode_fetch(lb,enc,i,off);
-//     return c;
-//   }
-  
   static chunkdata<T> decode_header(bitvector_reader<T> &reader)
   {
     //assert(i < enc.size());
@@ -304,7 +255,6 @@ private:
 template<class T>
 void intzip::encode(const vector<T> &in, vector<T> &enc)
 {
-  //uint8_t enc_off = 0;
   bitvector_writer<T> appender(enc);
 #ifdef ENABLE_TRACE
   uint64_t total_cost = 0;
@@ -319,14 +269,12 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
     chunk<T> c = chunk<T>::delta(in,it);
     TRACE(">> encode",c);
 
-    //chunk<T>::encode_header(c,enc,enc_off);
     chunk<T>::encode_header(c,appender);
     if (c.bits > 0)
     {
       size_t k;
       T p = *it++;
       for (k = 0; k < c.len; k++)
-        //encode_append((T)(*it - p - c.base), c.bits, enc, enc_off), p = *it++;
         appender.append((T)(*it - p - c.base), c.bits), p = *it++;
     }
     else
@@ -346,22 +294,16 @@ template<class T>
 void intzip::decode(const vector<T> &enc, vector<T> &out)
 {
   bitvector_reader<T> reader(enc);
-  size_t i = 0, t = 0;
-  //uint8_t off = 0;
+  size_t t = 0;
   T p = 0;
 
   if (enc.empty()) // empty input
     return;
 
-  for (t = 0; i < enc.size(); t++)
+  while (true)
   {
     size_t k;
-    
-    //chunkdata<T> c = chunk<T>::decode_header(enc,i,off);
     chunkdata<T> c = chunk<T>::decode_header(reader);
-    
-    TRACE("header","first=%u",c.first);
-    
     if ((c.first == 0 && t > 0)) // halt condition: c.first == 0
       break;
       
@@ -369,7 +311,6 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
     if (c.bits > 0)
     {
       for (k = 0; k < c.len; k++)
-        //out.push_back(p = p + c.base + decode_fetch(c.bits, enc, i, off));
         out.push_back(p = p + c.base + reader.fetch(c.bits));
     }
     else // equidistant seq.
@@ -377,9 +318,10 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
       for (k = 0; k < c.len; k++)
         out.push_back(p = p + c.base);
     }
+    
+    t++;
   }
 }
-
 
 template<class T>
 int encode_cost(const T val)
@@ -399,297 +341,6 @@ int encode_cost(const T val)
   return 0;
 }
 
-//
-// template<class T>
-// void encode_append(const T val, vector<T> &enc, uint8_t &off)
-// {
-//   // number encoding:
-//   //
-//   // An integer is splitted into 7-bit blocks where each block is extended to 8 bit
-//   // by an additional forward-bit that determines whether or not there are more
-//   // blocks left. Thus, a number n with 0 <= n < 2^7 takes 8 bit, while in case of
-//   // 2^7 <= n < 2^14 it takes 16 bit and so forth. 32-bit values above 2^28
-//   // take 36 bit because of 4 forward-bits.
-//
-//   const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-//   T b = 1;
-//
-//   for (int s = 0; s < bs; s += 7)
-//   {
-//     T t = (val >> s) & 0x7F; // right-most 7 bit
-//     if (s > u) {
-//       encode_append(t,lb,enc,off); // last block
-//       return;
-//     }
-//     if (val < (b <<= 7)) {
-//       encode_append(t,8,enc,off); // enough blocks
-//       return;
-//     }
-//     t |= 0x80; // set forward bit
-//     encode_append(t,8,enc,off);
-//   }
-//
-//   assert(0); // never reach this point
-// }
-//
-// template<class T>
-// void encode_append(const T val, const uint8_t bits, vector<T> &enc, uint8_t &off)
-// {
-//   // assume: 0 <= off < bitsize, 0 < bits <= bitsize
-//   assert(off <= uint<T>::bitsize());
-//   assert(bits > 0);
-//   assert(bits <= uint<T>::bitsize());
-//
-//   const uint8_t bs = uint<T>::bitsize(), len = off + bits;
-//
-//   if (enc.empty())
-//     enc.push_back(0);
-//   T *last = &enc.back();
-//
-//   if (len < bs)
-//   {
-//     *last |= (val << (bs - len));
-//     off += bits;
-//   }
-//   else if (len > bs)
-//   {
-//     *last |= (val >> (len - bs));
-//     enc.push_back(val << (2*bs - len));
-//     off = len % bs;
-//   }
-//   else {
-//     *last |= val;
-//     off = bs;
-//   }
-// }
-//
-
-// template<class T>
-// T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
-// {
-//   const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-//   T val = 0;
-//
-//   for (int s = 0; s < bs; s += 7)
-//   {
-//     int bits = s <= u ? 8 : lb;
-//     T t = decode_fetch(bits,enc,i,off);
-//     val |= ((t & 0x7F) << s);
-//     if (!(t & 0x80))
-//       return val;
-//   }
-//
-//   assert(0); // never reach this point
-//   return 0;
-// }
-
-// template<class T>
-// T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
-// {
-//   // assume: 0 <= off < bs, 0 < bits <= bitsize
-//   assert(off <= uint<T>::bitsize());
-//   assert(bits > 0);
-//   assert(bits <= uint<T>::bitsize());
-//
-//   if (i >= enc.size())
-//     return 0;
-//
-//   const uint8_t bs = uint<T>::bitsize(), len = off + bits;
-//   T val = enc[i] << off;
-//
-//   if (len > bs)
-//   {
-//     if (i >= enc.size() - 1)
-//       return 0;
-//     val |= enc[++i] >> (bs - off);
-//   }
-//   else if (len == bs)
-//   {
-//     i++;
-//   }
-//
-//   off = len % bs;
-//   return val >> (bs - bits);
-// }
-
-
-// -- bit_writer<T,S> --
-
-//
-// template<typename T, class S>
-// int bit_writer<T,S>::number_cost(const T val)
-// {
-//   const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-//   T b = 1;
-//
-//   for (int c = 0, s = 0; s < bs; c += 8, s += 7)
-//   {
-//     if (s > u)
-//       return c + lb;
-//     if (val < (b <<= 7))
-//       return c + 8;
-//   }
-//
-//   assert(false); // never reach this point
-//   return 0;
-// }
-//
-
-// template<typename T, class S>
-// void bit_writer<T,S>::append(const T val)
-// {
-//   // number encoding:
-//   //
-//   // An integer is splitted into 7-bit blocks where each block is extended to 8 bit
-//   // by an additional forward-bit that determines whether or not there are more
-//   // blocks left. Thus, a number n with 0 <= n < 2^7 takes 8 bit, while in case of
-//   // 2^7 <= n < 2^14 it takes 16 bit and so forth. 32-bit values above 2^28
-//   // take 36 bit because of 4 forward-bits.
-//
-//   const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-//   T b = 1;
-//
-//   for (int s = 0; s < bs; s += 7)
-//   {
-//     T t = (val >> s) & 0x7F; // right-most 7 bit
-//     if (s > u) {
-//       this->append(t,lb); // last block
-//       return;
-//     }
-//     if (val < (b <<= 7)) {
-//       this->append(t,8); // enough blocks
-//       return;
-//     }
-//     t |= 0x80; // set forward bit
-//     this->append(t,8);
-//   }
-//
-//   assert(false); // never reach this point
-// }
-
-// template<typename T, class S>
-// void bit_writer<T,S>::append(const T val, const uint8_t bits)
-// {
-//   // assume: 0 <= off < bitsize, 0 < bits <= bitsize
-//   assert(this->offset <= uint<T>::bitsize());
-//   assert(bits > 0);
-//   assert(bits <= uint<T>::bitsize());
-//
-//   const uint8_t bs = uint<T>::bitsize(), len = this->offset + bits;
-//
-// //   if (enc.empty())
-// //     enc.push_back(0);
-// //   T *last = &enc.back();
-//
-//   if (len < bs)
-//   {
-//     //*last |= (val << (bs - len));
-//     this->append_bits(val << (bs - len));
-//     this->offset += bits;
-//   }
-//   else if (len > bs)
-//   {
-//     //*last |= (val >> (len - bs));
-//     this->append_bits(val >> (len - bs));
-//     //enc.push_back(val << (2*bs - len));
-//     this->push_bits(val << (2*bs - len));
-//     this->offset = len % bs;
-//   }
-//   else {
-//     //*last |= val;
-//     this->append_bits(val);
-//     this->offset = bs;
-//   }
-// }
-
-// template<typename T>
-// void bitvector_writer<T>::append_bits(T val)
-// {
-//   if (this->store.empty())
-//     this->store.push_back(0);
-//   T *last = &this->store.back();
-//   *last |= val;
-// }
-//
-// template<typename T>
-// void bitvector_writer<T>::push_bits(T val)
-// {
-//   this->store.push_back(val);
-// }
-
-
-// -- uint<T> --
-
-//
-// namespace intzip {
-//
-// template<>
-// int uint<uint32_t>::ceil_log2(uint32_t n)
-// {
-//   // prefer builtin
-// #ifdef builtin_ceil_log2_uint32
-//   return builtin_ceil_log2_uint32(n);
-// #else
-//   int bits = 0;
-//   if (n > 0xFFFF)
-//     n >>= 16,  bits = 0x10;
-//   if (n > 0xFF)
-//     n >>= 8, bits |= 8;
-//   if (n > 0xF)
-//     n >>= 4, bits |= 4;
-//   if (n > 3)
-//     n >>= 2, bits |= 2;
-//    if (n > 1)
-//      bits |= 1;
-//   if (n > 0)
-//     bits += 1;
-//   return bits;
-// #endif
-// }
-//
-// template<>
-// int uint<uint16_t>::ceil_log2(uint16_t n)
-// {
-//   return uint<uint32_t>::ceil_log2((uint32_t)n);
-// }
-//
-// template<>
-// int uint<uint64_t>::ceil_log2(uint64_t n)
-// {
-//   // prefer builtin
-// #ifdef builtin_ceil_log2_uint64
-//   return builtin_ceil_log2_uint64(n);
-// #else
-//   static const uint64_t t[6] = {
-//     0xFFFFFFFF00000000,
-//     0x00000000FFFF0000,
-//     0x000000000000FF00,
-//     0x00000000000000F0,
-//     0x000000000000000C,
-//     0x0000000000000002
-//   };
-//
-//   if (n > 0)
-//   {
-//     int y = (((n & (n - 1)) == 0) ? 0 : 1), j = 32, i;
-//     for (i = 0; i < 6; i++) {
-//       int k = (((n & t[i]) == 0) ? 0 : j);
-//       y += k, n >>= k, j >>= 1;
-//     }
-//     return y;
-//   }
-//   return 0;
-// #endif
-// }
-//
-// }
-
-// template<class T>
-// bool uint<T>::is_power2(T x)
-// {
-//   return x && !(x & (x - 1));
-// }
-//
 
 // -- TRACE --
 

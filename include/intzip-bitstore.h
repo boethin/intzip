@@ -25,7 +25,6 @@ protected:
   S &store;
 };
 
-
 template<typename T, class S>
 struct bit_writer : public bitstore<S> {
 
@@ -148,27 +147,20 @@ struct bit_reader : public bitstore<const S> {
     assert(bits > 0);
     assert(bits <= uint<T>::bitsize());
 
-//     if (i >= enc.size())
-//       return 0;
     if (this->ended())
       return 0;
 
     const uint8_t bs = uint<T>::bitsize(), len = this->offset + bits;
-    //T val = enc[i] << off;
     T val = this->current() << this->offset;
 
     if (len > bs)
     {
-//       if (i >= enc.size() - 1)
-//         return 0;
       if (!this->more())
         return 0;
-//      val |= enc[++i] >> (bs - off);
       val |= this->next() >> (bs - this->offset);
     }
     else if (len == bs)
     {
-//       i++;
       this->inc();
     }
 
@@ -176,18 +168,20 @@ struct bit_reader : public bitstore<const S> {
     return val >> (bs - bits);
   }
 
-
 protected:
 
-  virtual bool ended(void) = 0;
-  virtual T current(void) = 0;
-  virtual bool more(void) = 0;
+  // implementation depends on class S
+  virtual bool ended(void) const = 0;
+  virtual T current(void) const = 0;
+  virtual bool more(void) const = 0;
   virtual T next(void) = 0;
   virtual void inc(void) = 0;
 
   uint8_t offset;
 };
 
+
+// -- vector<T> implementation --
 
 template<typename T>
 struct bitvector_writer : public bit_writer<T,std::vector<T> > {
@@ -222,17 +216,17 @@ struct bitvector_reader : public bit_reader<T,std::vector<T> > {
 
 protected:
 
-  bool ended(void)
+  bool ended(void) const
   {
     return this->index >= this->store.size();
   }
   
-  T current(void)
+  T current(void) const
   {
     return this->store[this->index];
   }
   
-  bool more(void)
+  bool more(void) const
   {
     return this->index < this->store.size() - 1;
   }
