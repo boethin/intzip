@@ -217,7 +217,8 @@ struct chunk : public chunkdata<T> {
     return c;
   }
 
-  static void encode_header(const chunkdata<T> &c, bitvector_writer<T> &appender)
+  template<class S>
+  static void encode_header(const chunkdata<T> &c, bit_writer<T,S> &appender)
   {
     appender.append(c.len);
     appender.append(c.first);
@@ -225,21 +226,16 @@ struct chunk : public chunkdata<T> {
     appender.append((T)c.bits,uint<T>::lengthbits());
   }
 
-  static chunkdata<T> decode_header(bitvector_reader<T> &reader)
+  template<class S>
+  static chunkdata<T> decode_header(bit_reader<T,S> &reader)
   {
-    //assert(i < enc.size());
-
     chunkdata<T> c;
-    const uint8_t lb = uint<T>::lengthbits();
-
     c.len = reader.fetch();
     c.first = reader.fetch();
     c.base = reader.fetch();
-    c.bits = (uint8_t)reader.fetch(lb);
+    c.bits = (uint8_t)reader.fetch(uint<T>::lengthbits());
     return c;
   }
-
-  
 
 #ifdef ENABLE_TRACE
   void to_string(char buf[]) const;
@@ -251,6 +247,7 @@ struct chunk : public chunkdata<T> {
 private:
   T cost_base;
 };
+
 
 template<class T>
 void intzip::encode(const vector<T> &in, vector<T> &enc)

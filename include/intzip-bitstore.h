@@ -181,7 +181,7 @@ protected:
 };
 
 
-// -- vector<T> implementation --
+// -- std::vector<T> implementation --
 
 template<typename T>
 struct bitvector_writer : public bit_writer<T,std::vector<T> > {
@@ -245,6 +245,6 @@ private:
   size_t index;
 };
 
-}
+} // namespace intzip
 
 #endif
