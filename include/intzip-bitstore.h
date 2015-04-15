@@ -118,20 +118,7 @@ struct bit_reader : public bitstore<const S> {
 
   T fetch(void)
   {
-    const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-    T val = 0;
-
-    for (int s = 0; s < bs; s += 7)
-    {
-      int bits = s <= u ? 8 : lb;
-      T t = this->fetch(bits);
-      val |= ((t & 0x7F) << s);
-      if (!(t & 0x80))
-        return val;
-    }
-
-    assert(false); // never reach this point
-    return 0;
+    return bitnumber<T>::fetch(*this);
   }
 
   T fetch(const uint8_t bits)

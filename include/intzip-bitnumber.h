@@ -29,6 +29,9 @@ namespace intzip {
 template<typename T, class S>
 struct bit_writer;
 
+template<typename T, class S>
+struct bit_reader;
+
 template<typename T>
 struct bitnumber {
 
@@ -79,6 +82,25 @@ struct bitnumber {
     }
 
     assert(false); // never reach this point
+  }
+
+  template<class S>
+  static T fetch(bit_reader<T,S> &reader)
+  {
+    const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
+    T val = 0;
+
+    for (int s = 0; s < bs; s += 7)
+    {
+      int bits = s <= u ? 8 : lb;
+      T t = reader.fetch(bits);
+      val |= ((t & 0x7F) << s);
+      if (!(t & 0x80))
+        return val;
+    }
+
+    assert(false); // never reach this point
+    return 0;
   }
 
 };
