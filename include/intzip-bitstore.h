@@ -1,5 +1,5 @@
-#ifndef ___INTZIP_BITS_H___
-#define ___INTZIP_BITS_H___
+#ifndef ___INTZIP_BITSTORE_H___
+#define ___INTZIP_BITSTORE_H___
 
 #include <vector>
 
@@ -14,11 +14,23 @@
 
 namespace intzip {
 
-template<typename T, class S>
-struct bit_appender {
+template<class S>
+struct bitstore {
 
-  bit_appender(S &store)
-    : offset(0), store(store)
+  bitstore(S &store)
+    : store(store)
+  {}
+
+protected:
+  S &store;
+};
+
+
+template<typename T, class S>
+struct bit_writer : public bitstore<S> {
+
+  bit_writer(S &store)
+    : bitstore<S>(store), offset(0)
   {}
 
   void append(const T val)
@@ -102,15 +114,86 @@ protected:
   virtual void push_bits(T val) = 0;
 
   uint8_t offset;
-  S &store;
+};
+
+template<typename T, class S>
+struct bit_reader : public bitstore<const S> {
+
+  bit_reader(const S &store)
+    : bitstore<const S>(store), offset(0)
+  {}
+
+  T fetch(void)
+  {
+    const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
+    T val = 0;
+
+    for (int s = 0; s < bs; s += 7)
+    {
+      int bits = s <= u ? 8 : lb;
+      T t = this->fetch(bits);
+      val |= ((t & 0x7F) << s);
+      if (!(t & 0x80))
+        return val;
+    }
+
+    assert(false); // never reach this point
+    return 0;
+  }
+
+  T fetch(const uint8_t bits)
+  {
+    // assume: 0 <= this->offset < bitsize, 0 < bits <= bitsize
+    assert(this->offset <= uint<T>::bitsize());
+    assert(bits > 0);
+    assert(bits <= uint<T>::bitsize());
+
+//     if (i >= enc.size())
+//       return 0;
+    if (this->ended())
+      return 0;
+
+    const uint8_t bs = uint<T>::bitsize(), len = this->offset + bits;
+    //T val = enc[i] << off;
+    T val = this->current() << this->offset;
+
+    if (len > bs)
+    {
+//       if (i >= enc.size() - 1)
+//         return 0;
+      if (!this->more())
+        return 0;
+//      val |= enc[++i] >> (bs - off);
+      val |= this->next() >> (bs - this->offset);
+    }
+    else if (len == bs)
+    {
+//       i++;
+      this->inc();
+    }
+
+    this->offset = len % bs;
+    return val >> (bs - bits);
+  }
+
+
+protected:
+
+  virtual bool ended(void) = 0;
+  virtual T current(void) = 0;
+  virtual bool more(void) = 0;
+  virtual T next(void) = 0;
+  virtual void inc(void) = 0;
+
+  uint8_t offset;
 };
 
 
 template<typename T>
-struct bitvector_appender : public bit_appender<T,std::vector<T> > {
+struct bitvector_writer : public bit_writer<T,std::vector<T> > {
 
-  bitvector_appender(std::vector<T> &store)
-    : bit_appender<T,std::vector<T> >(store)
+  bitvector_writer(std::vector<T> &store)
+    : bit_writer<T,std::vector<T> >(store)
   {}
 
 protected:
@@ -128,6 +211,44 @@ protected:
     this->store.push_back(val);
   }
 
+};
+
+template<typename T>
+struct bitvector_reader : public bit_reader<T,std::vector<T> > {
+
+  bitvector_reader(const std::vector<T> &store)
+    : bit_reader<T,std::vector<T> >(store), index(0)
+  {}
+
+protected:
+
+  bool ended(void)
+  {
+    return this->index >= this->store.size();
+  }
+  
+  T current(void)
+  {
+    return this->store[this->index];
+  }
+  
+  bool more(void)
+  {
+    return this->index < this->store.size() - 1;
+  }
+  
+  T next(void)
+  {
+    return this->store[++this->index];
+  }
+
+  void inc(void)
+  {
+    this->index++;
+  }
+
+private:
+  size_t index;
 };
 
 }

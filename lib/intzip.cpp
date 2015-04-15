@@ -29,7 +29,7 @@
 #include "intzip-trace.h"
 #include "intzip-def.h"
 #include "intzip-uint.h"
-#include "intzip-bits.h"
+#include "intzip-bitstore.h"
 #include "intzip.h"
 
 using namespace std;
@@ -78,15 +78,15 @@ static ___inline__(___const__(
 //
 
 /* Fetch and decompress a bit-compressed integer */
-template<class T>
-static ___inline__(
-  T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
-);
-
-template<class T>
-static ___inline__(
-  T decode_fetch(uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
-);
+// template<class T>
+// static ___inline__(
+//   T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
+// );
+//
+// template<class T>
+// static ___inline__(
+//   T decode_fetch(uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
+// );
 
 template<class T>
 struct chunkdata {
@@ -252,7 +252,7 @@ struct chunk : public chunkdata<T> {
 //     encode_append((T)c.bits,uint<T>::lengthbits(),enc,off);
 //   }
 
-  static void encode_header(const chunkdata<T> &c, bitvector_appender<T> &appender)
+  static void encode_header(const chunkdata<T> &c, bitvector_writer<T> &appender)
   {
     appender.append(c.len);
     appender.append(c.first);
@@ -260,19 +260,35 @@ struct chunk : public chunkdata<T> {
     appender.append((T)c.bits,uint<T>::lengthbits());
   }
 
-  static chunkdata<T> decode_header(const vector<T> &enc, size_t &i, uint8_t &off)
+//   static chunkdata<T> decode_header(const vector<T> &enc, size_t &i, uint8_t &off)
+//   {
+//     assert(i < enc.size());
+//
+//     chunkdata<T> c;
+//     const uint8_t lb = uint<T>::lengthbits();
+//
+//     c.len = decode_fetch(enc,i,off);
+//     c.first = decode_fetch(enc,i,off);
+//     c.base = decode_fetch(enc,i,off);
+//     c.bits = (uint8_t)decode_fetch(lb,enc,i,off);
+//     return c;
+//   }
+  
+  static chunkdata<T> decode_header(bitvector_reader<T> &reader)
   {
-    assert(i < enc.size());
+    //assert(i < enc.size());
 
     chunkdata<T> c;
     const uint8_t lb = uint<T>::lengthbits();
 
-    c.len = decode_fetch(enc,i,off);
-    c.first = decode_fetch(enc,i,off);
-    c.base = decode_fetch(enc,i,off);
-    c.bits = (uint8_t)decode_fetch(lb,enc,i,off);
+    c.len = reader.fetch();
+    c.first = reader.fetch();
+    c.base = reader.fetch();
+    c.bits = (uint8_t)reader.fetch(lb);
     return c;
   }
+
+  
 
 #ifdef ENABLE_TRACE
   void to_string(char buf[]) const;
@@ -289,7 +305,7 @@ template<class T>
 void intzip::encode(const vector<T> &in, vector<T> &enc)
 {
   //uint8_t enc_off = 0;
-  bitvector_appender<T> appender(enc);
+  bitvector_writer<T> appender(enc);
 #ifdef ENABLE_TRACE
   uint64_t total_cost = 0;
 #endif
@@ -329,8 +345,9 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
 template<class T>
 void intzip::decode(const vector<T> &enc, vector<T> &out)
 {
+  bitvector_reader<T> reader(enc);
   size_t i = 0, t = 0;
-  uint8_t off = 0;
+  //uint8_t off = 0;
   T p = 0;
 
   if (enc.empty()) // empty input
@@ -340,7 +357,11 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
   {
     size_t k;
     
-    chunkdata<T> c = chunk<T>::decode_header(enc,i,off);
+    //chunkdata<T> c = chunk<T>::decode_header(enc,i,off);
+    chunkdata<T> c = chunk<T>::decode_header(reader);
+    
+    TRACE("header","first=%u",c.first);
+    
     if ((c.first == 0 && t > 0)) // halt condition: c.first == 0
       break;
       
@@ -348,7 +369,8 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
     if (c.bits > 0)
     {
       for (k = 0; k < c.len; k++)
-        out.push_back(p = p + c.base + decode_fetch(c.bits, enc, i, off));
+        //out.push_back(p = p + c.base + decode_fetch(c.bits, enc, i, off));
+        out.push_back(p = p + c.base + reader.fetch(c.bits));
     }
     else // equidistant seq.
     {
@@ -442,59 +464,60 @@ int encode_cost(const T val)
 // }
 //
 
-template<class T>
-T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
-{
-  const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-  T val = 0;
+// template<class T>
+// T decode_fetch(const vector<T> enc, size_t &i, uint8_t &off)
+// {
+//   const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
+//   T val = 0;
+//
+//   for (int s = 0; s < bs; s += 7)
+//   {
+//     int bits = s <= u ? 8 : lb;
+//     T t = decode_fetch(bits,enc,i,off);
+//     val |= ((t & 0x7F) << s);
+//     if (!(t & 0x80))
+//       return val;
+//   }
+//
+//   assert(0); // never reach this point
+//   return 0;
+// }
 
-  for (int s = 0; s < bs; s += 7)
-  {
-    int bits = s <= u ? 8 : lb;
-    T t = decode_fetch(bits,enc,i,off);
-    val |= ((t & 0x7F) << s);
-    if (!(t & 0x80))
-      return val;
-  }
+// template<class T>
+// T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
+// {
+//   // assume: 0 <= off < bs, 0 < bits <= bitsize
+//   assert(off <= uint<T>::bitsize());
+//   assert(bits > 0);
+//   assert(bits <= uint<T>::bitsize());
+//
+//   if (i >= enc.size())
+//     return 0;
+//
+//   const uint8_t bs = uint<T>::bitsize(), len = off + bits;
+//   T val = enc[i] << off;
+//
+//   if (len > bs)
+//   {
+//     if (i >= enc.size() - 1)
+//       return 0;
+//     val |= enc[++i] >> (bs - off);
+//   }
+//   else if (len == bs)
+//   {
+//     i++;
+//   }
+//
+//   off = len % bs;
+//   return val >> (bs - bits);
+// }
 
-  assert(0); // never reach this point
-  return 0;
-}
 
-template<class T>
-T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
-{
-  // assume: 0 <= off < bs, 0 < bits <= bitsize
-  assert(off <= uint<T>::bitsize());
-  assert(bits > 0);
-  assert(bits <= uint<T>::bitsize());
-
-  if (i >= enc.size())
-    return 0;
-
-  const uint8_t bs = uint<T>::bitsize(), len = off + bits;
-  T val = enc[i] << off;
-
-  if (len > bs)
-  {
-    if (i >= enc.size() - 1)
-      return 0;
-    val |= enc[++i] >> (bs - off);
-  }
-  else if (len == bs)
-  {
-    i++;
-  }
-
-  off = len % bs;
-  return val >> (bs - bits);
-}
-
-// -- bit_appender<T,S> --
+// -- bit_writer<T,S> --
 
 //
 // template<typename T, class S>
-// int bit_appender<T,S>::number_cost(const T val)
+// int bit_writer<T,S>::number_cost(const T val)
 // {
 //   const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
 //   T b = 1;
@@ -513,7 +536,7 @@ T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
 //
 
 // template<typename T, class S>
-// void bit_appender<T,S>::append(const T val)
+// void bit_writer<T,S>::append(const T val)
 // {
 //   // number encoding:
 //   //
@@ -545,7 +568,7 @@ T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
 // }
 
 // template<typename T, class S>
-// void bit_appender<T,S>::append(const T val, const uint8_t bits)
+// void bit_writer<T,S>::append(const T val, const uint8_t bits)
 // {
 //   // assume: 0 <= off < bitsize, 0 < bits <= bitsize
 //   assert(this->offset <= uint<T>::bitsize());
@@ -580,7 +603,7 @@ T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
 // }
 
 // template<typename T>
-// void bitvector_appender<T>::append_bits(T val)
+// void bitvector_writer<T>::append_bits(T val)
 // {
 //   if (this->store.empty())
 //     this->store.push_back(0);
@@ -589,7 +612,7 @@ T decode_fetch(const uint8_t bits, const vector<T> enc, size_t &i, uint8_t &off)
 // }
 //
 // template<typename T>
-// void bitvector_appender<T>::push_bits(T val)
+// void bitvector_writer<T>::push_bits(T val)
 // {
 //   this->store.push_back(val);
 // }
