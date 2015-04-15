@@ -145,7 +145,7 @@ template<class T>
 void intzip::encode(const vector<T> &in, vector<T> &enc)
 {
   bitvector_writer<T> appender(enc);
-#ifdef ENABLE_TRACE
+#if ENABLE_TRACE
   uint64_t total_cost = 0;
 #endif
 
@@ -171,7 +171,7 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
       it += c.len + 1;
     }
 
-#ifdef ENABLE_TRACE
+#if ENABLE_TRACE
     total_cost += c.calculate_cost();
 #endif
 

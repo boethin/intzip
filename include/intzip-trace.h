@@ -21,13 +21,19 @@
 #define ___INTZIP_TRACE_H___
 
 // verbose encoding tracing to stderr
-#ifdef ENABLE_TRACE
+
+// TRACE macro
+#if ENABLE_TRACE
+#define TRACE(...) printf_tracelog_args ( __VA_ARGS__ )
+#else
+#define TRACE(...)
+#endif
+
+#if ENABLE_TRACE
 
 #include "intzip-stdint.h"
 #include "intzip-def.h"
 #include "intzip-chunk.h"
-
-
 
 template<class T>
 void printf_tracelog_args(const char *mark, T n);
@@ -40,10 +46,6 @@ void printf_tracelog_args(const char *mark, const intzip::chunk<T> &chunk, const
 template<class T>
 void printf_tracelog_args(const char *mark, const intzip::chunk<T> &chunk);
 
-#define TRACE(...) printf_tracelog_args ( __VA_ARGS__ )
-#else
-#define TRACE(...)
-
 #endif // ENABLE_TRACE
 
-#endif
+#endif // ___INTZIP_TRACE_H___
