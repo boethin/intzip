@@ -1,0 +1,129 @@
+.
+├── AUTHORS
+├── autoreconf.sh
+├── ChangeLog
+├── clean.sh
+├── configure.ac
+├── configure-debug.sh
+├── COPYING
+├── files
+├── gentests.pl
+├── include
+│   ├── intzip-bitnumber.h
+│   ├── intzip-bitstore.h
+│   ├── intzip-chunk.h
+│   ├── intzip-def.h
+│   ├── intzip.h
+│   ├── intzip-io.h
+│   ├── intzip-options.h
+│   ├── intzip-stdint.h
+│   ├── intzip-trace.h
+│   └── intzip-uint.h
+├── INSTALL
+├── lib
+│   ├── intzip.cpp
+│   ├── Makefile.am
+│   └── trace.cpp
+├── Makefile.am
+├── NEWS
+├── README
+├── README.md
+├── src
+│   ├── io.cpp
+│   ├── main.cpp
+│   └── Makefile.am
+├── testdata
+│   ├── empty
+│   ├── equidistant_alternating.hex
+│   ├── equidistant_alternating.u16.bin
+│   ├── equidistant_alternating.u32.bin
+│   ├── equidistant_alternating.u64.bin
+│   ├── equidistant_any_16bit.u16.bin.iz
+│   ├── equidistant_distance_100.hex
+│   ├── equidistant_distance_100.u16.bin
+│   ├── equidistant_distance_100.u32.bin
+│   ├── equidistant_distance_100.u64.bin
+│   ├── equidistant_distance_1.hex
+│   ├── equidistant_distance_1.u16.bin
+│   ├── equidistant_distance_1.u32.bin
+│   ├── equidistant_distance_1.u64.bin
+│   ├── equidistant_distance_2.hex
+│   ├── equidistant_distance_2.u16.bin
+│   ├── equidistant_distance_2.u32.bin
+│   ├── equidistant_distance_2.u64.bin
+│   ├── equidistant_distance_3.hex
+│   ├── equidistant_distance_3.u16.bin
+│   ├── equidistant_distance_3.u32.bin
+│   ├── equidistant_distance_3.u64.bin
+│   ├── equidistant_multiple.hex
+│   ├── equidistant_multiple.u16.bin
+│   ├── equidistant_multiple.u32.bin
+│   ├── equidistant_multiple.u64.bin
+│   ├── short_0x0_0x1.hex
+│   ├── short_0x0_0x1.u16.bin
+│   ├── short_0x0_0x1.u32.bin
+│   ├── short_0x0_0x1.u64.bin
+│   ├── short_0x0_0x2.hex
+│   ├── short_0x0_0x2.u16.bin
+│   ├── short_0x0_0x2.u32.bin
+│   ├── short_0x0_0x2.u64.bin
+│   ├── short_0x0_0xffffffffffffffff.hex
+│   ├── short_0x0_0xffffffffffffffff.u64.bin
+│   ├── short_0x0_0xffffffff.hex
+│   ├── short_0x0_0xffffffff.u32.bin
+│   ├── short_0x0_0xffff.hex
+│   ├── short_0x0_0xffff.u16.bin
+│   ├── short_0x1_0x2_0x17.hex
+│   ├── short_0x1_0x2_0x17.u16.bin
+│   ├── short_0x1_0x2_0x17.u32.bin
+│   ├── short_0x1_0x2_0x17.u64.bin
+│   ├── short_0x1_0x2_0x3.hex
+│   ├── short_0x1_0x2_0x3.u16.bin
+│   ├── short_0x1_0x2_0x3.u32.bin
+│   ├── short_0x1_0x2_0x3.u64.bin
+│   ├── short_0x1_0x2_0xffffffffffffffff.hex
+│   ├── short_0x1_0x2_0xffffffffffffffff.u64.bin
+│   ├── short_0x1_0x2_0xffffffff.hex
+│   ├── short_0x1_0x2_0xffffffff.u32.bin
+│   ├── short_0x1_0x2_0xffff.hex
+│   ├── short_0x1_0x2_0xffff.u16.bin
+│   ├── short_0xa_0x64_0x3e8_0x2710.hex
+│   ├── short_0xa_0x64_0x3e8_0x2710.u16.bin
+│   ├── short_0xa_0x64_0x3e8_0x2710.u32.bin
+│   ├── short_0xa_0x64_0x3e8_0x2710.u64.bin
+│   ├── singleton_0x0.hex
+│   ├── singleton_0x0.u16.bin
+│   ├── singleton_0x0.u32.bin
+│   ├── singleton_0x0.u64.bin
+│   ├── singleton_0x1.hex
+│   ├── singleton_0x1.u16.bin
+│   ├── singleton_0x1.u32.bin
+│   ├── singleton_0x1.u64.bin
+│   ├── singleton_0x2.hex
+│   ├── singleton_0x2.u16.bin
+│   ├── singleton_0x2.u32.bin
+│   ├── singleton_0x2.u64.bin
+│   ├── singleton_0xffffffffffffffff.hex
+│   ├── singleton_0xffffffffffffffff.u64.bin
+│   ├── singleton_0xffffffff.hex
+│   ├── singleton_0xffffffff.u32.bin
+│   ├── singleton_0xffff.hex
+│   ├── singleton_0xffff.u16.bin
+│   ├── special_fibonacci.u64.bin.iz
+│   └── special_unicode_code_points.u32.bin.iz
+├── tests
+│   ├── atlocal.in
+│   ├── empty.at
+│   ├── equidistant.at
+│   ├── gentests.am
+│   ├── gentests.at
+│   ├── intzip.in
+│   ├── Makefile.am
+│   ├── package.m4.am
+│   ├── short.at
+│   ├── singleton.at
+│   ├── special.at
+│   └── testsuite.at
+└── unicode.sh
+
+5 directories, 121 files
