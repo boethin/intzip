@@ -39,6 +39,8 @@ struct bitstore {
   bitstore(S &store)
     : store(store)
   {}
+  
+  virtual ~bitstore() {}
 
 protected:
   S &store;
@@ -51,6 +53,8 @@ struct bit_writer : public bitstore<S> {
   bit_writer(S &store)
     : bitstore<S>(store), offset(0)
   {}
+  
+  virtual ~bit_writer() {}
 
   void append(const T val)
   {
@@ -83,22 +87,6 @@ struct bit_writer : public bitstore<S> {
     }
   }
 
-  static ___const__( int number_cost(const T val) )
-  {
-    const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
-    T b = 1;
-
-    for (int c = 0, s = 0; s < bs; c += 8, s += 7)
-    {
-      if (s > u)
-        return c + lb;
-      if (val < (b <<= 7))
-        return c + 8;
-    }
-
-    assert(false); // never reach this point
-    return 0;
-  }
 
 protected:
 
@@ -115,6 +103,8 @@ struct bit_reader : public bitstore<const S> {
   bit_reader(const S &store)
     : bitstore<const S>(store), offset(0)
   {}
+  
+  virtual ~bit_reader() {}
 
   T fetch(void)
   {
