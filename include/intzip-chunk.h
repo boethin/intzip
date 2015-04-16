@@ -88,7 +88,7 @@ struct chunk : public chunkdata<T> {
   static chunk delta(const vector<T> &in, typename vector<T>::const_iterator it);
 
   template<class S>
-  static void encode_header(const chunkdata<T> &c, bit_writer<T,S> &appender)
+  static inline void encode_header(const chunkdata<T> &c, bit_writer<T,S> &appender)
   {
     appender.append(c.len);
     appender.append(c.first);
@@ -97,7 +97,7 @@ struct chunk : public chunkdata<T> {
   }
 
   template<class S>
-  static chunkdata<T> decode_header(bit_reader<T,S> &reader)
+  static inline chunkdata<T> decode_header(bit_reader<T,S> &reader)
   {
     chunkdata<T> c;
     c.len = reader.fetch();

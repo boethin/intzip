@@ -20,16 +20,16 @@
 #ifndef ___INTZIP_BITSTORE_H___
 #define ___INTZIP_BITSTORE_H___
 
+#include "intzip-stdint.h"
+#include "intzip-def.h"
+#include "intzip-uint.h"
+#include "intzip-bitnumber.h"
+
 #include <vector>
 
 // uncomment to disable assert()
 // #define NDEBUG
 #include <cassert>
-
-#include "intzip-stdint.h"
-#include "intzip-def.h"
-#include "intzip-uint.h"
-#include "intzip-bitnumber.h"
 
 namespace intzip {
 
