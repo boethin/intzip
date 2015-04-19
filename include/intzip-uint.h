@@ -20,6 +20,13 @@
 #ifndef ___INTZIP_UINT_H___
 #define ___INTZIP_UINT_H___
 
+#include "intzip-stdint.h"
+#include "intzip-def.h"
+
+// uncomment to disable assert()
+// #define NDEBUG
+#include <cassert>
+
 namespace intzip {
 
 // uint*_t related
@@ -35,9 +42,6 @@ struct uint {
   // Bits need for a bit length value, i.e. ceil_log2( sizeof(T)*8 )
   static ___always_inline__(___const__( uint8_t lengthbits(void) ));
 
-  // Create a bitmask
-  static ___always_inline__(___const__( T bitmask(uint8_t k ) ));
-
   // Calculate the need of bits for an integer
   static ___always_inline__(___const__( int ceil_log2(T x) ));
   
@@ -45,6 +49,15 @@ struct uint {
   static ___always_inline__(___const__( bool is_power2(T x) ))
   {
     return x && !(x & (x - 1));
+  }
+
+  // Create a bitmask
+  static ___const__( T bitmask(uint8_t len, uint8_t lshift = 0) )
+  {
+    assert(len > 0);
+    assert(len <= bitsize());
+    assert(len + lshift <= maxval());
+    return len < bitsize() ? ~(maxval() << len) << lshift : maxval();
   }
 
 };
