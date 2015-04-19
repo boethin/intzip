@@ -37,22 +37,21 @@ template<class S>
 struct bitstore {
 
   bitstore(S &store)
-    : store(store)
+    : store(store), offset(0)
   {}
   
   virtual ~bitstore() {}
 
 protected:
   S &store;
+  uint8_t offset;
 };
 
 
 template<typename T, class S>
 struct bit_writer : public bitstore<S> {
 
-  bit_writer(S &store)
-    : bitstore<S>(store), offset(0)
-  {}
+  bit_writer(S &store) : bitstore<S>(store) {}
   
   virtual ~bit_writer() {}
 
@@ -89,20 +88,15 @@ struct bit_writer : public bitstore<S> {
 
 
 protected:
-
   // implementation depends on class S
   virtual void append_bits(T val) = 0;
   virtual void push_bits(T val) = 0;
-
-  uint8_t offset;
 };
 
 template<typename T, class S>
 struct bit_reader : public bitstore<const S> {
 
-  bit_reader(const S &store)
-    : bitstore<const S>(store), offset(0)
-  {}
+  bit_reader(const S &store) : bitstore<const S>(store) {}
   
   virtual ~bit_reader() {}
 
@@ -140,15 +134,12 @@ struct bit_reader : public bitstore<const S> {
   }
 
 protected:
-
   // implementation depends on class S
   virtual bool ended(void) const = 0;
   virtual T current(void) const = 0;
   virtual bool more(void) const = 0;
   virtual T next(void) = 0;
   virtual void inc(void) = 0;
-
-  uint8_t offset;
 };
 
 

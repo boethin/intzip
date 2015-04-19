@@ -35,9 +35,12 @@ struct uint {
   // Bits need for a bit length value, i.e. ceil_log2( sizeof(T)*8 )
   static ___always_inline__(___const__( uint8_t lengthbits(void) ));
 
+  // Create a bitmask
+  static ___always_inline__(___const__( T bitmask(uint8_t k ) ));
+
   // Calculate the need of bits for an integer
   static ___always_inline__(___const__( int ceil_log2(T x) ));
-
+  
   // Whether or not an integer is a power of 2
   static ___always_inline__(___const__( bool is_power2(T x) ))
   {

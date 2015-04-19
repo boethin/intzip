@@ -31,6 +31,7 @@
 #include "intzip-uint.h"
 #include "intzip-bitnumber.h"
 #include "intzip-bitstore.h"
+#include "intzip-rlebuf.h"
 #include "intzip-chunk.h"
 #include "intzip.h"
 
@@ -151,6 +152,8 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
 
   if (in.empty()) // empty input
     return;
+    
+    // src/intzip testdata/short_0x1_0x2_0xffffffffffffffff.hex --u64 | src/intzip -d --u64
 
   // append chunks
   for (typename vector<T>::const_iterator it = in.begin(); it != in.end(); )
@@ -159,12 +162,13 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
     TRACE(">> encode",c);
 
     chunk<T>::encode_header(c,appender);
-    if (c.bits > 0)
-    {
-      size_t k;
+    if (c.len > 0 && c.bits > 0) {
+      rlebuf_writer<T,vector<T> >rle_writer(appender,c.len,c.bits);
       T p = *it++;
-      for (k = 0; k < c.len; k++)
-        appender.append((T)(*it - p - c.base), c.bits), p = *it++;
+      for (size_t k = 0; k < c.len; k++) {
+        //appender.append((T)(*it - p - c.base), c.bits), p = *it++;
+        rle_writer.append((T)(*it - p - c.base)), p = *it++;
+      }
     }
     else
     {
@@ -191,21 +195,26 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
 
   while (true)
   {
-    size_t k;
     chunkdata<T> c = chunk<T>::decode_header(reader);
     if ((c.first == 0 && t > 0)) // halt condition: c.first == 0
       break;
       
-    out.push_back(p = c.first); 
-    if (c.bits > 0)
+    out.push_back(p = c.first);
+    if (c.len > 0)
     {
-      for (k = 0; k < c.len; k++)
-        out.push_back(p = p + c.base + reader.fetch(c.bits));
-    }
-    else // equidistant seq.
-    {
-      for (k = 0; k < c.len; k++)
-        out.push_back(p = p + c.base);
+      if (c.bits > 0)
+      {
+        rlebuf_reader<T,vector<T> >rle_reader(reader,c.len,c.bits);
+        for (size_t k = 0; k < c.len; k++) {
+          //out.push_back(p = p + c.base + reader.fetch(c.bits));
+          out.push_back(p = p + c.base + rle_reader.fetch());
+        }
+      }
+      else // equidistant seq.
+      {
+        for (size_t k = 0; k < c.len; k++)
+          out.push_back(p = p + c.base);
+      }
     }
     
     t++;

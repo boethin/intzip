@@ -56,6 +56,7 @@ struct chunk : public chunkdata<T> {
       + this->len * this->bits;
   }
 
+private:
   chunk next(T diff) const
   {
     bool chg = false;
@@ -85,6 +86,7 @@ struct chunk : public chunkdata<T> {
     return n;
   }
 
+public:
   static chunk delta(const vector<T> &in, typename vector<T>::const_iterator it);
 
   template<class S>
