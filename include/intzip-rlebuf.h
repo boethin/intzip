@@ -6,6 +6,11 @@
 #include "intzip-uint.h"
 #include "intzip-bitstore.h"
 
+//#define TxFORMAT "016" PRIx64
+#define TxFORMAT "08" PRIx32
+
+
+
 // uncomment to disable assert()
 // #define NDEBUG
 #include <cassert>
@@ -45,16 +50,17 @@ protected:
       bitsize = bits * bitmul;
     }
 
-    //printf("# [rlebuf] bits = %d: bitsize = %d\n", bits, bitsize);
+    fprintf(stderr,"# [rlebuf] bits = %d: bitsize = %d\n", bits, bitsize);
     bit_mask = uint<T>::bitmask(bits);
 	  rle_esc = (T)magic_esc << (bitsize - magic_bits);
-	  //printf("# [rlebuf] rle_esc =  0x%016" PRIx64 "\n",rle_esc);
+	  fprintf(stderr,"# [rlebuf] rle_esc =  0x%" TxFORMAT "\n",rle_esc);
     //rle_mask = ((1 << magic_bits) - 1) << (bitsize - magic_bits);
     rle_mask = uint<T>::bitmask(magic_bits,bitsize - magic_bits);
-    //printf("# [rlebuf] rle_mask = 0x%016" PRIx64 "\n",rle_mask);
-    rle_unmask = ~rle_mask;
-    rle_max = (1 << (bitsize - magic_bits));
-    //printf("# [rlebuf] rle_max = %d\n",rle_max);
+    fprintf(stderr,"# [rlebuf] rle_mask = 0x%" TxFORMAT "\n",rle_mask);
+    //rle_unmask = ~rle_mask;
+    rle_unmask = uint<T>::bitmask(bitsize - magic_bits);
+    rle_max = (1 << (bitsize - magic_bits)) - 1;
+    fprintf(stderr,"# [rlebuf] rle_max = %d\n",rle_max);
   }
 	
 	virtual ~rlebuf() {}
@@ -93,7 +99,7 @@ public:
   {
     //assert((this->bit_mask & val) == val);
     
-    //printf("# [append][%lu] 0x%016" PRIx64 "\n",this->count,val);
+    fprintf(stderr,"# [append][%lu] 0x%" TxFORMAT "\n",this->count,val);
     
 //     this->buffer |= (val << (this->buffer_bits));
 //     this->buffer_bits += this->bits;
@@ -101,13 +107,14 @@ public:
     this->buffer = (this->buffer << this->bits) | (val & this->bit_mask);
     this->buffer_bits += this->bits;
     
-    //printf("# [append] buffer = 0x%016" PRIx64 " (buffer_bits = %d)\n",this->buffer,this->buffer_bits);
+    fprintf(stderr,"# [append] buffer = 0x%" TxFORMAT " (buffer_bits = %d)\n",this->buffer,this->buffer_bits);
     if (++this->count < this->length && this->buffer_bits < this->bitsize)
       return; // expect more
 
-    // buffer completed
+    // input buffer completed
     if (this->have_pre_val) { // pre_val defined
       if ( this->rep_c < this->rle_max && this->buffer == this->pre_val ) {
+        // equality detected
         this->rep_c++;
       }
       else {
@@ -121,7 +128,7 @@ public:
     
     if (this->count == this->length) // finish
     {
-      //printf("# finish\n");
+      fprintf(stderr,"# finish\n");
       this->flush();
       if (this->buffer_bits > 0) { // empty buffer
         this->bit_append(this->buffer, this->buffer_bits);
@@ -135,10 +142,15 @@ private:
   {
     if (this->pre_val_bits)
     {
+
       if ( this->rep_c > 1 || ( (this->pre_val & this->rle_mask) == this->rle_esc ) ) {
-        this->bit_append( (this->rle_esc | this->rep_c ), this->bitsize ); // escape
+        // we have either 3 or more equal elements or an element that needs to be escaped
+        fprintf(stderr,"# [flush] escape: rep_c = %d\n",rep_c);
+        this->bit_append( (this->rle_esc | this->rep_c ), this->bitsize );
       }
       else if ( this->rep_c == 1 ) {
+        // only 2 elements were equal
+        //fprintf(stderr,"# [flush] not escape: rep_c = %d\n",rep_c);
         this->bit_append(this->pre_val, this->pre_val_bits);
       }
       this->bit_append(this->pre_val, this->pre_val_bits);
@@ -149,7 +161,7 @@ private:
 
   void bit_append(const T val, const uint8_t bits)
   {
-    //printf("# [bit_append] 0x%016" PRIx64 " (%d bits)\n",val,bits);
+    fprintf(stderr,"# [bit_append] 0x%" TxFORMAT " (%d bits)\n",val,bits);
     ((bit_writer<T,S> &)this->store).append(val,bits);
   }
 
@@ -189,7 +201,7 @@ public:
     {
       this->buffer_bits = this->bitsize;
       if (this->rep_c > 0) {
-        //printf("# [fetch] rep_c = %d\n",this->rep_c);
+        fprintf(stderr,"# [fetch] rep_c = %d\n",this->rep_c);
         this->buffer = this->pre_val;
         this->rep_c--;
       }
@@ -199,7 +211,7 @@ public:
         }
         this->buffer = this->bit_fetch(this->buffer_bits);
         
-        if ((this->buffer_bits == this->bitsize) && (this->buffer & this->rle_mask) == this->rle_esc)
+        if ( (  this->buffer_bits == this->bitsize) && (this->buffer & this->rle_mask) == this->rle_esc)
         {
           this->rep_c = this->buffer & this->rle_unmask; // unescape
           this->buffer = this->pre_val = this->bit_fetch(this->bitsize);
@@ -217,6 +229,7 @@ public:
     this->buffer_bits -= this->bits;
     val = (this->buffer >> this->buffer_bits) & this->bit_mask;
 
+
     return val;
   }
 
@@ -225,7 +238,7 @@ private:
   T bit_fetch(uint8_t bits)
   {
     T val = ((bit_reader<T,S> &)this->store).fetch(bits);
-    //printf("# [bit_fetch] 0x%016" PRIx64 " (%d bits)\n",val,bits);
+    fprintf(stderr,"# [bit_fetch] 0x%" TxFORMAT " (%d bits)\n",val,bits);
     return val;
     //return ((bit_reader<T,S> &)this->store).fetch(this->bitsize);
   }

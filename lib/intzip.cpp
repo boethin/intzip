@@ -35,6 +35,8 @@
 #include "intzip-chunk.h"
 #include "intzip.h"
 
+#include <stdio.h>
+
 using namespace std;
 using namespace intzip;
 
@@ -199,11 +201,13 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
     if ((c.first == 0 && t > 0)) // halt condition: c.first == 0
       break;
       
+    TRACE(" |decode",c);
     out.push_back(p = c.first);
     if (c.len > 0)
     {
       if (c.bits > 0)
       {
+        //
         rlebuf_reader<T,vector<T> >rle_reader(reader,c.len,c.bits);
         for (size_t k = 0; k < c.len; k++) {
           //out.push_back(p = p + c.base + reader.fetch(c.bits));

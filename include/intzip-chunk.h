@@ -25,6 +25,10 @@ struct chunkdata {
       bits(0)
   {}
 
+#ifdef ENABLE_TRACE
+  virtual void to_string(char buf[]) const;
+#endif
+
   T len;
   T first;
   T base;
@@ -110,7 +114,7 @@ public:
   }
 
 #ifdef ENABLE_TRACE
-  void to_string(char buf[]) const;
+  virtual void to_string(char buf[]) const;
 #endif
 
   // The cost value

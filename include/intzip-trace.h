@@ -41,7 +41,13 @@ void printf_tracelog_args(const char *mark, T n);
 void printf_tracelog_args(const char *mark, const char* format, ...);
 
 template<class T>
+void printf_tracelog_args(const char *mark, const intzip::chunkdata<T> &chunk, const char* format, ...);
+
+template<class T>
 void printf_tracelog_args(const char *mark, const intzip::chunk<T> &chunk, const char* format, ...);
+
+template<class T>
+void printf_tracelog_args(const char *mark, const intzip::chunkdata<T> &chunk);
 
 template<class T>
 void printf_tracelog_args(const char *mark, const intzip::chunk<T> &chunk);
