@@ -154,8 +154,6 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
 
   if (in.empty()) // empty input
     return;
-    
-    // src/intzip testdata/short_0x1_0x2_0xffffffffffffffff.hex --u64 | src/intzip -d --u64
 
   // append chunks
   for (typename vector<T>::const_iterator it = in.begin(); it != in.end(); )
@@ -165,11 +163,10 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
 
     chunk<T>::encode_header(c,appender);
     if (c.len > 0 && c.bits > 0) {
+      // apply RLE buffering
       rlebuf_writer<T,vector<T> >rle_writer(appender,c.len,c.bits);
       T p = *it++;
       for (size_t k = 0; k < c.len; k++) {
-        //appender.append((T)(*it - p - c.base), c.bits), p = *it++;
-        TRACE(" >append","[%lu/%lu] %x -> 0x%08x",(k+1),c.len,*it,*it - p - c.base);
         rle_writer.append((T)(*it - p - c.base)), p = *it++;
       }
     }
@@ -202,25 +199,20 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
     if ((c.first == 0 && t > 0)) // halt condition: c.first == 0
       break;
       
-    TRACE(" |decode",c);
     out.push_back(p = c.first);
     if (c.len > 0)
     {
       if (c.bits > 0)
       {
-        //
+        // apply RLE buffering
         rlebuf_reader<T,vector<T> >rle_reader(reader,c.len,c.bits);
         for (size_t k = 0; k < c.len; k++) {
-          T f = rle_reader.fetch();
-          TRACE(" >fetch", "[%lu/%lu] 0x%08x -> %x",k+1,c.len,f,p + c.base + f);
-          //out.push_back(p = p + c.base + reader.fetch(c.bits));
-          out.push_back(p = p + c.base + f);
+          out.push_back(p = p + c.base + rle_reader.fetch());
         }
       }
       else // equidistant seq.
       {
         for (size_t k = 0; k < c.len; k++) {
-          TRACE(" !fetch", "%x",p + c.base);
           out.push_back(p = p + c.base);
         }
       }
@@ -229,7 +221,4 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
     t++;
   }
 }
-
-
-// -- TRACE --
 
