@@ -157,7 +157,9 @@ at_category equidistant => 'Equidistant Interval Tests',
         { type => $type, form => $form, name => "Alternating",
           data => [ map { 2*$_ + ($_ % 2) } ( 0 .. 0x100 ) ] },
         { type => $type, form => $form, name => "Multiple",
-          data => sorted( (0 .. 50), (100 .. 150), (200, 250), (0x1000 .. 0x1100 ) ) },
+          data => [ (0 .. 50), (100 .. 150), (200, 250), (0x1000 .. 0x1100 ) ] },
+        { type => $type, form => $form, name => "Many small",
+          data => [ map { ( 10*$_ .. 10*$_+8 ) } (1 .. 100) ] },
       )
     } (qw( u16 u32 u64 ));
   } qw ( hex bin )),
