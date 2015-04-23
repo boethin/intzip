@@ -170,10 +170,17 @@ at_category equidistant => 'Equidistant Interval Tests',
 
 at_category special => 'Special List Tests',
   {
-    type => 'u32', form => 'bin', name => 'Unicode Code Points', encoded => 1,
+    type => 'u32', form => 'bin', name => 'All Unicode', encoded => 1,
     createfile => sub {
       my $path = shift;
       system qq{./unicode.sh | perl -ne 'print pack "N",\$_' | src/intzip -b --u32 >$path};
+    }
+  },
+  {
+    type => 'u32', form => 'bin', name => 'Every second Unicode', encoded => 1,
+    createfile => sub {
+      my $path = shift;
+      system qq{./unicode.sh | awk 'NR % 2 == 0' | perl -ne 'print pack "N",\$_' | src/intzip -b --u32 >$path};
     }
   },
   {
