@@ -59,9 +59,16 @@ protected:
     rle_mask = uint<T>::bitmask(magic_bits,bitsize - magic_bits);
     DEBUGG("$ [rlebuf] rle_mask = 0x%" TxFORMAT "\n",rle_mask);
     //rle_unmask = ~rle_mask;
+    //rle_max =
     rle_unmask = uint<T>::bitmask(bitsize - magic_bits);
-    rle_max = (1 << (bitsize - magic_bits)) - 1;
-    DEBUGG("$ [rlebuf] rle_max = %d\n",rle_max);
+    
+//     rle_max = (1 << (bitsize - magic_bits)) - 1;
+//     if (rle_max != rle_unmask) {
+//       fprintf(stderr,"\nrle_max = %016x != %016x = rle_unmask\n\n",rle_max,rle_unmask);
+//       assert(false);
+//     }
+    //assert(rle_unmask == rle_max);
+    //DEBUGG("$ [rlebuf] rle_max = %d\n",rle_max);
   }
 	
 	virtual ~rlebuf() {}
@@ -78,7 +85,7 @@ protected:
 	T rle_mask;
 	T rle_unmask;
 	T rle_esc;
-	T rle_max;
+	//T rle_max;
 
 }; // class rlebuf
 
@@ -114,7 +121,7 @@ public:
 
     // input buffer completed
     if (this->have_pre_val) { // pre_val defined
-      if ( (this->rep_c < this->rle_max) && (this->buffer_bits == this->bitsize) && (this->buffer == this->pre_val) ) {
+      if ( (this->rep_c < this->rle_unmask) && (this->buffer_bits == this->bitsize) && (this->buffer == this->pre_val) ) {
         // equality detected
         this->rep_c++;
         DEBUGG("$ [append] rep_c increment: %d\n",this->rep_c);
