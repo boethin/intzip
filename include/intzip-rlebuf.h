@@ -42,12 +42,12 @@ protected:
   static const uint8_t magic_bits = 5;
   static const uint8_t min_bitsize = 10;
 
-	rlebuf(bitstore<S> &store, size_t length, uint8_t bits)
-	  : store(store),
+  rlebuf(bitstore<S> &store, size_t length, uint8_t bits)
+    : store(store),
       length(length),
       count(0),
       bits(bits)
-	{
+  {
     assert(length > 0);
     assert(bits > 0);
 
@@ -59,16 +59,16 @@ protected:
       rle_mask = uint<T>::bitmask(magic_bits,unmagic_bits),
       rle_esc = magic_esc << unmagic_bits;
   }
-	
-	virtual ~rlebuf() {}
+  
+  virtual ~rlebuf() {}
 
 protected:
-	bitstore<S> &store;
-	size_t length, count;
-	uint8_t bits;
+  bitstore<S> &store;
+  size_t length, count;
+  uint8_t bits;
 
   uint8_t bitmul, bitsize;
-	T bit_mask, rle_unmask, rle_mask, rle_esc;
+  T bit_mask, rle_unmask, rle_mask, rle_esc;
 
 }; // class rlebuf
 
@@ -142,10 +142,10 @@ private:
 
 
 protected:
-	T buf, pre_buf;
-	uint8_t buf_bits, pre_buf_bits;
-	bool have_pre;
-	T rep_count;
+  T buf, pre_buf;
+  uint8_t buf_bits, pre_buf_bits;
+  bool have_pre;
+  T rep_count;
 
 };
 
