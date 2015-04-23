@@ -9,7 +9,8 @@
 //#define TxFORMAT "016" PRIx64
 #define TxFORMAT "08" PRIx32
 
-
+//#define DEBUGG(...) fprintf(stderr, __VA_ARGS__ )
+#define DEBUGG(...) 
 
 // uncomment to disable assert()
 // #define NDEBUG
@@ -50,17 +51,17 @@ protected:
       bitsize = bits * bitmul;
     }
 
-    fprintf(stderr,"# [rlebuf] bits = %d: bitsize = %d\n", bits, bitsize);
+    DEBUGG("$ [rlebuf] bits = %d: bitsize = %d\n", bits, bitsize);
     bit_mask = uint<T>::bitmask(bits);
 	  rle_esc = (T)magic_esc << (bitsize - magic_bits);
-	  fprintf(stderr,"# [rlebuf] rle_esc =  0x%" TxFORMAT "\n",rle_esc);
+	  DEBUGG("$ [rlebuf] rle_esc =  0x%" TxFORMAT "\n",rle_esc);
     //rle_mask = ((1 << magic_bits) - 1) << (bitsize - magic_bits);
     rle_mask = uint<T>::bitmask(magic_bits,bitsize - magic_bits);
-    fprintf(stderr,"# [rlebuf] rle_mask = 0x%" TxFORMAT "\n",rle_mask);
+    DEBUGG("$ [rlebuf] rle_mask = 0x%" TxFORMAT "\n",rle_mask);
     //rle_unmask = ~rle_mask;
     rle_unmask = uint<T>::bitmask(bitsize - magic_bits);
     rle_max = (1 << (bitsize - magic_bits)) - 1;
-    fprintf(stderr,"# [rlebuf] rle_max = %d\n",rle_max);
+    DEBUGG("$ [rlebuf] rle_max = %d\n",rle_max);
   }
 	
 	virtual ~rlebuf() {}
@@ -99,7 +100,7 @@ public:
   {
     //assert((this->bit_mask & val) == val);
     
-    fprintf(stderr,"# [append][%lu] 0x%" TxFORMAT "\n",this->count,val);
+    DEBUGG("$ [append][%lu] 0x%" TxFORMAT "\n",this->count,val);
     
 //     this->buffer |= (val << (this->buffer_bits));
 //     this->buffer_bits += this->bits;
@@ -107,15 +108,16 @@ public:
     this->buffer = (this->buffer << this->bits) | (val & this->bit_mask);
     this->buffer_bits += this->bits;
     
-    fprintf(stderr,"# [append] buffer = 0x%" TxFORMAT " (buffer_bits = %d)\n",this->buffer,this->buffer_bits);
+    DEBUGG("$ [append] buffer = 0x%" TxFORMAT " (buffer_bits = %d)\n",this->buffer,this->buffer_bits);
     if (++this->count < this->length && this->buffer_bits < this->bitsize)
       return; // expect more
 
     // input buffer completed
     if (this->have_pre_val) { // pre_val defined
-      if ( this->rep_c < this->rle_max && this->buffer == this->pre_val ) {
+      if ( (this->rep_c < this->rle_max) && (this->buffer_bits == this->bitsize) && (this->buffer == this->pre_val) ) {
         // equality detected
         this->rep_c++;
+        DEBUGG("$ [append] rep_c increment: %d\n",this->rep_c);
       }
       else {
         this->flush();
@@ -128,7 +130,7 @@ public:
     
     if (this->count == this->length) // finish
     {
-      fprintf(stderr,"# finish\n");
+      DEBUGG("$ finish\n");
       this->flush();
       if (this->buffer_bits > 0) { // empty buffer
         this->bit_append(this->buffer, this->buffer_bits);
@@ -145,12 +147,12 @@ private:
 
       if ( this->rep_c > 1 || ( (this->pre_val & this->rle_mask) == this->rle_esc ) ) {
         // we have either 3 or more equal elements or an element that needs to be escaped
-        fprintf(stderr,"# [flush] escape: rep_c = %d\n",rep_c);
+        DEBUGG("$ [flush] escape: rep_c = %d (pre_val_bits = %d, bitsize=%d)\n",rep_c,this->pre_val_bits,this->bitsize);
         this->bit_append( (this->rle_esc | this->rep_c ), this->bitsize );
       }
       else if ( this->rep_c == 1 ) {
         // only 2 elements were equal
-        //fprintf(stderr,"# [flush] not escape: rep_c = %d\n",rep_c);
+        //DEBUGG("$ [flush] not escape: rep_c = %d\n",rep_c);
         this->bit_append(this->pre_val, this->pre_val_bits);
       }
       this->bit_append(this->pre_val, this->pre_val_bits);
@@ -161,7 +163,7 @@ private:
 
   void bit_append(const T val, const uint8_t bits)
   {
-    fprintf(stderr,"# [bit_append] 0x%" TxFORMAT " (%d bits)\n",val,bits);
+    DEBUGG("$ [bit_append] 0x%" TxFORMAT " (%d bits)\n",val,bits);
     ((bit_writer<T,S> &)this->store).append(val,bits);
   }
 
@@ -201,7 +203,7 @@ public:
     {
       this->buffer_bits = this->bitsize;
       if (this->rep_c > 0) {
-        fprintf(stderr,"# [fetch] rep_c = %d\n",this->rep_c);
+        DEBUGG("$ [fetch] buffer: 0x%08x (rep_c = %d)\n",this->pre_val,this->rep_c);
         this->buffer = this->pre_val;
         this->rep_c--;
       }
@@ -215,6 +217,10 @@ public:
         {
           this->rep_c = this->buffer & this->rle_unmask; // unescape
           this->buffer = this->pre_val = this->bit_fetch(this->bitsize);
+          DEBUGG("$ [fetch] buffer: 0x%08x (rep_c start = %d)\n",this->pre_val,this->rep_c);
+        }
+        else {
+          DEBUGG("$ [fetch] buffer: 0x%08x\n",this->pre_val);
         }
       }
       this->buffer_len = this->buffer_bits;
@@ -238,7 +244,7 @@ private:
   T bit_fetch(uint8_t bits)
   {
     T val = ((bit_reader<T,S> &)this->store).fetch(bits);
-    fprintf(stderr,"# [bit_fetch] 0x%" TxFORMAT " (%d bits)\n",val,bits);
+    DEBUGG("$ [bit_fetch] 0x%" TxFORMAT " (%d bits)\n",val,bits);
     return val;
     //return ((bit_reader<T,S> &)this->store).fetch(this->bitsize);
   }

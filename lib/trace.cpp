@@ -19,9 +19,9 @@ extern bool enable_trace;
 #define T_FORMAT_u64 "%" PRIu64
 #define T_FORMAT(u) T_FORMAT_u ## u
 
-#define T_xFORMAT_u16 "0x%04" PRIu16
-#define T_xFORMAT_u32 "0x%08" PRIu32
-#define T_xFORMAT_u64 "0x%016" PRIu64
+#define T_xFORMAT_u16 "0x%04" PRIx16
+#define T_xFORMAT_u32 "0x%08" PRIx32
+#define T_xFORMAT_u64 "0x%016" PRIx64
 #define T_xFORMAT(u) T_xFORMAT_u ## u
 
 #define _sprintf_chunkdata(buf,cp,xform,uform) \

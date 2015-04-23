@@ -169,6 +169,7 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
       T p = *it++;
       for (size_t k = 0; k < c.len; k++) {
         //appender.append((T)(*it - p - c.base), c.bits), p = *it++;
+        TRACE(" >append","[%lu/%lu] %x -> 0x%08x",(k+1),c.len,*it,*it - p - c.base);
         rle_writer.append((T)(*it - p - c.base)), p = *it++;
       }
     }
@@ -210,14 +211,18 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
         //
         rlebuf_reader<T,vector<T> >rle_reader(reader,c.len,c.bits);
         for (size_t k = 0; k < c.len; k++) {
+          T f = rle_reader.fetch();
+          TRACE(" >fetch", "[%lu/%lu] 0x%08x -> %x",k+1,c.len,f,p + c.base + f);
           //out.push_back(p = p + c.base + reader.fetch(c.bits));
-          out.push_back(p = p + c.base + rle_reader.fetch());
+          out.push_back(p = p + c.base + f);
         }
       }
       else // equidistant seq.
       {
-        for (size_t k = 0; k < c.len; k++)
+        for (size_t k = 0; k < c.len; k++) {
+          TRACE(" !fetch", "%x",p + c.base);
           out.push_back(p = p + c.base);
+        }
       }
     }
     
