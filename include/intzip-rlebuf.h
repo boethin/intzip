@@ -33,7 +33,9 @@ using namespace std;
 
 namespace intzip {
 
-// base class
+//
+// abstract base class for rlebuf_writer, rlebuf_reader
+//
 template<typename T, class S>
 class rlebuf {
 protected:
@@ -62,18 +64,42 @@ protected:
   
   virtual ~rlebuf() {}
 
-protected:
   bitstore<S> &store;
   size_t length, count;
   uint8_t bits;
-
   uint8_t bitmul, bitsize;
   T bit_mask, rle_unmask, rle_mask, rle_esc;
+};
 
-}; // class rlebuf
-
+//
+// rlebuf_writer
+//
 template<typename T, class S>
 class rlebuf_writer : public rlebuf<T,S> {
+
+private:
+  void bit_append(const T val, const uint8_t bits)
+  {
+    ((bit_writer<T,S> &)this->store).append(val,bits);
+  }
+
+  void flush()
+  {
+    if (this->pre_buf_bits)
+    {
+      if (this->rep_count > 1 || ((this->pre_buf & this->rle_mask) == this->rle_esc)) {
+        // we have either 3 or more equal elements or an element that needs to be escaped
+        this->bit_append( (this->rle_esc | this->rep_count ), this->bitsize );
+      }
+      else if ( this->rep_count == 1 ) { // only 2 elements were equal
+        this->bit_append(this->pre_buf, this->pre_buf_bits);
+      }
+      this->bit_append(this->pre_buf, this->pre_buf_bits);
+      this->pre_buf_bits = 0;
+      this->rep_count = 0;
+    }
+  }
+
 public:
 
   rlebuf_writer(bit_writer<T,S> &store, size_t length, uint8_t bits)
@@ -117,36 +143,10 @@ public:
   }
   
 private:
-
-  void flush()
-  {
-    if (this->pre_buf_bits)
-    {
-      if (this->rep_count > 1 || ((this->pre_buf & this->rle_mask) == this->rle_esc)) {
-        // we have either 3 or more equal elements or an element that needs to be escaped
-        this->bit_append( (this->rle_esc | this->rep_count ), this->bitsize );
-      }
-      else if ( this->rep_count == 1 ) { // only 2 elements were equal
-        this->bit_append(this->pre_buf, this->pre_buf_bits);
-      }
-      this->bit_append(this->pre_buf, this->pre_buf_bits);
-      this->pre_buf_bits = 0;
-      this->rep_count = 0;
-    }
-  }
-
-  void bit_append(const T val, const uint8_t bits)
-  {
-    ((bit_writer<T,S> &)this->store).append(val,bits);
-  }
-
-
-protected:
   T buf, pre_buf;
   uint8_t buf_bits, pre_buf_bits;
   bool have_pre;
   T rep_count;
-
 };
 
 //
@@ -154,6 +154,13 @@ protected:
 //
 template<typename T, class S>
 class rlebuf_reader : public rlebuf<T,const S> {
+
+private:
+  T bit_fetch(uint8_t bits)
+  {
+    return ((bit_reader<T,S> &)this->store).fetch(bits);
+  }
+
 public:
 
   rlebuf_reader(bit_reader<T,S> &store, size_t length, uint8_t bits)
@@ -199,20 +206,10 @@ public:
   }
 
 private:
-
-  T bit_fetch(uint8_t bits)
-  {
-    return ((bit_reader<T,S> &)this->store).fetch(bits);
-  }
-
-protected:
   T buf, pre_buf, rep_count;
   uint8_t buf_bits, buf_len;
-
 };
-
 
 } // namespace intzip
 
 #endif
-

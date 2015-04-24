@@ -31,6 +31,7 @@
 #include "intzip-uint.h"
 #include "intzip-bitnumber.h"
 #include "intzip-bitstore.h"
+#include "intzip-bitvector.h"
 #include "intzip-rlebuf.h"
 #include "intzip-chunk.h"
 #include "intzip.h"

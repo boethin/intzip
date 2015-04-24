@@ -25,16 +25,18 @@
 #include "intzip-uint.h"
 #include "intzip-bitnumber.h"
 
-#include <vector>
-
 // uncomment to disable assert()
 // #define NDEBUG
 #include <cassert>
 
 namespace intzip {
 
+//
+// abstract base class for bit_writer, bit_reader
+//
 template<class S>
-struct bitstore {
+class bitstore {
+protected:
 
   bitstore(S &store)
     : store(store), offset(0)
@@ -42,14 +44,16 @@ struct bitstore {
   
   virtual ~bitstore() {}
 
-protected:
   S &store;
   uint8_t offset;
 };
 
-
+//
+// bit_writer
+//
 template<typename T, class S>
-struct bit_writer : public bitstore<S> {
+class bit_writer : public bitstore<S> {
+public:
 
   bit_writer(S &store) : bitstore<S>(store) {}
   
@@ -86,15 +90,18 @@ struct bit_writer : public bitstore<S> {
     }
   }
 
-
 protected:
   // implementation depends on class S
   virtual void append_bits(T val) = 0;
   virtual void push_bits(T val) = 0;
 };
 
+//
+// bit_reader
+//
 template<typename T, class S>
-struct bit_reader : public bitstore<const S> {
+class bit_reader : public bitstore<const S> {
+public:
 
   bit_reader(const S &store) : bitstore<const S>(store) {}
   
@@ -140,71 +147,6 @@ protected:
   virtual bool more(void) const = 0;
   virtual T next(void) = 0;
   virtual void inc(void) = 0;
-};
-
-
-// -- std::vector<T> implementation --
-
-template<typename T>
-struct bitvector_writer : public bit_writer<T,std::vector<T> > {
-
-  bitvector_writer(std::vector<T> &store)
-    : bit_writer<T,std::vector<T> >(store)
-  {}
-
-protected:
-
-  void append_bits(T val)
-  {
-    if (this->store.empty())
-      this->store.push_back(0);
-    T *last = &this->store.back();
-    *last |= val;
-  }
-  
-  void push_bits(T val)
-  {
-    this->store.push_back(val);
-  }
-
-};
-
-template<typename T>
-struct bitvector_reader : public bit_reader<T,std::vector<T> > {
-
-  bitvector_reader(const std::vector<T> &store)
-    : bit_reader<T,std::vector<T> >(store), index(0)
-  {}
-
-protected:
-
-  bool ended(void) const
-  {
-    return this->index >= this->store.size();
-  }
-  
-  T current(void) const
-  {
-    return this->store[this->index];
-  }
-  
-  bool more(void) const
-  {
-    return this->index < this->store.size() - 1;
-  }
-  
-  T next(void)
-  {
-    return this->store[++this->index];
-  }
-
-  void inc(void)
-  {
-    this->index++;
-  }
-
-private:
-  std::size_t index;
 };
 
 } // namespace intzip
