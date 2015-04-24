@@ -166,6 +166,11 @@ at_category equidistant => 'Equidistant Interval Tests',
   {
     type => 'u16', form => 'bin', name => 'Any 16bit', encoded => 1,
     data => [ ( 0 .. 0xffff ) ],
+  },
+  {
+    type => 'u16', form => 'bin', name => 'Any 16bit except some', encoded => 1,
+    data => [ ( 1, 3, 7 .. 0x100, 0x102, 0x109 .. 0xfff, 0x1001 ... 0x2000, 0x2002 .. 0xf001, 
+    	0xf00a, 0xf00c .. 0xffff ) ],
   };
 
 at_category special => 'Special List Tests',

@@ -46,3 +46,4 @@ AT_CHECK_ENCODE_DECODE([Alternating u64/bin],[--u64 --binary],[equidistant_alter
 AT_CHECK_ENCODE_DECODE([Multiple u64/bin],[--u64 --binary],[equidistant_multiple.u64.bin])
 AT_CHECK_ENCODE_DECODE([Many small u64/bin],[--u64 --binary],[equidistant_many_small.u64.bin])
 AT_CHECK_DECODE_ENCODE([Any 16bit u16/bin],[--u16 --binary],[equidistant_any_16bit.u16.bin.iz])
+AT_CHECK_DECODE_ENCODE([Any 16bit except some u16/bin],[--u16 --binary],[equidistant_any_16bit_except_some.u16.bin.iz])
