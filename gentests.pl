@@ -170,6 +170,29 @@ at_category equidistant => 'Equidistant Interval Tests',
 
 at_category special => 'Special List Tests',
   {
+    type => 'u16', form => 'bin', name => 'All 16 bit Primes', encoded => 1,
+    createfile => sub {
+      my $path = shift;
+      my @p = ( 2,3,5,7,11,13,17,19,23,29 );
+      open my $fh, "| src/intzip -b --u16 -o '$path'" or die $!;
+      print $fh pack('n',$_) foreach @p;
+			for (my $p = 31; $p <= 0xffff; $p += 2)	{
+				my $is = 1;
+				my $s = int sqrt $p;
+				foreach ( @p ) {
+					last if $_ > $s;
+					next if  $p % $_;
+					undef $is;
+					last;
+				}
+				next unless $is;
+				print $fh pack('n',$p);
+				push @p, $p;
+			}      
+      close $fh;
+    }
+  },
+  {
     type => 'u32', form => 'bin', name => 'All Unicode', encoded => 1,
     createfile => sub {
       my $path = shift;
