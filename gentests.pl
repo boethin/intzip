@@ -49,7 +49,7 @@ sub at_category($$@) {
     unless ( defined $t->{filename} ) {
       $t->{filename} = lc $t->{name};
       $t->{filename} =~ s/[^a-z0-9]/_/gi;
-      $t->{filename} .= ".$t->{type}" if $t->{form} eq 'bin';
+      $t->{filename} .= ".$t->{type}" if $t->{form} eq 'bin' || $t->{encoded};
       $t->{filename} .= ".$t->{form}";
       $t->{filename} .= '.iz' if $t->{encoded};
       $t->{filename} = join '_', ($category,$t->{filename});
@@ -111,7 +111,7 @@ at_category empty => 'Empty List Tests',
     my $form = $_;
     map {
       my $type = $_;
-      { type => $type, form => $form, filename => 'empty', setup => 'Empty', data => [] }
+      { type => $type, form => $form, filename => 'empty.hex', setup => 'Empty', data => [] }
     } (qw( u16 u32 u64 ));
   } qw ( hex bin );
 
