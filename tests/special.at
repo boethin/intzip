@@ -4,6 +4,7 @@
 #
 AT_BANNER([[Special List Tests.]])
 AT_CHECK_DECODE_ENCODE([All 16 bit Primes u16/bin],[--u16 --binary],[special_all_16_bit_primes.u16.bin.iz])
+AT_CHECK_DECODE_ENCODE([All 16 bit Non-Primes u16/bin],[--u16 --binary],[special_all_16_bit_non_primes.u16.bin.iz])
 AT_CHECK_DECODE_ENCODE([All Unicode u32/bin],[--u32 --binary],[special_all_unicode.u32.bin.iz])
 AT_CHECK_DECODE_ENCODE([Every second Unicode u32/bin],[--u32 --binary],[special_every_second_unicode.u32.bin.iz])
 AT_CHECK_DECODE_ENCODE([Fibonacci u64/bin],[--u64 --binary],[special_fibonacci.u64.bin.iz])

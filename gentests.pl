@@ -16,6 +16,8 @@ sub LOG(@) { printf '[%s] ', __FILE__; printf @_; print "\n"; }
 
 sub sorted { [ sort { $a <=> $b } keys %{ { map { $_ => 1 } @_ } } ] }
 
+sub primes_u16;
+
 my %max = ( u16 => '0xffff', u32 => '0xffffffff', u64 => '0xffffffffffffffff' );
 
 my @at_files;
@@ -178,22 +180,18 @@ at_category special => 'Special List Tests',
     type => 'u16', form => 'bin', name => 'All 16 bit Primes', encoded => 1,
     createfile => sub {
       my $path = shift;
-      my @p = ( 2,3,5,7,11,13,17,19,23,29 );
       open my $fh, "| src/intzip -b --u16 -o '$path'" or die $!;
-      print $fh pack('n',$_) foreach @p;
-			for (my $p = 31; $p <= 0xffff; $p += 2)	{
-				my $is = 1;
-				my $s = int sqrt $p;
-				foreach ( @p ) {
-					last if $_ > $s;
-					next if  $p % $_;
-					undef $is;
-					last;
-				}
-				next unless $is;
-				print $fh pack('n',$p);
-				push @p, $p;
-			}      
+      print $fh pack('n',$_) foreach primes_u16;
+      close $fh;
+    }
+  },
+  {
+    type => 'u16', form => 'bin', name => 'All 16 bit Non-Primes', encoded => 1,
+    createfile => sub {
+      my $path = shift;
+      open my $fh, "| src/intzip -b --u16 -o '$path'" or die $!;
+      my %p = map { $_ => 1 } primes_u16;
+      print $fh pack('n',$_) foreach grep { !exists $p{$_} } ( 0 .. 0xffff );
       close $fh;
     }
   },
@@ -250,5 +248,25 @@ do {
   printf $am "GENTESTS_AT = %s\n", (join ' ', ('gentests.at', @at_files));
   close $am;
 };
+
+# -- utilities --
+
+my @primes_u16;
+sub primes_u16 {
+  return @primes_u16 if scalar @primes_u16;
+  @primes_u16 = ( 2,3,5,7,11,13,17,19,23,29 );
+	for (my $p = 31; $p <= 0xffff; $p += 2)	{
+		my $is = 1;
+		my $s = int sqrt $p;
+		foreach ( @primes_u16 ) {
+			last if $_ > $s;
+			next if  $p % $_;
+			undef $is;
+			last;
+		}
+		push @primes_u16, $p if $is
+	}
+  @primes_u16;
+}
 
 __END__
