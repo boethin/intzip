@@ -32,15 +32,16 @@
 #include <cstddef> // std::size_t
 #include <vector> // std::vector
 
-using namespace std;
-
 namespace intzip {
 
   template<class T>
-  void encode(const vector<T> &in, vector<T> &enc);
+  void encode(const std::vector<T> &in, std::vector<T> &enc);
 
   template<class T>
-  void decode(const vector<T> &enc, vector<T> &out);
+  void decode(const std::vector<T> &enc, std::vector<T> &out);
+
+  template<class T>
+  bool contains(const std::vector<T> &enc, const T value);
 
 }
 

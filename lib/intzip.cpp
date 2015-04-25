@@ -223,3 +223,9 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
   }
 }
 
+template<class T>
+bool intzip::contains(const std::vector<T> &enc, const T value)
+{
+
+  return false;
+}
