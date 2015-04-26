@@ -48,7 +48,7 @@ template<class T>
 static ___inline__( void write(const intzip::options &cmd, vector<T> &out) );
 
 template<class T>
-static ___inline__( void process(const intzip::options &cmd) );
+static ___inline__( int process(const intzip::options &cmd) );
 
 
 int main(int argc, char** argv)
@@ -76,14 +76,11 @@ int main(int argc, char** argv)
   switch (cmd.type)
   {
     case intzip::U16:
-      process<uint16_t>(cmd);
-      break;
+      return process<uint16_t>(cmd);
     case intzip::U32:
-      process<uint32_t>(cmd);
-      break;
+      return process<uint32_t>(cmd);
     case intzip::U64:
-      process<uint64_t>(cmd);
-      break;
+      return process<uint64_t>(cmd);
   }
 
   return EXIT_SUCCESS;
@@ -134,7 +131,7 @@ void write(const intzip::options &cmd, vector<T> &out)
 }
 
 template<class T>
-void process(const intzip::options &cmd)
+int process(const intzip::options &cmd)
 {
   vector<T> in, out;
   
@@ -150,14 +147,16 @@ void process(const intzip::options &cmd)
         intzip::decode(in,out);
         break;
       case intzip::options::CONTAINS:
-        intzip::contains(in,intzip::scan_hex<T>(cmd.testval));
+        return intzip::contains(in,intzip::scan_hex<T>(cmd.testval)) ?
+          EXIT_SUCCESS : EXIT_FAILURE;
         break;
     }
   }
   catch (const char* msg) {
     cerr << msg << endl;
-    exit(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
   write(cmd,out);
+  return EXIT_SUCCESS;
 }

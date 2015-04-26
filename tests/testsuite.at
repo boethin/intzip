@@ -1,5 +1,9 @@
 # Process with autom4te to create an -*- Autotest -*- test suite.
 
+# TODO:
+# Do we need to replace status '1' with EXIT_FAILURE (may not always be '1')
+# e.g. https://stackoverflow.com/questions/13667364/exit-failure-vs-exit1
+
 # AT_CHECK_OPTION(option,output,status)
 m4_define([AT_CHECK_OPTION],
 [AT_SETUP([intzip $1])
@@ -21,26 +25,12 @@ AT_CHECK([intzip $2 -d "$abs_top_srcdir/testdata/$3"],[],[stdout])
 AT_CHECK([intzip $2 stdout | diff "$abs_top_srcdir/testdata/$3" -],[],[])
 AT_CLEANUP])
 
-#
-# # AT_CHECK_ENCDEC32(setup,testfile)
-# m4_define([AT_CHECK_ENCDEC32],
-# [AT_CHECK_ENCODE_DECODE([encode/decode 32bit $1],[--u32],[$2])])
-#
-#
-# ## AT_CHECK_ENCDEC32(setup,testfile)
-# #m4_define([AT_CHECK_ENCDEC32],
-# #[AT_SETUP([encode/decode 32bit $1])
-# #AT_CHECK([intzip "$abs_top_srcdir/testdata/$2"],[],[stdout])
-# #AT_CHECK([intzip -d stdout | diff "$abs_top_srcdir/testdata/$2" -],[],[])
-# #AT_CLEANUP])
-#
-# # AT_CHECK_ENCDEC64(setup,testfile)
-# m4_define([AT_CHECK_ENCDEC64],
-# [AT_SETUP([encode/decode 64bit $1])
-# AT_CHECK([intzip --u64 "$abs_top_srcdir/testdata/$2"],[],[stdout])
-# AT_CHECK([intzip --u64 -d stdout | diff "$abs_top_srcdir/testdata/$2" -],[],[])
-# AT_CLEANUP])
-#
+# AT_CHECK_CONTAINS_YES(setup,options,testfile,testval)
+m4_define([AT_CHECK_CONTAINS_YES],
+[AT_SETUP([$1])
+AT_CHECK([intzip $2 "$abs_top_srcdir/testdata/$3"],[],[stdout])
+AT_CHECK([intzip $2 --contains $4 stdout],[0],[ignore])
+AT_CLEANUP])
 
 AT_INIT([intzip])
 
@@ -49,6 +39,11 @@ AT_BANNER([[Command Line Options.]])
 AT_CHECK_OPTION([--version],[AT_PACKAGE_STRING],[0])
 AT_CHECK_OPTION([--help],[Usage],[1])
 AT_CHECK_OPTION([--foo],[Usage],[1])
+
+
+# AT_CHECK_CONTAINS_YES([[[0x0,0x1]] contains 0x1],[--u16],[short_0x0_0x1.hex],[1])
+
+
 
 # generated tests
 m4_include([gentests.at])
