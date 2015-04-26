@@ -39,11 +39,12 @@ struct bit_reader;
 template<typename T>
 struct bitnumber {
 
-  static int cost(const T val)
+  static ___optimize__( int cost(const T val) )
   {
     const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
     T b = 1;
 
+    // loop expected to be unrolled
     for (int c = 0, s = 0; s < bs; c += 8, s += 7)
     {
       if (s > u)
@@ -52,12 +53,12 @@ struct bitnumber {
         return c + 8;
     }
 
-    assert(0); // never reach this point
+    assert(false); // never reach this point
     return 0;
   }
 
   template<class S>
-  static void append(const T val, bit_writer<T,S> &writer)
+  static ___optimize__( void append(const T val, bit_writer<T,S> &writer) )
   {
     // number encoding:
     //
@@ -70,6 +71,7 @@ struct bitnumber {
     const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
     T b = 1;
 
+    // loop expected to be unrolled
     for (int s = 0; s < bs; s += 7)
     {
       T t = (val >> s) & 0x7F; // right-most 7 bit
@@ -89,11 +91,12 @@ struct bitnumber {
   }
 
   template<class S>
-  static T fetch(bit_reader<T,S> &reader)
+  static ___optimize__( T fetch(bit_reader<T,S> &reader) )
   {
     const int bs = uint<T>::bitsize(), lb = bs % 7, u = bs - 7;
     T val = 0;
 
+    // loop expected to be unrolled
     for (int s = 0; s < bs; s += 7)
     {
       int bits = s <= u ? 8 : lb;

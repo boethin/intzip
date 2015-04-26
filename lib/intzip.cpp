@@ -190,20 +190,20 @@ void intzip::encode(const vector<T> &in, vector<T> &enc)
 template<class T>
 void intzip::decode(const vector<T> &enc, vector<T> &out)
 {
-  bitvector_reader<T> reader(enc);
-  size_t t = 0;
-  T p = 0;
-
   if (enc.empty()) // empty input
     return;
 
-  while (true)
+  bitvector_reader<T> reader(enc);
+
+  for (size_t t = 0; ; ++t)
   {
     chunkdata<T> c = chunk<T>::decode_header(reader);
-    if ((c.first == 0 && t > 0)) // halt condition: c.first == 0
-      break;
+    T p = c.first;
+
+    if ((p == 0 && t > 0)) // halt condition: c.first == 0
+      return;
       
-    out.push_back(p = c.first);
+    out.push_back(p);
     if (c.len > 0)
     {
       if (c.bits > 0)
@@ -211,19 +211,18 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
         // apply RLE buffering
         rlebuf_reader<T,vector<T> >rle_reader(reader,c.len,c.bits);
         for (size_t k = 0; k < c.len; k++) {
-          out.push_back(p = p + c.base + rle_reader.fetch());
+          out.push_back(p += c.base + rle_reader.fetch());
         }
       }
       else // equidistant seq.
       {
-        for (size_t k = 0; k < c.len; k++) {
-          out.push_back(p = p + c.base);
-        }
+        for (size_t k = 0; k < c.len; k++)
+          out.push_back(p += c.base);
       }
     }
-    
-    t++;
   }
+
+  assert(false); // never reach thids point
 }
 
 template<class T>
@@ -233,12 +232,12 @@ bool intzip::contains(const std::vector<T> &enc, const T test)
     return false;
 
   bitvector_reader<T> reader(enc);
-  size_t t = 0;
 
-  while (true)
+  for (size_t t = 0; ; ++t)
   {
     chunkdata<T> c = chunk<T>::decode_header(reader);
     T p = c.first;
+
     if ((p == 0 && t > 0) || p > test) // halt condition: c.first == 0
       return false;
     else if (p == test)
@@ -265,8 +264,6 @@ bool intzip::contains(const std::vector<T> &enc, const T test)
         }
       }
     }
-
-    t++;
   }
 
   assert(false); // never reach thids point

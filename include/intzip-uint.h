@@ -46,13 +46,13 @@ struct uint {
   static ___always_inline__(___const__( int ceil_log2(T x) ));
   
   // Whether or not an integer is a power of 2
-  static ___always_inline__(___const__( bool is_power2(T x) ))
+  static ___always_inline__(___optimize__(___const__( bool is_power2(T x) )))
   {
     return x && !(x & (x - 1));
   }
 
   // Create a bitmask
-  static ___const__( T bitmask(uint8_t len, uint8_t lshift = 0) )
+  static ___always_inline__(___optimize__(___const__( T bitmask(uint8_t len, uint8_t lshift = 0) )))
   {
     assert(len > 0);
     assert(len <= bitsize());

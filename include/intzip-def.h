@@ -40,6 +40,10 @@
 #define ___inline__(f) inline f
 #endif
 
+#ifndef ___optimize__
+#define ___optimize__(f) f
+#endif
+
 
 // Definitions working for both gcc and LLVM clang
 #if __GNUC__ || __clang__
@@ -65,7 +69,7 @@
 //
 // GCC does not inline any functions when not optimizing unless you specify ‘always_inline’
 #undef ___always_inline__
-#define ___always_inline__(f) inline f __attribute__((always_inline))
+#define ___always_inline__(f) __attribute__((always_inline)) inline f
 
 // Functions that do not examine any values except their arguments
 #undef ___const__
@@ -75,6 +79,10 @@
 // (or presumably reference) parameters
 #undef ___pure__
 #define ___pure__(f) f __attribute__((pure))
+
+#undef ___optimize__
+#define ___optimize__(f) __attribute__((optimize("O3"))) f
+
 
 #undef COMPILER
 #define COMPILER "compiler: GCC " __VERSION__
