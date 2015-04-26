@@ -25,7 +25,7 @@ struct chunkdata {
       bits(0)
   {}
 
-#ifdef ENABLE_TRACE
+#if ENABLE_TRACE
   virtual void to_string(char buf[]) const;
 #endif
 
@@ -113,7 +113,7 @@ public:
     return c;
   }
 
-#ifdef ENABLE_TRACE
+#if ENABLE_TRACE
   virtual void to_string(char buf[]) const;
 #endif
 

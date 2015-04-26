@@ -67,7 +67,7 @@ struct options {
   const char *testval;
   const char *infile;
   const char *outfile;
-#ifdef ENABLE_TRACE
+#if ENABLE_TRACE
   bool trace;
 #endif
 
@@ -80,7 +80,7 @@ struct options {
     testval(NULL),
     infile(NULL),
     outfile(NULL)
-#ifdef ENABLE_TRACE
+#if ENABLE_TRACE
     ,trace(false)
 #endif
   {}
@@ -105,7 +105,7 @@ struct options {
             type = U64;
           else if (0 == strcmp(argv[i],"--version"))
             handle('v');
-#ifdef ENABLE_TRACE
+#if ENABLE_TRACE
           else if (0 == strcmp(argv[i],"--trace"))
             trace = true;
 #endif

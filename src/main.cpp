@@ -37,7 +37,7 @@
 
 using namespace std;
 
-#ifdef ENABLE_TRACE
+#if ENABLE_TRACE
 bool enable_trace = false; // extern
 #endif
 
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
     return EXIT_SUCCESS;
   }
 
-#ifdef ENABLE_TRACE
+#if ENABLE_TRACE
   enable_trace = cmd.trace;
 #endif
 
