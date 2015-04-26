@@ -16,6 +16,12 @@ sub LOG(@) { printf '[%s] ', __FILE__; printf @_; print "\n"; }
 
 sub sorted { [ sort { $a <=> $b } keys %{ { map { $_ => 1 } @_ } } ] }
 
+sub strip_0x {
+  my $hex = shift;
+  $hex =~ s/^0x//;
+  $hex;
+}
+
 sub primes_u16;
 
 my %max = ( u16 => '0xffff', u32 => '0xffffffff', u64 => '0xffffffffffffffff' );
@@ -64,11 +70,7 @@ sub at_category($$@) {
       unless ( defined $t->{createfile} ) {
         my $map;
         if ( $t->{form} eq 'hex' ) { # hex
-          $map = sub {
-            my $h = $_[0]->as_hex;
-            $h =~ s/^0x//;
-            "$h\n";
-          };
+          $map = sub { strip_0x($_[0]->as_hex)."\n" };
         }
         else { # bin
           # 'Q>' only available with 64-bit support
@@ -102,6 +104,22 @@ sub at_category($$@) {
     }
     my $macro = $t->{encoded} ? 'AT_CHECK_DECODE_ENCODE' : 'AT_CHECK_ENCODE_DECODE';
     printf $at_fh "$macro([%s],[%s],[%s])\n", map { $t->{$_} } qw(setup options filename);
+    
+    # containment tests
+    if ( defined $t->{contains} ) {
+      foreach ( sort keys %{$t->{contains}} ) {
+        my $int = Math::BigInt->new($_);
+        printf $at_fh "%s([%s %s %s],[%s],[%s],[%s],[%s])\n",
+          ( $t->{encoded} ? 'AT_CHECK_ENCODED_CONTAINS' : 'AT_CHECK_CONTAINS' ),
+          $t->{setup},
+          ( $t->{contains}{$_} ? 'contains' : 'does not contain' ), $int->as_hex,
+          $t->{options},
+          $t->{filename},
+          strip_0x($int->as_hex),
+          ( $t->{contains}{$_} ? 'EXIT_SUCCESS' : 'EXIT_FAILURE');
+      }
+    }
+    
   }
   close $at_fh;
 }
@@ -113,7 +131,8 @@ at_category empty => 'Empty List Tests',
     my $form = $_;
     map {
       my $type = $_;
-      { type => $type, form => $form, filename => 'empty.hex', setup => 'Empty', data => [] }
+      { type => $type, form => $form, filename => 'empty.hex', setup => 'Empty',
+        data => [], contains => { 0 => 0 } }
     } (qw( u16 u32 u64 ));
   } qw ( hex bin );
 
@@ -123,56 +142,52 @@ at_category singleton => 'Singleton List Tests',
     map {
       my $type = $_;
       (map {
-        { type => $type, form => $form, data => [ $_ ] }
+        { type => $type, form => $form, data => [ $_ ], contains => { $_ => 1 } }
       } (0,1,2,$max{$type}))
     } (qw( u16 u32 u64 ));
   } qw ( hex bin ));
   
 at_category short => 'Short List Tests',
-  (map {
-    my $form = $_;
-    map {
-      my $type = $_;
-      (
-        (map {
-          { type => $type, form => $form, data => [ 0,$_ ] }
-        } (1,2,$max{$type})),
-        (map {
-          { type => $type, form => $form, data => [ 1,2,$_ ] }
-        } (3,23,$max{$type})),
-        { type => $type, form => $form, data => [ 10,100,1000,10000 ] },
-      )
-    } (qw( u16 u32 u64 ));
-  } qw ( hex bin ));
+  map {
+    my $type = $_;
+    (
+      (map {
+        { type => $type, data => [ 0,$_ ], contains => { 0 => 1, $_ => 1, 3 => 0 } }
+      } (1,2,$max{$type})),
+      { type => $type, data => [ 1,2,3,5 ],
+        contains => { 0 => 0, 1 => 1, 2 => 1, 3 => 1, 4 => 0, 5 => 1, 6 => 0 } },
+      { type => $type, data => [ 10,100,1000,10000 ],
+        contains => { 0 => 0, 1 => 0, 10 => 1, 99 => 0, 100 => 1, 101 => 0, } },
+    )
+  } (qw( u16 u32 u64 ));
 
 at_category equidistant => 'Equidistant Interval Tests',
   (map {
-    my $form = $_;
-    map {
-      my $type = $_;
-      (
-        (map {
-          my $dist = $_;
-          { type => $type, form => $form, name => "Distance $dist",
-            data => [ map { $dist*$_ } ( 0 .. 0x10 ) ] }
-        } (1,2,3,100)),
-        { type => $type, form => $form, name => "Alternating",
-          data => [ map { 2*$_ + ($_ % 2) } ( 0 .. 0x100 ) ] },
-        { type => $type, form => $form, name => "Multiple",
-          data => [ (0 .. 50), (100 .. 150), (200, 250), (0x1000 .. 0x1100 ) ] },
-        { type => $type, form => $form, name => "Many small",
-          data => [ map { ( 10*$_ .. 10*$_+8 ) } (1 .. 100) ] },
-      )
-    } (qw( u16 u32 u64 ));
-  } qw ( hex bin )),
+    my $type = $_;
+    (
+      (map {
+        my $dist = $_;
+        { type => $type, name => "Distance $dist",
+          data => [ map { $dist*$_ } ( 0 .. 0x10 ) ] }
+      } (1,2,3,100)),
+      { type => $type, name => "Alternating",
+        data => [ map { 2*$_ + ($_ % 2) } ( 0 .. 0x100 ) ] },
+      { type => $type, name => "Multiple",
+        data => [ (0 .. 50), (100 .. 150), (200, 250), (0x1000 .. 0x1100 ) ] },
+      { type => $type, name => "Many small",
+        data => [ map { ( 10*$_ .. 10*$_+8 ) } (1 .. 100) ] },
+    )
+  } (qw( u16 u32 u64 ))),
   {
     type => 'u16', form => 'bin', name => 'Any 16bit', encoded => 1,
     data => [ ( 0 .. 0xffff ) ],
+    contains => { 0 => 1, 1 => 1, 0xffff => 1 },
   },
   {
     type => 'u16', form => 'bin', name => 'Any 16bit except some', encoded => 1,
-    data => [ ( 1, 3, 7 .. 0x100, 0x102, 0x109 .. 0xfff, 0x1001 ... 0x2000, 0x2002 .. 0xf001, 
-    	0xf00a, 0xf00c .. 0xffff ) ],
+    data => [ ( 1, 3, 7 .. 0x100, 0x102, 0x109 .. 0xfff,
+      0x1001 ... 0x2000, 0x2002 .. 0xf001, 0xf00a, 0xf00c .. 0xffff ) ],
+    contains => { 0 => 0, 1 => 1, 2 => 0, 3 => 1, 4 => 0, 50 => 1, 0x100 => 1, 0x101 => 0 },
   };
 
 at_category special => 'Special List Tests',
@@ -183,7 +198,8 @@ at_category special => 'Special List Tests',
       open my $fh, "| src/intzip -b --u16 -o '$path'" or die $!;
       print $fh pack('n',$_) foreach primes_u16;
       close $fh;
-    }
+    },
+    contains => { 0 => 0, 1 => 0, 2 => 1, 3 => 1, 4 => 0, 5 => 1, 23 => 1, 24 => 0 },
   },
   {
     type => 'u16', form => 'bin', name => 'All 16 bit Non-Primes', encoded => 1,
@@ -200,10 +216,12 @@ at_category special => 'Special List Tests',
     createfile => sub {
       my $path = shift;
       system qq{./unicode.sh | perl -ne 'print pack "N",\$_' | src/intzip -b --u32 >$path};
-    }
+    },
+    contains => { 0 => 1, 1 => 1, 0x80 => 1, 0xee0 => 0 },
+    
   },
   {
-    type => 'u32', form => 'bin', name => 'Every second Unicode', encoded => 1,
+    type => 'u32', form => 'bin', name => 'Odd Unicode', encoded => 1,
     createfile => sub {
       my $path = shift;
       system qq{./unicode.sh | awk 'NR % 2 == 0' | perl -ne 'print pack "N",\$_' | src/intzip -b --u32 >$path};

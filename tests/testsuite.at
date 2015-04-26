@@ -3,6 +3,8 @@
 # TODO:
 # Do we need to replace status '1' with EXIT_FAILURE (may not always be '1')
 # e.g. https://stackoverflow.com/questions/13667364/exit-failure-vs-exit1
+m4_define([EXIT_SUCCESS],[0])
+m4_define([EXIT_FAILURE],[1])
 
 # AT_CHECK_OPTION(option,output,status)
 m4_define([AT_CHECK_OPTION],
@@ -25,23 +27,30 @@ AT_CHECK([intzip $2 -d "$abs_top_srcdir/testdata/$3"],[],[stdout])
 AT_CHECK([intzip $2 stdout | diff "$abs_top_srcdir/testdata/$3" -],[],[])
 AT_CLEANUP])
 
-# AT_CHECK_CONTAINS_YES(setup,options,testfile,testval)
-m4_define([AT_CHECK_CONTAINS_YES],
+# AT_CHECK_CONTAINS(setup,options,testfile,testval,result)
+m4_define([AT_CHECK_CONTAINS],
 [AT_SETUP([$1])
 AT_CHECK([intzip $2 "$abs_top_srcdir/testdata/$3"],[],[stdout])
-AT_CHECK([intzip $2 --contains $4 stdout],[0],[ignore])
+AT_CHECK([intzip $2 --contains $4 stdout],$5)
+AT_CLEANUP])
+
+# AT_CHECK_ENCODED_CONTAINS(setup,options,testfile,testval,result)
+m4_define([AT_CHECK_ENCODED_CONTAINS],
+[AT_SETUP([$1])
+AT_CHECK([intzip $2 --contains $4 "$abs_top_srcdir/testdata/$3"],$5)
 AT_CLEANUP])
 
 AT_INIT([intzip])
 
 # standard options
 AT_BANNER([[Command Line Options.]])
-AT_CHECK_OPTION([--version],[AT_PACKAGE_STRING],[0])
-AT_CHECK_OPTION([--help],[Usage],[1])
-AT_CHECK_OPTION([--foo],[Usage],[1])
+AT_CHECK_OPTION([--version],[AT_PACKAGE_STRING],EXIT_SUCCESS)
+AT_CHECK_OPTION([--help],[Usage],EXIT_FAILURE)
+AT_CHECK_OPTION([--foo],[Usage],EXIT_FAILURE)
 
 
-# AT_CHECK_CONTAINS_YES([[[0x0,0x1]] contains 0x1],[--u16],[short_0x0_0x1.hex],[1])
+AT_CHECK_CONTAINS([[[0x0,0x1]] contains 0x1],[--u16],[short_0x0_0x1.hex],[1],EXIT_SUCCESS)
+AT_CHECK_ENCODED_CONTAINS([All 16 bit Primes contains 0x2],[--u16 --binary],[special_all_16_bit_primes.u16.bin.iz],[2],EXIT_SUCCESS)
 
 
 
