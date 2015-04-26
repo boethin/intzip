@@ -1,0 +1,42 @@
+
+# TODO:
+# We need to replace status '1' with EXIT_FAILURE value (may not always be '1')
+# e.g. https://stackoverflow.com/questions/13667364/exit-failure-vs-exit1
+m4_define([EXIT_SUCCESS],[0])
+m4_define([EXIT_FAILURE],[1])
+
+# AT_CHECK_OPTION(option,output,status)
+m4_define([AT_CHECK_OPTION],
+[AT_SETUP([intzip $1])
+AT_CHECK([intzip $1], [$3], [stdout])
+AT_CHECK([fgrep "$2" stdout], [], [ignore])
+AT_CLEANUP])
+
+# AT_CHECK_ENCODE_DECODE(setup,option,testfile)
+m4_define([AT_CHECK_ENCODE_DECODE],
+[AT_SETUP([$1])
+AT_CHECK([intzip $2 "$abs_top_srcdir/testdata/$3"],[],[stdout])
+AT_CHECK([intzip $2 -d stdout | diff "$abs_top_srcdir/testdata/$3" -],[],[])
+AT_CLEANUP])
+
+# AT_CHECK_ENCODE_DECODE(setup,option,testfile)
+m4_define([AT_CHECK_DECODE_ENCODE],
+[AT_SETUP([$1])
+AT_CHECK([intzip $2 -d "$abs_top_srcdir/testdata/$3"],[],[stdout])
+AT_CHECK([intzip $2 stdout | diff "$abs_top_srcdir/testdata/$3" -],[],[])
+AT_CLEANUP])
+
+# AT_CHECK_CONTAINS(setup,options,testfile,testval,result)
+m4_define([AT_CHECK_CONTAINS],
+[AT_SETUP([$1])
+AT_CHECK([intzip $2 "$abs_top_srcdir/testdata/$3"],[],[stdout])
+AT_CHECK([intzip $2 --contains $4 stdout],$5)
+AT_CLEANUP])
+
+# AT_CHECK_ENCODED_CONTAINS(setup,options,testfile,testval,result)
+m4_define([AT_CHECK_ENCODED_CONTAINS],
+[AT_SETUP([$1])
+AT_CHECK([intzip $2 --contains $4 "$abs_top_srcdir/testdata/$3"],$5)
+AT_CLEANUP])
+
+
