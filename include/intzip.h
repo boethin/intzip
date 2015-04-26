@@ -41,7 +41,7 @@ namespace intzip {
   void decode(const std::vector<T> &enc, std::vector<T> &out);
 
   template<class T>
-  bool contains(const std::vector<T> &enc, const T value);
+  bool contains(const std::vector<T> &enc, const T test);
 
 }
 

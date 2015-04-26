@@ -141,11 +141,17 @@ void process(const intzip::options &cmd)
   read(cmd,in);
 
   try {
-    if (cmd.compress) {
-      intzip::encode(in,out);
-    }
-    else {
-      intzip::decode(in,out);
+    switch (cmd.action)
+    {
+      case intzip::options::ENCODE:
+        intzip::encode(in,out);
+        break;
+      case intzip::options::DECODE:
+        intzip::decode(in,out);
+        break;
+      case intzip::options::CONTAINS:
+        intzip::contains(in,intzip::scan_hex<T>(cmd.testval));
+        break;
     }
   }
   catch (const char* msg) {

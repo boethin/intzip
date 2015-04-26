@@ -47,14 +47,17 @@ namespace intzip {
   // uint16_t
   template void encode(const vector<uint16_t> &in, vector<uint16_t> &enc);
   template void decode(const vector<uint16_t> &enc, vector<uint16_t> &out);
+  template bool contains(const vector<uint16_t> &enc, const uint16_t test);
 
   // uint32_t
   template void encode(const vector<uint32_t> &in, vector<uint32_t> &enc);
   template void decode(const vector<uint32_t> &enc, vector<uint32_t> &out);
+  template bool contains(const vector<uint32_t> &enc, const uint32_t test);
 
   // uint64_t
   template void encode(const vector<uint64_t> &in, vector<uint64_t> &enc);
   template void decode(const vector<uint64_t> &enc, vector<uint64_t> &out);
+  template bool contains(const vector<uint64_t> &enc, const uint64_t test);
 
 }
 
@@ -224,8 +227,48 @@ void intzip::decode(const vector<T> &enc, vector<T> &out)
 }
 
 template<class T>
-bool intzip::contains(const std::vector<T> &enc, const T value)
+bool intzip::contains(const std::vector<T> &enc, const T test)
 {
+  if (enc.empty()) // empty input
+    return false;
 
+  bitvector_reader<T> reader(enc);
+  size_t t = 0;
+
+  while (true)
+  {
+    chunkdata<T> c = chunk<T>::decode_header(reader);
+    T p = c.first;
+    if ((p == 0 && t > 0) || p > test) // halt condition: c.first == 0
+      return false;
+    else if (p == test)
+      return true;
+    
+    if (c.len > 0)
+    {
+      if (c.bits > 0)
+      {
+        // apply RLE buffering
+        rlebuf_reader<T,vector<T> >rle_reader(reader,c.len,c.bits);
+        for (size_t k = 0; k < c.len; k++)
+        {
+          if ((p += c.base + rle_reader.fetch()) > test)
+            return false;
+          else if (p == test)
+            return true;
+        }
+      }
+      else // equidistant seq.
+      {
+        if (test <= c.first + c.len * c.base) {
+          return (c.base == 1 || (test - c.first) % c.base == 0);
+        }
+      }
+    }
+
+    t++;
+  }
+
+  assert(false); // never reach thids point
   return false;
 }

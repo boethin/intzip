@@ -77,8 +77,8 @@ static ___always_inline__( void pack(T n, char buf[]) );
 template<class T>
 static ___always_inline__(___const__( T unpack(const char *n) ));
 
-template<class T>
-static ___always_inline__(___const__( T scan_hex(const char *s) ));
+// template<class T>
+// static ___always_inline__(___const__( T scan_hex(const char *s) ));
 
 template<class T>
 static ___always_inline__(___pure__( void internal_read_hex(istream &is, vector<T> &in) ));
@@ -91,6 +91,8 @@ static ___always_inline__(___pure__( void internal_write_hex(ostream &os, const 
 
 template<class T>
 static ___always_inline__(___pure__( void internal_write_bin(ostream &os, const vector<T> &out) ));
+
+namespace intzip {
 
 template<>
 uint16_t scan_hex(const char *s)
@@ -114,6 +116,8 @@ uint64_t scan_hex(const char *s)
   uint64_t u;
   sscanf(s,"%" SCNx64,&u);
   return u;
+}
+
 }
 
 template<>
@@ -186,7 +190,7 @@ void internal_read_hex(istream &is, vector<T> &in)
   while (getline(is,line))
   {
     if(line.find_first_not_of(" \t\r\n") != std::string::npos) // skip empty/whitespace
-      in.push_back(scan_hex<T>(line.c_str()));
+      in.push_back(intzip::scan_hex<T>(line.c_str()));
   }
 }
 

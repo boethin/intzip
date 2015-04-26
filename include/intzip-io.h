@@ -25,6 +25,9 @@
 namespace intzip {
 
   template<class T>
+  ___const__( T scan_hex(const char *s) );
+
+  template<class T>
   void read_hex(std::vector<T> &in);
 
   template<class T>

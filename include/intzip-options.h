@@ -36,26 +36,35 @@ PACKAGE_STRING "\n" \
 
 #define USAGE_STRING \
 "Usage: " PACKAGE " [options]... [file]\n" \
-"Fast compression of integer sets.\n" \
+"Fast compression of integer sets.\n\n" \
 "Options:\n" \
 "  -h, --help               Display this information.\n" \
 "  -v, --version            Display version information.\n" \
 "  -o, --output <file>      Output to <file>.\n" \
 "  -c, --compress           Compress a given integer list (default behavior).\n" \
 "  -d, --decompress         Decompress a compressed integer list.\n" \
-"  -b, --binary             Input and output in binary (network order / big endian) mode.\n" \
+"  --contains <value>   Whether or not an encoded set contains a given value.\n" \
+"                           The output is 1 if the value is contained and 0 otherwise.\n" \
+"  -b, --binary             Input and output in binary mode.\n" \
 "  --u16                    Input and output in 16 bit size.\n" \
 "  --u32                    Input and output in 32 bit size (default).\n" \
-"  --u64                    Input and output in 64 bit size.\n" \
-"If the [file] argument is omitted or set to '-', input is read from stdin.\n\n" \
+"  --u64                    Input and output in 64 bit size.\n\n" \
+"Depending on the --binary flag, input and output values are either represented\n" \
+"in hexadecimal /^[0-9a-fA-F]+$/ format or encoded in network order (big endian).\n\n" \
+"If the [file] argument is omitted or set to '-', input is read from stdin.\n" \
+"If no output file is given or set to '-', output is written to stdout.\n\n" \
 "See <https://github.com/boethin/intzip/wiki> for more information."
 
 struct options {
+
+  typedef enum { ENCODE, DECODE, CONTAINS } action_t;
+
   bool usage;
   bool version;
-  bool compress;
   bool binary;
+  action_t action;
   int_t type;
+  const char *testval;
   const char *infile;
   const char *outfile;
 #ifdef ENABLE_TRACE
@@ -65,9 +74,10 @@ struct options {
   options() : 
     usage(false),
     version(false),
-    compress(true),
     binary(false),
+    action(ENCODE),
     type(U32),
+    testval(NULL),
     infile(NULL),
     outfile(NULL)
 #ifdef ENABLE_TRACE
@@ -99,6 +109,8 @@ struct options {
           else if (0 == strcmp(argv[i],"--trace"))
             trace = true;
 #endif
+          else if (0 == strcmp(argv[i],"--contains") && (i < argc - 1))
+            testval = argv[++i], action = CONTAINS;
           else if (0 == strcmp(argv[i],"--output") && (i < argc - 1)) {
             outfile = argv[++i];
           }
@@ -124,10 +136,10 @@ struct options {
   {
     switch (cmd) {
       case 'c':
-        compress = true;
+        action = ENCODE;
         break;
       case 'd':
-        compress = false;
+        action = DECODE;
         break;
       case 'b':
         binary = true;
