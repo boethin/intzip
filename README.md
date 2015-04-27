@@ -19,19 +19,26 @@ The main focus of the algorithm is to encode structural characteristics of a giv
 
 _IntZip_ is designed to provide encoding, decoding and random access nearly within a single loop through the given list and without the requirement of dynamic memory allocation, beside from the result list itself.
 
-See [https://github.com/boethin/intzip/wiki/Algorithm-Description](Algorithm Description) for details.
+See [Algorithm Description](https://github.com/boethin/intzip/wiki/Algorithm-Description) for details.
 
 ## C++ Implementation
 
 Basically, there are 3 function templates provided:
 
 * `template<typename T> void intzip::encode(const std::vector<T> &input, std::vector<T> &encoded);`
+  * `input`: A list of strictly increasing integers.
+  * `encoded`: An empty vector object wherein the encoded output will be stored.
 * `template<typename T> void intzip::decode(const std::vector<T> &encoded, std::vector<T> &output);`
+  * `encoded`: A vector containing a previously encoded list of integers.
+  * `output`: A vector object wherein the original list will be stored.
 * `template<typename T> bool intzip::contains(const std::vector<T> &encoded, const T test);`
+  * `encoded`: A vector containing a previously encoded list of integers.
+  * `test` A test value.
+  * The return value determines whether or not the test value is contained within the original list.
 
-The `encode` function accepts a vector of strictly increasing integers and stores the compression result within a given output vector, while the `decode` function takes a previously encoded list and restores the original data. The `contains`function provides an efficient way to determine whether or not a given integer is contained in a list without the need of decoding the whole list.
+The `contains`function provides an efficient way to determine whether or not a given integer is contained in a list without the need of decoding the whole list.
 
-Specializations for the function templates are provided with the following types:
+Specializations for the function templates are provided for the following types:
 
 * unsigned 16 bit integers of type `T = uint16_t`
 * unsigned 32 bit integers of type `T = uint32_t`
