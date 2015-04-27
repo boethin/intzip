@@ -17,9 +17,7 @@ The main focus of the algorithm is to encode structural characteristics of a giv
 
 ## Efficiency considerations
 
-_IntZip_ is designed to provide encoding, decoding and random access nearly within a single loop through the given list and without the requirement of dynamic memory allocation, beside from the result list itself.
-
-See [Algorithm Description](https://github.com/boethin/intzip/wiki/Algorithm-Description) for details.
+_IntZip_ is designed to provide encoding, decoding and containment testing in each case nearly within a single loop through the given list and without the requirement of dynamic memory allocation, beside from the result list itself. See [Algorithm Description](https://github.com/boethin/intzip/wiki/Algorithm-Description) for details.
 
 ## C++ Implementation
 
