@@ -11,13 +11,13 @@ The main focus of the algorithm is to encode structural characteristics of a giv
 
 * The complete list of all 65536 16-bit numbers has a trivial structure and can be encoded in just 6 bytes.
 
-* The list of all ~252K Unicode Code Points (32-bit numbers between 0 and 0x10ffff) is not structural trivial, but contains a lot of contiguous intervals. It can be compressed to a list of 700 integers, i.e. reduced by 99.7% (with GNU gzip one gets only up to ~50% compression when alpplied to the same data set).
+* The list of all ~252K Unicode Code Points (32-bit numbers between 0 and 0x10ffff) is not structural trivial, but contains a lot of contiguous intervals. It can be compressed to a list of 700 integers, i.e. reduced by 99.7% (with GNU gzip one gets only up to ~50% compression when applied to the same data set).
 
-* There are 91 Fibonacci numbers greater than 1 fitting into 64 bit. Lists like this are hard to compress without knowledge of the special construction rule, because the numbers increase enormously fast. Here, _IntZip_ achieves about 30% reduction by way of bit compression, wich is roughly the same reduction as obtained by GNU gzip applied to the same data.
+* There are 91 Fibonacci numbers greater than 1 fitting into 64 bit. Lists like this are hard to compress without knowledge of the special construction rule, because the numbers increase enormously fast. Here, _IntZip_ achieves about 30% reduction by way of bit compression, wich is roughly the same reduction as obtained by general compression algorithms.
 
-## Runtime considerations
+## Efficiency considerations
 
-_IntZip_ is designed to provide encoding, decoding and random access nearly within a single loop through the list and without the requirement of dynamic memory allocation, beside from the result list itself.
+_IntZip_ is designed to provide encoding, decoding and random access nearly within a single loop through the given list and without the requirement of dynamic memory allocation, beside from the result list itself.
 
 ## C++ Implementation
 
@@ -36,5 +36,9 @@ Specializations for the function templates are provided with the following types
 * unsigned 64 bit integers of type `T = uint64_t`
 
 The library may be compiled with or without C++11 support. When C++11 is enabled, the integer types are in the `std::` namespace (i.e. from `<cstdint>`), otherwise the types from `<stdint.h>` are used.
+
+## Dependencies and portability considerations
+
+The C++ implementation does not depend on any other library. Please report any portability issues.
 
 
