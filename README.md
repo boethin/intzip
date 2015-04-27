@@ -33,10 +33,10 @@ Basically, there are 3 function templates provided:
   * `output`: A vector object wherein the original list will be stored.
 * `template<typename T> bool intzip::contains(const std::vector<T> &encoded, const T test);`
   * `encoded`: A vector containing a previously encoded list of integers.
-  * `test` A test value.
+  * `test` A test value that may or may not conatined in the original list.
   * The return value determines whether or not the test value is contained within the original list.
 
-The `contains`function provides an efficient way to determine whether or not a given integer is contained in a list without the need of decoding the whole list.
+The `contains`function provides an efficient way to determine whether or not a given integer is contained in a list from without the need of decoding it.
 
 Specializations for the function templates are provided for the following types:
 
