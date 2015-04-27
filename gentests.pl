@@ -139,16 +139,24 @@ at_category empty => 'Empty List Tests',
     } (qw( u16 u32 u64 ));
   } qw ( hex bin );
 
+at_category io => 'IO Tests',
+	map {
+		my $form = $_;
+		map {
+		  my $type = $_;
+		  (map {
+		    { type => $type, form => $form, data => [ 0,1,2,$_ ] }
+		  } (0x100,0x1000,$max{$type}))
+		} (qw( u16 u32 u64 ));
+	} qw( bin hex );
+
 at_category singleton => 'Singleton List Tests',
-  (map {
-    my $form = $_;
-    map {
-      my $type = $_;
-      (map {
-        { type => $type, form => $form, data => [ $_ ], contains => { $_ => 1 } }
-      } (0,1,2,$max{$type}))
-    } (qw( u16 u32 u64 ));
-  } qw ( hex bin ));
+  map {
+    my $type = $_;
+    (map {
+      { type => $type, data => [ $_ ], contains => { $_ => 1 } }
+    } (0,1,2,$max{$type}))
+  } (qw( u16 u32 u64 ));
   
 at_category short => 'Short List Tests',
   map {
@@ -171,12 +179,14 @@ at_category equidistant => 'Equidistant Interval Tests',
       (map {
         my $dist = $_;
         { type => $type, name => "Distance $dist",
-          data => [ map { $dist*$_ } ( 0 .. 0x10 ) ] }
+          data => [ map { $dist*$_ } ( 0 .. 0x10 ) ], contains => { 0 => 1, $dist*0x10 => 1, 161 => 0 } }
       } (1,2,3,100)),
       { type => $type, name => "Alternating",
-        data => [ map { 2*$_ + ($_ % 2) } ( 0 .. 0x100 ) ] },
+        data => [ map { 2*$_ + ($_ % 2) } ( 0 .. 0x100 ) ], 
+        contains => { 0 => 1, 1 => 0, 2 => 0, 3 => 1, 4 => 1, 5 => 0, 6 => 0, 7 => 1, 8 => 1, 9 => 0 } },
       { type => $type, name => "Multiple",
-        data => [ (0 .. 50), (100 .. 150), (200, 250), (0x1000 .. 0x1100 ) ] },
+        data => [ (0 .. 50), (100 .. 150), (200, 250), (0x1000 .. 0x1100 ) ],
+        conatins => { 0 => 1, 51 => 0, 100 => 1, 150 => 1, 152 => 0 } },
       { type => $type, name => "Many small",
         data => [ map { ( 10*$_ .. 10*$_+8 ) } (1 .. 100) ] },
     )
@@ -202,7 +212,7 @@ at_category special => 'Special List Tests',
       print $fh pack('n',$_) foreach primes_u16;
       close $fh;
     },
-    contains => { 0 => 0, 1 => 0, 2 => 1, 3 => 1, 4 => 0, 5 => 1, 23 => 1, 24 => 0 },
+    contains => { 0 => 0, 1 => 0, 2 => 1, 3 => 1, 4 => 0, 5 => 1, 23 => 1, 24 => 0, 937 => 1, 1000 => 0 },
   },
   {
     type => 'u16', form => 'bin', name => 'All 16 bit Non-Primes', encoded => 1,
@@ -212,7 +222,8 @@ at_category special => 'Special List Tests',
       my %p = map { $_ => 1 } primes_u16;
       print $fh pack('n',$_) foreach grep { !exists $p{$_} } ( 0 .. 0xffff );
       close $fh;
-    }
+    },
+    contains => { 0 => 1, 1 => 1, 2 => 0, 3 => 0, 4 => 1, 5 => 0, 23 => 0, 24 => 1, 937 => 0, 1000 => 1 },
   },
   {
     type => 'u32', form => 'bin', name => 'All Unicode', encoded => 1,
@@ -220,7 +231,7 @@ at_category special => 'Special List Tests',
       my $path = shift;
       system qq{./unicode.sh | perl -ne 'print pack "N",\$_' | src/intzip -b --u32 >$path};
     },
-    contains => { 0 => 1, 1 => 1, 0x80 => 1, 0xee0 => 0 },
+    contains => { 0 => 1, 1 => 1, 80 => 1, '0xee0' => 0, '0x0530' => 0, '0xffffffff' => 0 },
     
   },
   {
