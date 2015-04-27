@@ -50,4 +50,34 @@ The library may be compiled with or without C++11 support. When C++11 is enabled
 
 The C++ implementation does not depend on any other library. Please [report](https://github.com/boethin/intzip/issues) any portability issues.
 
+## Sample usage
+
+The following test program demonstrates the usage of the library:
+
+```C++
+// test.cpp
+#include <iostream> // std::cout
+#include <vector> // std::vector
+#include <cstdint> // std::uint32_t
+#include <intzip.h> // intzip::encode
+using namespace std;
+
+int main() {
+        vector<uint32_t> v = {1, 2, 3, 4, 5, 6, 7, 8, 9}, e;
+        intzip::encode(v,e);
+        for (vector<uint32_t>::iterator it = e.begin(); it != e.end(); ++it)
+            cout << hex << *it << endl;
+        return 0;
+}
+```
+
+With g++, you may compile and run the program as follows:
+```
+$ g++ -Wall -std=c++11 -lintzip -o test test.cpp && ./test
+$ 8010100
+```
+That, is, the list of 32 bit integers 1 .. 9 is encoded into the single integer 0x8010100. This integer may be then passed to the  `intzip::decode` function to get the original list back.
+
+(Depending on your installation settings you may need to make sure the intzip header and library is found, e.g. set `export LD_LIBRARY_PATH=/usr/local/lib` or whatever is appropriate.)
+
 
