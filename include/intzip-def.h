@@ -75,14 +75,19 @@
 #undef ___const__
 #define ___const__(f) f __attribute__((const))
 
+// clang++ removes void functions that examines reference parameters
+#if !__clang__
 // like const, but the function may also examine global memory, perhaps via pointer
 // (or presumably reference) parameters
 #undef ___pure__
 #define ___pure__(f) f __attribute__((pure))
+#endif
 
+// clang++ doesn't know __attribute__((optimize("O3"))) although it defines __GNUC__
+#if !__clang__
 #undef ___optimize__
 #define ___optimize__(f) __attribute__((optimize("O3"))) f
-
+#endif
 
 #undef COMPILER
 #define COMPILER "compiler: GCC " __VERSION__

@@ -31,10 +31,10 @@
 namespace intzip {
 
 template<typename T, class S>
-struct bit_writer;
+class bit_writer;
 
 template<typename T, class S>
-struct bit_reader;
+class bit_reader;
 
 template<typename T>
 struct bitnumber {
