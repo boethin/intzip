@@ -6,9 +6,12 @@ include $(srcdir)/package.m4.am
 # generated tests
 include $(srcdir)/gentests.am
 
-TESTSUITE_AT = testsuite.at $(GENTESTS_AT)
+# testdata
+include $(srcdir)/testdata.am 
 
-EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) atlocal.in
+TESTSUITE_AT = testsuite.at macros.at $(GENTESTS_AT)
+
+EXTRA_DIST = $(TESTSUITE_AT) $(TESTSUITE) $(srcdir)/package.m4 atlocal.in $(TESTDATA)
 
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)
 MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE)

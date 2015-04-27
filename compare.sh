@@ -2,6 +2,7 @@
 set -e
 set -f
 set -o pipefail
+LC_NUMERIC=
 
 # Comparison script for IntZip encoding.
 # See https://github.com/boethin/intzip/wiki for more information.
