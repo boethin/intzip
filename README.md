@@ -39,6 +39,6 @@ The library may be compiled with or without C++11 support. When C++11 is enabled
 
 ## Dependencies and portability considerations
 
-The C++ implementation does not depend on any other library. Please report any portability issues.
+The C++ implementation does not depend on any other library. Please [report](https://github.com/boethin/intzip/issues) any portability issues.
 
 
