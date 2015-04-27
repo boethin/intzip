@@ -27,6 +27,8 @@ sub primes_u16;
 my %max = ( u16 => '0xffff', u32 => '0xffffffff', u64 => '0xffffffffffffffff' );
 
 my @at_files;
+my @test_files;
+
 
 sub at_category($$@) {
   my ($category,$banner) = (shift,shift);
@@ -64,6 +66,7 @@ sub at_category($$@) {
     }
     
     my $path = +TESTDATA_DIR."/$t->{filename}";
+    push @test_files, $t->{filename};
     unless ( -f $path ) { # only if not exists
       # create test data
       LOG "create: %s", $path;
@@ -258,13 +261,22 @@ do {
   close $at;
 };
 
-# create automake include
+# create GENTESTS_AT automake include
 do {
   my $path = TESTS_DIR."/gentests.am";
   LOG "create: %s", $path;
   open my $am, '>', $path or die $!;
   printf $am "GENTESTS_AT = %s\n", (join ' ', ('gentests.at', @at_files));
   close $am;
+};
+
+# create TESTDATA automake include
+do {
+  my $path = +TESTS_DIR."/testdata.am";
+  LOG "create: %s", $path;
+  open my $am, '>', $path or die $!;
+  printf $am "TESTDATA = %s\n", (join ' ', map { sprintf "../%s/%s", +TESTDATA_DIR, $_ } @test_files);
+  close $am;  
 };
 
 # -- utilities --

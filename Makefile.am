@@ -2,16 +2,22 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = lib src tests
 
+# distributed headers
+include_HEADERS = include/intzip.h
+
 # internal headers
 noinst_HEADERS = \
-  include/intzip-stdint.h \
-  include/intzip-def.h \
-  include/intzip-uint.h \
   include/intzip-bitnumber.h \
-  include/intzip-bitstore.h \
   include/intzip-bitvector.h \
+  include/intzip-def.h \
   include/intzip-io.h \
-  include/intzip-options.h
+  include/intzip-rlebuf.h \
+  include/intzip-trace.h \
+  include/intzip-bitstore.h \
+  include/intzip-chunk.h \
+  include/intzip-options.h \
+  include/intzip-stdint.h \
+  include/intzip-uint.h
 
 # Test Coverage:
 # recompile everything with gcov flags, run tests and create lib/intzip.cpp.gcov.
