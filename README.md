@@ -1,4 +1,4 @@
-# intzip
+# IntZip
 Fast compression of integer sets.
 
 ## Description
@@ -18,6 +18,8 @@ The main focus of the algorithm is to encode structural characteristics of a giv
 ## Efficiency considerations
 
 _IntZip_ is designed to provide encoding, decoding and random access nearly within a single loop through the given list and without the requirement of dynamic memory allocation, beside from the result list itself.
+
+See [https://github.com/boethin/intzip/wiki/Algorithm-Description](Algorithm Description) for details.
 
 ## C++ Implementation
 
