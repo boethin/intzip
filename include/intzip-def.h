@@ -89,9 +89,6 @@
 #define ___optimize__(f) __attribute__((optimize("O3"))) f
 #endif
 
-#undef COMPILER
-#define COMPILER "compiler: GCC " __VERSION__
-
 #endif // __GNUC__ || __clang__
 
 #endif
