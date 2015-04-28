@@ -5,5 +5,8 @@ compiler:
 before_script:
   ./autoreconf.sh
 script: 
-  ./configure && make
+  ./configure
+  make -j3
+  make -j3 check
+  make dist
 
