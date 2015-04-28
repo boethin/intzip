@@ -21,20 +21,33 @@ _IntZip_ is designed to provide encoding, decoding and containment testing in ea
 
 ## C++ Implementation
 
-Basically, there are 3 function templates provided:
+The implementation provides functions templates for encoding, decoding and containment testing. These are provided in the header `intzip.h`.
 
-* `template<typename T> void intzip::encode(const std::vector<T> &input, std::vector<T> &encoded);`
-  * `input`: A list of strictly increasing integers.
-  * `encoded`: An empty vector object wherein the encoded output will be stored.
-* `template<typename T> void intzip::decode(const std::vector<T> &encoded, std::vector<T> &output);`
-  * `encoded`: A vector containing a previously encoded list of integers.
-  * `output`: A vector object wherein the original list will be stored.
-* `template<typename T> bool intzip::contains(const std::vector<T> &encoded, const T test);`
-  * `encoded`: A vector containing a previously encoded list of integers.
-  * `test` A test value that may or may not conatined in the original list.
-  * The return value determines whether or not the test value is contained within the original list.
+### Encoding
 
-The `contains`function provides an efficient way to determine whether or not a given integer is contained in a list without the need of decoding it.
+```c++
+template<typename T> 
+void intzip::encode(const std::vector<T> &input, std::vector<T> &encoded);
+```
+Encodes a strictly increasing list of integers and stores the result in the given output vector.
+
+### Decoding
+
+```c++
+template<typename T> 
+void intzip::decode(const std::vector<T> &encoded, std::vector<T> &output);
+```
+Decodes a list that has been encoded before and stores the result in the given output vector.
+
+### Containment testing
+
+```c++
+template<typename T> 
+bool intzip::contains(const std::vector<T> &encoded, const T test);
+```
+Determine from an encoded list whether or not a test value is contained within the original list, avoiding the process of decoding.
+
+### Specializations
 
 Specializations for the function templates are provided for the following types:
 
