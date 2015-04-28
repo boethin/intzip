@@ -2,6 +2,8 @@ language: cpp
 compiler:
   - gcc
   - clang
-# Change this to your needs
-script: ./configure && make
+before_script:
+  ./autoreconf.sh
+script: 
+  ./configure && make
 
