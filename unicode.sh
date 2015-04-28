@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# This is a maintainer script and is not distributed.
+# Repository: https://github.com/boethin/intzip
+#
 # Download UnicodeData.txt and output each Code Point's decimal value.
 # Pipe through `perl -ne 'print pack "N",$_'` in order to get u32 binary data.
 #

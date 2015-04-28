@@ -1,21 +1,22 @@
 /**
- * This file is part of intzip.
+ * This file is part of IntZip.
  *
  * Copyright (C) 2015 Sebastian Boethin <boethin@xn--domain.net>
  *
- * intzip is free software: you can redistribute it and/or modify
+ * IntZip is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * intzip is distributed in the hope that it will be useful,
+ * IntZip is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with intzip.  If not, see <http://www.gnu.org/licenses/>.
+ * along with IntZip. If not, see <http://www.gnu.org/licenses/>.
  *
+ * See https://github.com/boethin/intzip/wiki for more information.
  */
 #ifndef ___INTZIP_DEF_H___
 #define ___INTZIP_DEF_H___

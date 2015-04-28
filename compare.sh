@@ -2,10 +2,14 @@
 set -e
 set -f
 set -o pipefail
+
+# printf's decimal dot behavior may depend on locales
 LC_NUMERIC=
 
 # Comparison script for IntZip encoding.
-# See https://github.com/boethin/intzip/wiki for more information.
+#
+# This is a maintainer script and is not distributed.
+# Repository: https://github.com/boethin/intzip
 #
 # testfiles have the following naming convention:
 # - *.iz             data is IntZip encoded
@@ -21,6 +25,7 @@ test -f "$testfile" || { echo 1>&2 "usage: $0 <testfile>"; exit 1; }
 
 intzip=./src/intzip
 intzip_args=
+test -x "$intzip" || { echo 2>&1 "expected executable '$intzip' missing. Did you run make?"; exit 1; }
 
 # strip .iz extension
 if [ "${testfile##*.}" = "iz" ]

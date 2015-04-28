@@ -3,12 +3,14 @@ use warnings;
 no warnings 'portable';  # Support for 64-bit ints required
 use Math::BigInt;
 
-# Generate intzip autotest cases
+# Generate IntZip test cases
 #
-# All testdata files are created by this script. This script will not overwrite
-# existing testdata files. You may remove them before running the script in order
-# to genereate fresh data.
-
+# This is a maintainer script and is not distributed.
+# Repository: https://github.com/boethin/intzip
+#
+# All testdata files are created by this script. 
+# This script will not overwrite existing testdata files.
+#
 use constant TESTS_DIR => 'tests';
 use constant TESTDATA_DIR => 'testdata';
 
@@ -29,7 +31,7 @@ my %max = ( u16 => '0xffff', u32 => '0xffffffff', u64 => '0xffffffffffffffff' );
 my @at_files;
 my @test_files;
 
-
+# create autotest category
 sub at_category($$@) {
   my ($category,$banner) = (shift,shift);
 
