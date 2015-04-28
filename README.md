@@ -1,6 +1,8 @@
 # IntZip
 Fast compression of integer sets.
 
+[![Build Status](https://travis-ci.org/boethin/intzip.svg?branch=master)](https://travis-ci.org/boethin/intzip)
+
 * [Description](#description)
 * [Efficiency Considerations](#efficiency-considerations)
 * [C++ Implementation](#c-implementation)
