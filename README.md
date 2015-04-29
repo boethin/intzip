@@ -101,6 +101,7 @@ The following test program demonstrates the usage of the library:
 ```
 
 With GNU g++, you may compile and run the program as follows:
+
 ```
 
     $ g++ -Wall -std=c++11 -lintzip -o test test.cpp && ./test
