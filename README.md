@@ -37,25 +37,31 @@ The public interface is provided by the header `intzip.h`. The implementation pr
 ### Encoding
 
 ```c++
-    template<typename T> 
+
+    template<typename T>
     void intzip::encode(const std::vector<T> &input, std::vector<T> &encoded);
 ```
+
 Encodes a strictly increasing list of integers and stores the result in the given output vector.
 
 ### Decoding
 
 ```c++
-    template<typename T> 
+
+    template<typename T>
     void intzip::decode(const std::vector<T> &encoded, std::vector<T> &output);
 ```
+
 Decodes a list that has been encoded before and stores the result in the given output vector.
 
 ### Containment Testing
 
 ```c++
-    template<typename T> 
+
+    template<typename T>
     bool intzip::contains(const std::vector<T> &encoded, const T test);
 ```
+
 Determine from an encoded list whether or not a test value is contained within the original list without decoding.
 
 ### Specializations
@@ -77,6 +83,7 @@ The C++ implementation does not depend on any other library. Please [report](htt
 The following test program demonstrates the usage of the library:
 
 ```C++
+
     // test.cpp
     #include <iostream> // std::cout
     #include <vector> // std::vector
@@ -95,10 +102,11 @@ The following test program demonstrates the usage of the library:
 
 With GNU g++, you may compile and run the program as follows:
 ```
+
     $ g++ -Wall -std=c++11 -lintzip -o test test.cpp && ./test
     $ 8010100
 ```
-That, is, the list of 32 bit integers 1 .. 9 is encoded into the single integer 0x8010100. This integer may be then passed to the  `intzip::decode` function to get the original list back.
 
+That, is, the list of 32 bit integers 1 .. 9 is encoded into the single integer 0x8010100. This integer may be then passed to the  `intzip::decode` function to get the original list back.
 
 
